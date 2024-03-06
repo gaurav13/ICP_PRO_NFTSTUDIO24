@@ -1,0 +1,106 @@
+type anon_class_19_1 = 
+ service {
+   addActivity: (UserId, text, ActivityType, text) -> (bool);
+   addAdminActivity: (UserId, text, AdminActivityType, text) -> (bool);
+   addComment: (InputComment, text, text, text, text) -> (Result_3);
+   getActivities: () -> (Result_2) query;
+   getAdminActivities: (UserId, text) -> (Result_1);
+   getComments: (text) -> (Result) query;
+ };
+type UserId = principal;
+type Result_3 = 
+ variant {
+   err: text;
+   ok: record {
+         Comment;
+         text;
+       };
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: record {
+         Activities;
+         text;
+       };
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: record {
+         AdminActivities;
+         text;
+       };
+ };
+type Result = 
+ variant {
+   err: text;
+   ok: record {
+         Comments;
+         text;
+       };
+ };
+type InputComment = text;
+type Comments = vec Comment;
+type Comment = 
+ record {
+   content: text;
+   creation_time: int;
+   user: principal;
+ };
+type AdminActivityType = 
+ variant {
+   add_category;
+   add_event;
+   approve;
+   block;
+   delete_article;
+   delete_category;
+   delete_event;
+   delete_podcats;
+   delete_pressRelease;
+   delete_web3;
+   editViews;
+   editWeb3Views;
+   edit_category;
+   edit_event;
+   edit_web3;
+   reject;
+   unBlock;
+   verify_web3;
+ };
+type AdminActivity = 
+ record {
+   activity_type: AdminActivityType;
+   target: text;
+   time: int;
+   title: text;
+ };
+type AdminActivities = vec AdminActivity;
+type ActivityType = 
+ variant {
+   comment;
+   comment_podcats;
+   comment_pressRelease;
+   create;
+   create_podcats;
+   create_pressRelease;
+   create_web3;
+   delete_article;
+   delete_podcats;
+   delete_pressRelease;
+   delete_web3;
+   like;
+   like_web3;
+   promote;
+   subscribe;
+ };
+type Activity = 
+ record {
+   activity_type: ActivityType;
+   target: text;
+   time: int;
+   title: text;
+ };
+type Activities = vec Activity;
+service : () -> anon_class_19_1

@@ -1,0 +1,12 @@
+export const profileAspect = 1 / 1;
+export const MAX_PROFILE_SIZES = { width: 600, height: 600 };
+export const bannerAspect = 1150 / 150;
+export const MAX_BANNER_SIZES = { width: 1000, height: 1000 };
+export const ARTICLE_FEATURED_IMAGE_ASPECT = 2 / 1;
+export const MAX_ARTICLE_FEATURED_SIZES = { width: 1000, height: 1000 };
+export const COMPANY_BANNER_IMAGE_ASPECT = 9 / 4;
+export const MAX_COMPANY_BANNER_SIZES = { width: 1000, height: 1000 };
+export const COMPANY_FOUNDER_IMAGE_ASPECT = 1 / 1;
+export const MAX_COMPANY_FOUNDER_SIZES = { width: 600, height: 600 };
+export const COMPANY_LOGO_IMAGE_ASPECT = 1 / 1;
+export const MAX_COMPANY_LOGO_SIZES = { width: 600, height: 600 };

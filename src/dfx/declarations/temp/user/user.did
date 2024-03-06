@@ -1,0 +1,195 @@
+type anon_class_22_1 = 
+ service {
+   add_reward: (principal, nat) -> (bool);
+   add_user: () -> (Result_1);
+   admin_update_user: (Id, InputUser) -> (Result);
+   assign_role: (principal, text, Role__1) -> (Result_1);
+   block_sub_admin: (text, text) -> (Result_1);
+   block_user: (text, text) -> (Result_1);
+   check_user_exists: (principal) -> (bool);
+   claim_rewards: (text) -> (bool);
+   entry_require_permission: (principal, Permission) -> (bool) query;
+   get_authorized_users: (text, nat, nat) ->
+    (record {
+       amount: nat;
+       users: vec record {
+                    Id;
+                    ListUser;
+                  };
+     }) query;
+   get_subAdmin_users: (text, nat, nat) ->
+    (record {
+       amount: nat;
+       users: vec record {
+                    Id;
+                    ListAdminUser;
+                  };
+     }) query;
+   get_user_details: (UserId) -> (Result_2) query;
+   get_user_name: (principal) ->
+    (opt record {
+           image: opt NewImageObject__1;
+           name: opt text;
+         }) query;
+   get_user_name_only: (principal) -> (opt text) query;
+   get_users: (text, bool, nat, nat) ->
+    (record {
+       amount: nat;
+       users: vec record {
+                    Id;
+                    ListUser;
+                  };
+     }) query;
+   get_winner_users: (text, nat, nat) ->
+    (record {
+       amount: nat;
+       users: vec record {
+                    Id;
+                    TopWinnerUserList;
+                  };
+     }) query;
+   give_reward: (Id, nat) -> (bool);
+   make_admin: (principal, Role__1) -> (bool);
+   request_verification: (NewImageObject__1) -> (Result);
+   unBlock_sub_admin: (text, text) -> (Result_1);
+   unBlock_user: (text, text) -> (Result_1);
+   un_verify_user: (text, text) -> (Result);
+   update_user: (InputUser) -> (Result);
+   verify_user: (text, text) -> (Result);
+ };
+type UserId = opt text;
+type User = 
+ record {
+   authorDescription: opt text;
+   authorInfo: opt text;
+   authorTitle: opt text;
+   bannerImg: opt NewImageObject;
+   designation: opt text;
+   dob: opt text;
+   email: opt text;
+   facebook: opt text;
+   gender: opt text;
+   identificationImage: opt NewImageObject;
+   instagram: opt text;
+   isAdminBlocked: bool;
+   isBlocked: bool;
+   isVerificationRequested: bool;
+   isVerified: bool;
+   joinedFrom: int;
+   linkedin: opt text;
+   name: opt text;
+   profileImg: opt NewImageObject;
+   rewards: Rewards;
+   role: Role;
+   twitter: opt text;
+   website: opt text;
+ };
+type TopWinnerUserList = 
+ record {
+   dob: opt text;
+   gender: opt text;
+   joinedFrom: int;
+   name: text;
+   profileImg: opt NewImageObject;
+   rewards: Rewards;
+   totalReward: int;
+ };
+type Role__1 = 
+ variant {
+   admin;
+   article_admin;
+   authorized;
+   sub_admin;
+   user_admin;
+ };
+type Role = 
+ variant {
+   admin;
+   article_admin;
+   authorized;
+   sub_admin;
+   user_admin;
+ };
+type Rewards = vec Reward;
+type Reward = 
+ record {
+   amount: nat;
+   claimed_at: opt int;
+   creation_time: int;
+   isClaimed: bool;
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: record {
+         text;
+         User;
+         bool;
+       };
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: record {
+         text;
+         User;
+       };
+ };
+type Result = 
+ variant {
+   err: text;
+   ok: record {
+         text;
+         User;
+         opt User;
+       };
+ };
+type Permission = 
+ variant {
+   assign_role;
+   manage_article;
+   manage_user;
+   write;
+ };
+type NewImageObject__1 = text;
+type NewImageObject = text;
+type ListUser = 
+ record {
+   email: opt text;
+   identificationImage: opt NewImageObject;
+   isAdminBlocked: bool;
+   isBlocked: bool;
+   isVerificationRequested: bool;
+   isVerified: bool;
+   joinedFrom: int;
+   name: opt text;
+ };
+type ListAdminUser = 
+ record {
+   email: opt text;
+   isAdminBlocked: bool;
+   isBlocked: bool;
+   joinedFrom: int;
+   name: opt text;
+   role: Role;
+ };
+type InputUser = 
+ record {
+   authorDescription: text;
+   authorInfo: text;
+   authorTitle: text;
+   bannerImg: opt NewImageObject;
+   designation: text;
+   dob: text;
+   email: text;
+   facebook: text;
+   gender: text;
+   instagram: text;
+   linkedin: text;
+   name: text;
+   profileImg: opt NewImageObject;
+   twitter: text;
+   website: text;
+ };
+type Id = principal;
+service : () -> anon_class_22_1
