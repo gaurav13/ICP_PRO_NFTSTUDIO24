@@ -384,7 +384,7 @@ export default function Footer() {
                         {t('strict set of editorial policies')}
                       </Link>
                       {t(
-                        'NFTStudio24 is an independent operating subsidiary of Diki Co ltd Japan, which invests in cryptocurrencies and blockchain startups. As part of their compensation, certain NFTStudio24 employees, including editorial employees, may receive exposure to Daiki Co Ltd equity in the form of stock appreciation rights, which vest over a multi-year period. NFTStudio24 journalists are not allowed to purchase stock outright in Daiki Co Ltd'
+                        ' NFTStudio24 is an independent operating subsidiary of Diki Co ltd Japan, which invests in cryptocurrencies and blockchain startups. As part of their compensation, certain NFTStudio24 employees, including editorial employees, may receive exposure to Daiki Co Ltd equity in the form of stock appreciation rights, which vest over a multi-year period. NFTStudio24 journalists are not allowed to purchase stock outright in Daiki Co Ltd'
                       )}
                     </p>
                   </div>
