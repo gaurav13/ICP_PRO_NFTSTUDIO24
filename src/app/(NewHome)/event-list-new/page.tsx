@@ -18,13 +18,7 @@ import bgblack from '@/assets/Img/bg-black.jpg';
 import iconevent from '@/assets/Img/Icons/icon-press-release.png';
 import iconcalender from '@/assets/Img/Icons/icon-calender.png';
 import logo from '@/assets/Img/Logo/Footer-logo.png';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+
 export default function EventListNew() {
   const { t, changeLocale } = useLocalization(LANG);
   return (
@@ -58,7 +52,7 @@ export default function EventListNew() {
                     <Image src={bg1} alt='Bg' />
                   </div>
                   <div className='txt-pnl'>
-                    <h4>Event Name</h4>
+                    <h4>{t('Event Name')}</h4>
                     <div>
                       <Link href='#' className='reg-btn white mx-2'>
                         <i className='fa fa-info-circle'></i> {t('Learn More')}
@@ -232,8 +226,9 @@ export default function EventListNew() {
                         Martin Place,, Sydney NSW 2000 , Australia, Australia
                       </p>
                       <p>
-                        {t('Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!')}
-
+                        {t(
+                          'Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!'
+                        )}
                       </p>
                       <div className='flex-div-xs align-items-center'>
                         <Link className='red-link' href='#'>
@@ -241,7 +236,8 @@ export default function EventListNew() {
                         </Link>
                         <div>
                           <Link className='reg-btn white-grey ' href='#'>
-                            <Image src={icongift} alt='Calender' /> {t('Free Ticket')}
+                            <Image src={icongift} alt='Calender' />{' '}
+                            {t('Free Ticket')}
                           </Link>
                           <Link className='reg-btn bluebg' href='#'>
                             {t('Visit Website')}
@@ -263,8 +259,9 @@ export default function EventListNew() {
                         Martin Place,, Sydney NSW 2000 , Australia, Australia
                       </p>
                       <p>
-                        {t('Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!')}
-
+                        {t(
+                          'Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!'
+                        )}
                       </p>
                       <div className='flex-div-xs align-items-center'>
                         <Link className='red-link' href='#'>
@@ -272,7 +269,8 @@ export default function EventListNew() {
                         </Link>
                         <div>
                           <Link className='reg-btn white-grey ' href='#'>
-                            <Image src={icongift} alt='Calender' /> {t('Free Ticket')}
+                            <Image src={icongift} alt='Calender' />{' '}
+                            {t('Free Ticket')}
                           </Link>
                           <Link className='reg-btn bluebg' href='#'>
                             {t('Visit Website')}
@@ -303,8 +301,9 @@ export default function EventListNew() {
                         Martin Place,, Sydney NSW 2000 , Australia, Australia
                       </p>
                       <p>
-                        {t('Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!')}
-
+                        {t(
+                          'Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!'
+                        )}
                       </p>
                       <div className='flex-div-xs align-items-center'>
                         <Link className='red-link' href='#'>
@@ -312,7 +311,8 @@ export default function EventListNew() {
                         </Link>
                         <div>
                           <Link className='reg-btn white-grey ' href='#'>
-                            <Image src={icongift} alt='Calender' /> {t('Free Ticket')}
+                            <Image src={icongift} alt='Calender' />{' '}
+                            {t('Free Ticket')}
                           </Link>
                           <Link className='reg-btn bluebg' href='#'>
                             {t('Visit Website')}
@@ -334,8 +334,9 @@ export default function EventListNew() {
                         Martin Place,, Sydney NSW 2000 , Australia, Australia
                       </p>
                       <p>
-                        {t('Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!')}
-
+                        {t(
+                          'Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!'
+                        )}
                       </p>
                       <div className='flex-div-xs align-items-center'>
                         <Link className='red-link' href='#'>
@@ -343,7 +344,8 @@ export default function EventListNew() {
                         </Link>
                         <div>
                           <Link className='reg-btn white-grey ' href='#'>
-                            <Image src={icongift} alt='Calender' /> {t('Free Ticket')}
+                            <Image src={icongift} alt='Calender' />{' '}
+                            {t('Free Ticket')}
                           </Link>
                           <Link className='reg-btn bluebg' href='#'>
                             {t('Visit Website')}
@@ -370,7 +372,8 @@ export default function EventListNew() {
                   <div className='spacer-20'></div>
                   <h4>
                     {' '}
-                    <Image src={iconevent} alt='Post' />{t('Event News and Press Release')}
+                    <Image src={iconevent} alt='Post' />
+                    {t('Event News and Press Release')}
                   </h4>
                   <div className='spacer-20'></div>
                 </Col>
@@ -414,7 +417,7 @@ export default function EventListNew() {
                         </p>
                         <div className='d-flex justify-content-center'>
                           <Link href='#' style={{ width: '270px' }}>
-                            Read More
+                            {t('Read More')}
                           </Link>
                         </div>
                       </div>
@@ -460,7 +463,7 @@ export default function EventListNew() {
                         </p>
                         <div className='d-flex justify-content-center'>
                           <Link href='#' style={{ width: '270px' }}>
-                            Read More
+                            {t('Read More')}
                           </Link>
                         </div>
                       </div>
@@ -506,7 +509,7 @@ export default function EventListNew() {
                         </p>
                         <div className='d-flex justify-content-center'>
                           <Link href='#' style={{ width: '270px' }}>
-                            Read More
+                            {t('Read More')}
                           </Link>
                         </div>
                       </div>
@@ -552,7 +555,7 @@ export default function EventListNew() {
                         </p>
                         <div className='d-flex justify-content-center'>
                           <Link href='#' style={{ width: '270px' }}>
-                            Read More
+                            {t('Read More')}
                           </Link>
                         </div>
                       </div>
@@ -598,7 +601,7 @@ export default function EventListNew() {
                         </p>
                         <div className='d-flex justify-content-center'>
                           <Link href='#' style={{ width: '270px' }}>
-                            Read More
+                            {t('Read More')}
                           </Link>
                         </div>
                       </div>
@@ -644,7 +647,7 @@ export default function EventListNew() {
                         </p>
                         <div className='d-flex justify-content-center'>
                           <Link href='#' style={{ width: '270px' }}>
-                            Read More
+                            {t('Read More')}
                           </Link>
                         </div>
                       </div>

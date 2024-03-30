@@ -26,14 +26,6 @@ import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-
 export default function categorydetail() {
   const urlparama = useSearchParamsHook();
   const searchParams = new URLSearchParams(urlparama);
@@ -44,7 +36,7 @@ export default function categorydetail() {
       <main id='main'>
         <div className='main-inner home category-details'>
           <Head>
-            <title>Hi</title>
+            <title>{t('Hi')}</title>
           </Head>
           <div className='section' id='top'>
             <Row>

@@ -2,49 +2,68 @@ import logger from '@/lib/logger';
 import dynamic from 'next/dynamic';
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import useLocalization from '@/lib/UseLocalization';
-import { LANG } from '@/constant/language';
+// import { LANG } from '@/constant/language';
+import { usePathname } from 'next/navigation'
+import { isDescription } from '@/constant/image';
 // import JoditEditor from 'jodit-react';
 const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
 
-interface JoditConfig {
+export interface JoditConfig {
   readonly?: boolean;
   placeholder?: string;
   // Add other Jodit configuration options here
 }
+
 const Texteditor: React.FC<{
   placeholder?: string;
   onChangefn: any;
   initialValue: string;
   value: string;
-}> = ({ placeholder, onChangefn, initialValue, value }) => {
-  const { t, changeLocale } = useLocalization(LANG);
+  errorState?:any
+}> = ({ placeholder, onChangefn, initialValue, value ,errorState}) => {
+  const location = usePathname();
+  const language = location.includes('super-admin/') ? 'en' : 'jp';
+  const { t, changeLocale } = useLocalization(language);
   const [content, setContent] = useState<any>('');
   //  editor
   const config: JoditConfig = useMemo(
     () => ({
       readonly: false,
-      placeholder: placeholder || t('Start typing...'),
+      placeholder: placeholder || t('start typing'),
       // Add other Jodit configuration options here
     }),
     [placeholder]
   );
+let handleChangefn=(data:any)=>{
+  let isDec=isDescription(data)
 
+    if (isDec.length <= 0) {
+      errorState(true)
+
+    }else{
+      errorState(false)
+
+    }
+    
+}
   const editor = useRef<any>(null);
   useEffect(() => {
     // setContent(initialValue);
   }, [initialValue]);
+  return (<div ref={editor}>
 
-  return (
     <JoditEditor
-      ref={editor}
+   
       value={value}
       config={config}
       onBlur={(newContent) => onChangefn(newContent)}
-    // onChange={(e) => {
-    //   onChangefn(e);
-    // }}
-    // tabIndex={3}
+      // onChange={(e) => {
+      //   onChangefn(e);
+      // }}
+      // tabIndex={3}
+      onChange={(newContent) =>handleChangefn(newContent)}
     />
+      </div>
   );
 };
-export default Texteditor;
+export default React.memo(Texteditor);

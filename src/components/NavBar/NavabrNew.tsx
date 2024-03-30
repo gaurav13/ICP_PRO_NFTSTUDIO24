@@ -57,7 +57,7 @@ export default function NavBarNew() {
     hackathon: string;
     campaign: string;
   } = {
-    pressRelease: '#pressRelease',
+    pressRelease: '/press-release',
     podcast: '/podcasts',
     web3: '/web3-directory',
     expert: 'https://nftstudio24.com/experts-alliance/',
@@ -69,7 +69,7 @@ export default function NavBarNew() {
   if (path == '/') {
     if (auth.state === 'initialized') {
       routes = {
-        pressRelease: '#pressRelease',
+        pressRelease: '/press-release',
         podcast: '/podcasts',
         web3: '/web3-directory',
         expert: 'https://nftstudio24.com/experts-alliance/',
@@ -82,7 +82,7 @@ export default function NavBarNew() {
   } else {
     if (auth.state === 'initialized') {
       routes = {
-        pressRelease: '/?route=pressRelease',
+        pressRelease: '/press-release',
         podcast: '/podcasts',
         web3: '/web3-directory',
         expert: 'https://nftstudio24.com/experts-alliance/',
@@ -93,7 +93,7 @@ export default function NavBarNew() {
       };
     } else {
       routes = {
-        pressRelease: '/?route=pressRelease',
+        pressRelease: '/press-release',
         podcast: '/podcasts',
         web3: '/web3-directory',
         expert: 'https://nftstudio24.com/experts-alliance/',
@@ -142,29 +142,7 @@ export default function NavBarNew() {
       document.removeEventListener('click', closeNavbar);
     };
   }, [toggle]);
-  const googleTranslateElementInit = () => {
-    new window.google.translate.TranslateElement(
-      {
-        pageLanguage: 'en',
-        layout: window.google.translate.TranslateElement.FloatPosition.TOP_LEFT,
-      },
-      'google_translate_element'
-    );
-  };
-  let once = false;
-  useEffect(() => {
-    if (!once) {
-      once = true;
-      var addScript = document.createElement('script');
-      addScript.setAttribute(
-        'src',
-        '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'
-      );
-      document.body.appendChild(addScript);
-      window.googleTranslateElementInit = googleTranslateElementInit;
-    }
-  }, []);
-  let makeActiveItem = (e: any) => {
+let makeActiveItem = (e: any) => {
     setActiveItem(e);
   };
   useEffect(() => {
@@ -287,7 +265,7 @@ export default function NavBarNew() {
                     <Image src={cup2} alt='Diamond' />
                   </div> */}
                     {t('Directory')}
-                    <span className='batch'>{t('Web3')}</span>
+                    <span className='batch'>{t('Web3 ')}</span>
                   </Nav.Link>
                   <Nav.Link as={Link} href={routes.expert}>
                     {t('Experts')} <span className='blue'>{t('Alliance')}</span>

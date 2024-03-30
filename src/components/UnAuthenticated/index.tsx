@@ -53,16 +53,8 @@ import { formatLikesCount } from '@/components/utils/utcToLocal';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import TrendingPressRelease from '@/components/TrendingArticleSide/TrendingPressRelease';
 import HomeMBSlider from '@/components/mobileStoriesSlider/HomeMBSlider';
-import { ARTICLE_STATIC_PATH } from '@/constant/routes';
+import { ARTICLE_STATIC_PATH, DIRECTORY_STATIC_PATH } from '@/constant/routes';
 import TopEventsSlider from '@/components/EntryListNewHome/EventSliderHome';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function UnAuthenticated() {
   const { t, changeLocale } = useLocalization(LANG);
@@ -642,7 +634,7 @@ export default function UnAuthenticated() {
                               }
                               style={{ cursor: 'pointer' }}
                             >
-                              By{' '}
+                              {t('by')}{' '}
                               {latestEntry.length != 0
                                 ? latestEntry[1].user.name[0]
                                 : 'User'}
@@ -681,16 +673,21 @@ export default function UnAuthenticated() {
                                   latestEntry[1]?.directory
                                 ) {
                                   openArticleLink(
-                                    `/directory?directoryId=${
-                                      latestEntry.length != 0
-                                        ? latestEntry[1]?.companyId
-                                        : '#'
-                                    }`
+                                    latestEntry[1]?.directory[0]?.isStatic
+                                      ? `${
+                                          DIRECTORY_STATIC_PATH +
+                                          latestEntry[1]?.companyId
+                                        }`
+                                      : `/directory?directoryId=${
+                                          latestEntry.length != 0
+                                            ? latestEntry[1]?.companyId
+                                            : '#'
+                                        }`
                                   );
                                 }
                               }}
                             >
-                              On{' '}
+                              {t('ON')}{' '}
                               {/* {latestEntry.length != 0
                                 ? latestEntry[1].category[0]
                                 : 'category'} */}

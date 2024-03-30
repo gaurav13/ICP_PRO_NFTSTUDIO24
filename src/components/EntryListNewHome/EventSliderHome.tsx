@@ -16,8 +16,9 @@ import { ARTICLE_FEATURED_IMAGE_ASPECT } from '@/constant/sizes';
 import { Form, Spinner } from 'react-bootstrap';
 import getVariant from '@/components/utils/getEventStatus';
 import Slider from 'react-slick';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { Event_STATIC_PATH } from '@/constant/routes';
 
 export default function TopEventsSlider({ small }: { small?: boolean }) {
   const { t, changeLocale } = useLocalization(LANG);
@@ -118,6 +119,7 @@ export default function TopEventsSlider({ small }: { small?: boolean }) {
           applyTicket: unEvent.applyTicket,
           lat: unEvent.lat,
           lng: unEvent.lng,
+          isStatic: unEvent.isStatic,
         };
         return refinedEvent;
       });
@@ -154,7 +156,7 @@ export default function TopEventsSlider({ small }: { small?: boolean }) {
   return (
     <>
       <h4 className='hedingxt'>
-        <Image src={iconevents} alt='Hot' /> Events
+        <Image src={iconevents} alt='Hot' /> {t('Events')}
       </h4>
       <div className='spacer-20'></div>
       <div className='flex-div align-items-center'>
@@ -210,8 +212,9 @@ export default function TopEventsSlider({ small }: { small?: boolean }) {
                     return (
                       <div className='release-post'>
                         <div
-                          className={`release-post-inner ${small ? 'small' : ''
-                            }`}
+                          className={`release-post-inner ${
+                            small ? 'small' : ''
+                          }`}
                         >
                           <div className='img-pnl'>
                             <Link
@@ -221,7 +224,11 @@ export default function TopEventsSlider({ small }: { small?: boolean }) {
                                 margin: '0 auto',
                                 aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
                               }}
-                              href={`/event-details?eventId=${event.id}`}
+                              href={
+                                event.isStatic
+                                  ? `${Event_STATIC_PATH + event.id}`
+                                  : `/event-details?eventId=${event.id}`
+                              }
                             >
                               <Image src={event.image} fill alt='Post' />
                             </Link>
@@ -230,7 +237,11 @@ export default function TopEventsSlider({ small }: { small?: boolean }) {
                             <span>{event.date}</span>
                             <h6>
                               <Link
-                                href={`/event-details?eventId=${event.id}`}
+                                href={
+                                  event.isStatic
+                                    ? `${Event_STATIC_PATH + event.id}`
+                                    : `/event-details?eventId=${event.id}`
+                                }
                                 className='text-primary'
                               >
                                 {/* ONE°15 Marina Sentosa... */}

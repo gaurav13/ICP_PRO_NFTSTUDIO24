@@ -4,16 +4,8 @@ import { Row, Col, Breadcrumb, Dropdown, Spinner } from 'react-bootstrap';
 import 'react-toastify/dist/ReactToastify.css';
 import Image from 'next/image';
 import Link from 'next/link';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function Disclaimer() {
   const { t, changeLocale } = useLocalization(LANG);

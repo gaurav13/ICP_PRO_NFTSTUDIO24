@@ -167,7 +167,7 @@ export default function ExportPost({
               <div className='txet-pnl'>
                 <h6>
                   <Link href={`/profile?userId=${authorId}`}>
-                    By {user?.name[0] ?? ''}{' '}
+                  {t('By')} {user?.name[0] ?? ''}{' '}
                     <p className='m-0'>{user?.designation[0] ?? ''}</p>
                   </Link>
                   {/* <Button>

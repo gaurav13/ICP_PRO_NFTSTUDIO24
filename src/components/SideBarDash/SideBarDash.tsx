@@ -76,6 +76,9 @@ export default function SideBarDash() {
     manageWeb3View: '/super-admin/manage-web3-views',
     deployNFTStudio24: '/super-admin/deploy-nftstudio24',
     deployNFTStudio24JP: '/super-admin/deploy-nftstudio24-jp',
+    coinsInIcp: '/super-admin/coins-in-icp',
+    menualReward: '/super-admin/manual-reward',
+
   };
   React.useEffect(() => {
     const currentTab = location;
@@ -95,7 +98,7 @@ export default function SideBarDash() {
       ? setCategoryMenuShow(true)
       : setCategoryMenuShow(false);
     currentTab === tabsPath.manageReward ||
-    currentTab === tabsPath.artificialReward
+    currentTab === tabsPath.artificialReward || currentTab===tabsPath.coinsInIcp || currentTab===tabsPath.menualReward
       ? setRewardmenue(true)
       : setRewardmenue(false);
     currentTab === tabsPath.addEvent || currentTab === tabsPath.events
@@ -512,7 +515,7 @@ export default function SideBarDash() {
                       id='dropdown-basic'
                       className={`${
                         location === tabsPath.manageReward ||
-                        location === tabsPath.artificialReward
+                        location === tabsPath.artificialReward || location===tabsPath.coinsInIcp || location===tabsPath.menualReward
                           ? 'active'
                           : ''
                       } rmrounded`}
@@ -543,6 +546,26 @@ export default function SideBarDash() {
                       >
                         <Image src={user1} alt='User' />
                         <Image src={user2} alt='User' /> Artificial Reward
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        as={Link}
+                        href={tabsPath.menualReward}
+                        className={`${
+                          location == tabsPath.menualReward ? 'active' : ''
+                        }`}
+                      >
+                        <Image src={user1} alt='User' />
+                        <Image src={user2} alt='User' /> Manual Reward
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        as={Link}
+                        href={tabsPath.coinsInIcp}
+                        className={`${
+                          location == tabsPath.coinsInIcp ? 'active' : ''
+                        }`}
+                      >
+                        <Image src={user1} alt='User' />
+                        <Image src={user2} alt='User' /> Coins in ICP
                       </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>

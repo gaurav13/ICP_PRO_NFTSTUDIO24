@@ -73,7 +73,7 @@ export default function LoginForm({
         /^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[A-Za-z]+$/,
         t('Invalid Email')
       ),
-    password: string().required('Password is required'),
+    password: string().required(t('Password is required')),
   });
   const forgotPasswordValues = {
     email: '',
@@ -97,17 +97,19 @@ export default function LoginForm({
     try {
       const response = await instance.post('auth/login', {
         email: values.email,
-        password: values.password,
+        password: values.password
+
       });
       actions.resetForm();
-      toast.success('Logged In Successfully');
+      toast.success(t('Logged In Successfully'));
       const token = response.data.data;
       localStorage.setItem('token', token);
       setEmailConnected(true);
       handleClose();
       logger(response, 'Login rep');
     } catch (error: any) {
-      toast.error(error.response.data.errors[0]);
+      toast.error(t(error.response.data.errors[0]));
+      // toast.error(t('Invalid credentials'))
       logger(error);
     }
     setIsLoggin(false);
@@ -118,16 +120,20 @@ export default function LoginForm({
     actions: FormikHelpers<typeof forgotPasswordValues>
   ) => {
     setIsForgetting(true);
+  let tempPath=window.location.origin;
+
     try {
       const response = await instance.post('auth/forgot-password', {
         email: values.email,
+        baseUrl:tempPath
+
       });
       toast.success(t('Password reset email sent successfully'));
       handleClose();
       actions.resetForm();
       logger(response, 'Forgot Password response');
     } catch (error: any) {
-      toast.error(error.response.data.errors[0]);
+      toast.error(t(error.response.data.errors[0])); 
       logger(error);
     }
     setIsForgetting(false);
@@ -157,7 +163,7 @@ export default function LoginForm({
 
                     <Form.Control
                       type='email'
-                      placeholder='Email'
+                      placeholder={t('Email')}
                       value={field.value}
                       onBlur={handleBlur}
                       onChange={handleChange}
@@ -199,7 +205,7 @@ export default function LoginForm({
           {({ errors, touched, handleChange, handleBlur, isValid, dirty }) => (
             <FormikForm
               className='flex w-full flex-col items-center justify-center'
-              // onChange={(e) => handleImageChange(e)}
+            // onChange={(e) => handleImageChange(e)}
             >
               <Field name='email'>
                 {({ field, formProps }: any) => (
@@ -213,7 +219,7 @@ export default function LoginForm({
 
                     <Form.Control
                       type='email'
-                      placeholder='Email'
+                      placeholder={t('Email')}
                       value={field.value}
                       onBlur={handleBlur}
                       onChange={handleChange}

@@ -36,14 +36,12 @@ import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import getVariant from '@/components/utils/getEventStatus';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { ARTICLE_STATIC_PATH } from '@/constant/routes';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+import { ARTICLE_STATIC_PATH, Event_STATIC_PATH } from '@/constant/routes';
+// import CountrySelector from '@/components/CustomCountryandRegion/CountrySelect';
+import { REGIONS } from '@/constant/regions';
+import { countryTranslations } from '@/constant/coutriesTrans';
+import TopEventSlider from '@/components/TopEventSlider/TopEventsSlider';
+
 const EVENTS_LEGNTH = 3;
 export default function Events() {
   const { t, changeLocale } = useLocalization(LANG);
@@ -53,9 +51,12 @@ export default function Events() {
   const [moreEvents, setMoreEvents] = useState(false);
   const [eventAmount, setEventAmount] = useState(0);
   const [startIndex, setStartIndex] = useState(0);
-  const [status, setStatus] = useState('all');
+  const [status, setStatus] = useState("all");
+  const [tempStatus, setTempStatus] = useState(LANG=="en"? "All Events":"全イベント");
+
   const [previewEvents, setPreviewEvents] = useState<null | ListEvent[]>();
   const [search, setSearch] = useState('');
+  const [regions, setRegions] = useState([]);
   const [filters, setFilters] = useState<{ month: string | number }>({
     month: '',
   });
@@ -78,12 +79,30 @@ export default function Events() {
     },
   });
 
+  const changeCountryHandler = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    let val = event.target.value;
+
+    if (val != '' && REGIONS) {
+      let regions = REGIONS[val];
+      if (regions) {
+        setRegions(regions);
+      }
+    } else {
+      setRegions([]);
+    }
+    handleCChange('country', val);
+  };
+
   // sending the customstatus just sets the preview events
   async function getEvents(
     reset?: boolean,
     more?: number,
     customStatus?: string
   ) {
+    logger(status,"sdfasdfsdfsa")
+
     let searched = reset ? '' : search;
     let month = filters.month ? [filters.month] : [];
     let queryStatus = customStatus ?? status;
@@ -92,10 +111,7 @@ export default function Events() {
     const startFrom = more ?? startIndex;
     const length = customStatus ? 4 : EVENTS_LEGNTH;
     let statusVariant = getVariant(queryStatus);
-    logger(
-      { searched, startFrom, reset, month, country, city, statusVariant },
-      'gertting for  this'
-    );
+
     setIsLoading(true);
 
     const resp = await entryActor.get_upcoming_events(
@@ -108,9 +124,11 @@ export default function Events() {
       city
     );
     const unEvents = resp.entries;
+
     const amount = resp.amount;
     if (!customStatus) {
       setEventAmount(amount);
+
       if (
         (more &&
           ((topEvents && unEvents.length + topEvents?.length < amount) ||
@@ -138,11 +156,15 @@ export default function Events() {
           website: unEvent.website,
           freeTicket: unEvent.freeTicket,
           applyTicket: unEvent.applyTicket,
+          isStatic: unEvent.isStatic,
+          discountTicket: unEvent.discountTicket,
         };
         return refinedEvent;
       });
       if (customStatus) {
-        setPreviewEvents(refinedEvents);
+        logger(refinedEvents,"refinedEvents");
+        let sliced=refinedEvents.slice(0,3)
+        setPreviewEvents(sliced);
         return;
       }
       // if (refinedEvents.length > 3) {
@@ -158,7 +180,10 @@ export default function Events() {
         setTopEvents(refinedEvents);
       }
     } else {
-      setTopEvents(null);
+      if(!customStatus){
+
+        setTopEvents(null);
+      }
     }
     setIsLoading(false);
   }
@@ -191,13 +216,11 @@ export default function Events() {
       newUser = await userAcotr.get_user_details([authorId]);
       if (newUser.ok) {
         if (newUser.ok[1].profileImg.length != 0) {
-          logger(newUser.ok[1].profileImg.length, 'newuserimg');
           newUser.ok[1].profileImg = await getImage(
             newUser.ok[1].profileImg[0]
           );
         }
         entriesList[entry][1].user = newUser.ok[1];
-        logger(newUser, 'newuser1');
       }
       entriesList[entry][1].image = await getImage(
         entriesList[entry][1].image[0]
@@ -213,12 +236,9 @@ export default function Events() {
       let refined = await refineEntries(resp);
       setArticlesList(refined);
 
-      logger(refined, 'getOnlyArticles');
     } else {
       setArticlesList([]);
-      // logger(resp,"getOnlyArticles")
     }
-    logger(resp, 'getOnlyArticles');
   };
   let getPressRelease = async () => {
     let category = ['Event', 'Events'];
@@ -227,17 +247,14 @@ export default function Events() {
       let refined = await refineEntries(resp);
       setPressReleaseList(refined);
 
-      logger(refined, 'getOnlyPressRelease');
     } else {
       setPressReleaseList([]);
     }
     setarticleLoading(false);
-    // logger(resp,"getOnlyPressRelease")
   };
   const handleSearch = (e?: React.KeyboardEvent<HTMLInputElement>) => {
     if (e) {
       if (e.key === 'Enter') {
-        logger('it got called from here');
         setStartIndex(0);
         getEvents(false, 0);
       }
@@ -247,7 +264,27 @@ export default function Events() {
     }
   };
   function handleStatusChange(e: any) {
-    setStatus(e.target.value);
+let val=e.target.value;
+let trans='';
+switch (val) {
+  case "all":
+    trans=t("all events");
+    break;
+    case "past":
+      trans=t("past events");
+      break;
+      case "ongoing":
+        trans=t("ongoing events");
+        break;
+        case "upcoming":
+          trans=t("Upcoming event");
+          break;
+  default:
+    trans=t("all events");
+    break;
+}
+setTempStatus(trans)
+    setStatus(val);
     setStartIndex(0);
   }
   useEffect(() => {
@@ -281,7 +318,7 @@ export default function Events() {
                         pointerEvents: 'none',
                       }}
                     >
-                      Events
+                      {t('Events')}
                     </Link>
                   </Breadcrumb.Item>
                 </Breadcrumb>
@@ -291,13 +328,17 @@ export default function Events() {
                   <div className='eventlist-header'>
                     {previewEvents?.length > 0 && (
                       <>
-                        <div className='img-pnl'>
+                        {/* <div className='img-pnl'>
                           <Link
                             className='img-parent max'
                             style={{
                               aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
                             }}
-                            href={`/event-details?eventId=${previewEvents[0].id}`}
+                            href={
+                              previewEvents[0].isStatic
+                                ? `${Event_STATIC_PATH + previewEvents[0].id}`
+                                : `/event-details?eventId=${previewEvents[0].id}`
+                            }
                           >
                             <Image
                               src={previewEvents[0].image}
@@ -310,10 +351,15 @@ export default function Events() {
                           <h4>{previewEvents[0]?.title}</h4>
                           <div>
                             <Link
-                              href={`/event-details?eventId=${previewEvents[0].id}`}
+                              href={
+                                previewEvents[0].isStatic
+                                  ? `${Event_STATIC_PATH + previewEvents[0].id}`
+                                  : `/event-details?eventId=${previewEvents[0].id}`
+                              }
                               className='reg-btn white mx-2'
                             >
-                              <i className='fa fa-info-circle'></i> {t('Learn More')}
+                              <i className='fa fa-info-circle'></i>{' '}
+                              {t('Learn More')}
                             </Link>
                             <Link
                               href={previewEvents[0].website}
@@ -323,44 +369,59 @@ export default function Events() {
                               {t('Visit Website')}
                             </Link>
                           </div>
-                        </div>
+                        </div> */}
+                        <TopEventSlider eventList={previewEvents}/>
                       </>
                     )}
-                    {previewEvents.length > 1 ? (
+                    {/* {previewEvents.length > 1 ? (
                       <ul className='my-2 gap-2'>
                         {previewEvents.length > 4
                           ? previewEvents.slice(1, 4).map((event) => (
-                            <li key={event.id}>
-                              <Link
-                                href={`/event-details?EventId=${event.id}`}
-                                className='img-parent'
-                                style={{
-                                  aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
-                                }}
-                              >
-                                <Image fill src={event.image} alt='Bg' />
-                              </Link>
-                            </li>
-                          ))
-                          : previewEvents.map((event, index) => {
-                            if (index == 0) return null;
-                            return (
-                              <li key={event.id} className='w-100'>
+                              <li key={event.id}>
                                 <Link
-                                  href={`/event-details?eventId=${event.id}`}
-                                  style={{
-                                    aspectRatio:
-                                      ARTICLE_FEATURED_IMAGE_ASPECT,
-                                  }}
+                                  href={
+                                    previewEvents[0].isStatic
+                                      ? `${
+                                          Event_STATIC_PATH +
+                                          previewEvents[0].id
+                                        }`
+                                      : `/event-details?EventId=${event.id}`
+                                  }
                                   className='img-parent'
+                                  style={{
+                                    aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
+                                  }}
                                 >
                                   <Image fill src={event.image} alt='Bg' />
                                 </Link>
                               </li>
-                            );
-                          })}
+                            ))
+                          : previewEvents.map((event, index) => {
+                              if (index == 0) return null;
+                              return (
+                                <li key={event.id} className='w-100'>
+                                  <Link
+                                    href={
+                                      previewEvents[0].isStatic
+                                        ? `${
+                                            Event_STATIC_PATH +
+                                            previewEvents[0].id
+                                          }`
+                                        : `/event-details?eventId=${event.id}`
+                                    }
+                                    style={{
+                                      aspectRatio:
+                                        ARTICLE_FEATURED_IMAGE_ASPECT,
+                                    }}
+                                    className='img-parent'
+                                  >
+                                    <Image fill src={event.image} alt='Bg' />
+                                  </Link>
+                                </li>
+                              );
+                            })}
                       </ul>
-                    ) : null}
+                    ) : null} */}
                     {/* <ul>
                      
                       <li>
@@ -379,16 +440,23 @@ export default function Events() {
               <Col xl='12' lg='12' md='12'>
                 <div className='flex-div-xs '>
                   <div className='seelect'>
-                    <Form.Select
+                  <Form.Select
                       aria-label='Default select example'
                       className='trans'
                       value={status}
                       onChange={handleStatusChange}
+                      defaultValue={"all"}
                     >
-                      <option value={'all'}>{t('all events')}</option>
-                      <option value={'upcoming'}>{t('Upcoming event')}</option>
-                      <option value='past'>{t('past events')}</option>
-                      <option value='ongoing'>{t('ongoing events')}</option>
+                      <option value='all' >{t('all events')}</option>
+                      <option value='upcoming'>
+                        {t('Upcoming event')}
+                      </option>
+                      <option value='past'>
+                        {t('past events')}
+                      </option>
+                      <option value='ongoing'>
+                        {t('ongoing events')}
+                      </option>
                     </Form.Select>
                   </div>
                   <div>
@@ -454,12 +522,28 @@ export default function Events() {
                           {t('Clear')}
                         </Button>
                       </div>
-                      <CountryDropdown
+                      {/* <CountryDropdown
+                      
                         value={ccVals.country}
+                        defaultOptionLabel={t('Select Country')}
                         onChange={(e) => {
                           handleCChange('country', e);
                         }}
-                      />
+                        
+                      /> */}
+
+                      <select onChange={changeCountryHandler}>
+                        <option value={''}>{t('Select Country')}</option>
+
+                        {countryTranslations &&
+                          countryTranslations.map((e: any) => {
+                            return (
+                              <option value={e.country}>
+                                {LANG == 'en' ? e.country : e.label}
+                              </option>
+                            );
+                          })}
+                      </select>
                     </Col>
 
                     <Col xl='2' lg='3' md='3' sm='6'>
@@ -478,16 +562,32 @@ export default function Events() {
                           {t('Clear')}
                         </Button>
                       </div>
-                      <RegionDropdown
+                      {/* <RegionDropdown
                         country={ccVals.country}
                         value={ccVals.city}
-                        defaultOptionLabel='Slect City'
-                        blankOptionLabel='Select City'
+                        defaultOptionLabel={t('Select City')}
+                        blankOptionLabel={t('Select City')}
                         disableWhenEmpty
                         onChange={(e) => {
                           handleCChange('city', e);
                         }}
-                      />
+                      /> */}
+                      <select
+                        disabled={ccVals.country == '' ? true : false}
+                        onChange={(e: any) => {
+                          handleCChange('city', e.target.value);
+                        }}
+                      >
+                        <option value=''>{t('Select City')}</option>
+                        {regions &&
+                          regions.map((e: any) => {
+                            return (
+                              <option value={e.name}>
+                                {LANG == 'en' ? e.name : e.label}
+                              </option>
+                            );
+                          })}
+                      </select>
                     </Col>
                     <Col xl='2' lg='3' md='3' sm='6'>
                       <div className='flex-div align-items-center'>
@@ -515,18 +615,18 @@ export default function Events() {
                         aria-label='Default select example'
                       >
                         <option value={''}>{t('All Months')}</option>
-                        <option value={0}>January</option>
-                        <option value={1}>February</option>
-                        <option value={2}>March</option>
-                        <option value={3}>April</option>
-                        <option value={4}>May</option>
-                        <option value={5}>June</option>
-                        <option value={6}>July</option>
-                        <option value={7}>August</option>
-                        <option value={8}>September</option>
-                        <option value={9}>October</option>
-                        <option value={10}>November</option>
-                        <option value={11}>December</option>
+                        <option value={0}>{t('January')}</option>
+                        <option value={1}>{t('February')}</option>
+                        <option value={2}>{t('March')}</option>
+                        <option value={3}>{t('April')}</option>
+                        <option value={4}>{t('May')}</option>
+                        <option value={5}>{t('June')}</option>
+                        <option value={6}>{t('July')}</option>
+                        <option value={7}>{t('August')}</option>
+                        <option value={8}>{t('September')}</option>
+                        <option value={9}>{t('October')}</option>
+                        <option value={10}>{t('November')}</option>
+                        <option value={11}>{t('December')}</option>
                       </Form.Select>
                     </Col>
                   </Row>
@@ -538,7 +638,7 @@ export default function Events() {
                   <h4>
                     <span>
                       <Image src={iconcalender} alt='Calender' />{' '}
-                      {status.charAt(0).toUpperCase() + status.slice(1)} Events
+                      {tempStatus.charAt(0).toUpperCase() + tempStatus.slice(1)}
                     </span>
                   </h4>
                   {!(topEvents && topEvents?.length > 0) && isLoading ? (
@@ -551,12 +651,22 @@ export default function Events() {
                         <div className='event-list-post' key={index}>
                           <div className='txt-pnl'>
                             <h5>{event.date}</h5>
-                            <Link href={`/event-details?eventId=${event.id}`}>
+                            <Link
+                              href={
+                                event.isStatic
+                                  ? `${Event_STATIC_PATH + event.id}`
+                                  : `/event-details?eventId=${event.id}`
+                              }
+                            >
                               <h6>{event.title}</h6>
                             </Link>
                             <Link
                               className='p-link'
-                              href={`/event-details?eventId=${event.id}`}
+                              href={
+                                event.isStatic
+                                  ? `${Event_STATIC_PATH + event.id}`
+                                  : `/event-details?eventId=${event.id}`
+                              }
                             >
                               <p className='event-description'>
                                 {event.shortDescription}
@@ -568,34 +678,39 @@ export default function Events() {
                               the premier event for knowledge enthusiasts!
                             </p> */}
                             <div className='flex-div-xs align-items-center'>
-                              {(event && event?.applyTicket.length != 0) ? (
+                              {event && event?.discountTicket.length != 0 ? (
                                 <Link
                                   className='red-link'
-                                  href={event ? `${event.applyTicket}` : '#'}
+                                  href={event ? `${event.discountTicket}` : '#'}
                                   target='_blank'
                                 >
                                   {t('Apply for discount ticket here!')}
                                 </Link>
-                              ) :
-                                <span></span>}
+                              ) : (
+                                <span></span>
+                              )}
                               <div>
-                                {(event && event?.freeTicket.length != 0) ?
+                                {event && event?.freeTicket.length != 0 ? (
                                   <Link
                                     className='reg-btn white-grey '
                                     href={event ? `${event?.freeTicket}` : '#'}
                                     target='_blank'
                                   >
-                                    <Image src={icongift} alt='Calender' /> {t('Free Ticket')}
+                                    <Image src={icongift} alt='Calender' />{' '}
+                                    {t('Free Ticket')}
                                   </Link>
-                                  : <span>
-                                  </span>}
-                                {(event && event?.website.length != 0) && <Link
-                                  className='reg-btn bluebg'
-                                  href={event.website}
-                                  target='_blank'
-                                >
-                                  {t('Visit Website')}
-                                </Link>}
+                                ) : (
+                                  <span></span>
+                                )}
+                                {event && event?.website.length != 0 && (
+                                  <Link
+                                    className='reg-btn bluebg'
+                                    href={event.website}
+                                    target='_blank'
+                                  >
+                                    {t('Visit Website')}
+                                  </Link>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -607,7 +722,11 @@ export default function Events() {
                                 margin: '0 auto',
                                 aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
                               }}
-                              href={`/event-details?eventId=${event.id}`}
+                              href={
+                                event.isStatic
+                                  ? `${Event_STATIC_PATH + event.id}`
+                                  : `/event-details?eventId=${event.id}`
+                              }
                             >
                               <Image src={event.image} fill alt='Post' />
                             </Link>
@@ -616,9 +735,7 @@ export default function Events() {
                       );
                     })
                   ) : (
-                    <p className='text-center'>
-                      {t('No Events Found')}
-                    </p>
+                    <p className='text-center'>{t('No Events Found')}</p>
                   )}
                 </div>
               </Col>
@@ -631,7 +748,7 @@ export default function Events() {
                       onClick={getMoreEvents}
                       className='reg-btn yellow auto'
                     >
-                      Load More
+                      {t('Load More')}
                     </Button>
                   )}
                 </div>
@@ -642,7 +759,8 @@ export default function Events() {
 
                   <h4>
                     {' '}
-                    <Image src={iconevent} alt='Post' />{t('Event News and Press Release')}
+                    <Image src={iconevent} alt='Post' />
+                    {t('Event News and Press Release')}
                   </h4>
 
                   <div className='spacer-20'></div>
@@ -667,7 +785,11 @@ export default function Events() {
                             >
                               <div className='img-pnl new d-flex align-items-center bg-dark'>
                                 <Link
-                                  href={item[1].isStatic ? `${ARTICLE_STATIC_PATH + item[0].id}` : `/article?articleId=${item[0]}`}
+                                  href={
+                                    item[1].isStatic
+                                      ? `${ARTICLE_STATIC_PATH + item[0].id}`
+                                      : `/article?articleId=${item[0]}`
+                                  }
                                   style={{
                                     aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
                                     position: 'relative',
@@ -680,7 +802,7 @@ export default function Events() {
                                     alt='Post'
                                     fill
                                   />
-                                  <h2>News</h2>
+                                  <h2></h2>
                                 </Link>
                               </div>
                               <div className='txt-pnl'>
@@ -707,7 +829,8 @@ export default function Events() {
                                       />
                                     </Link>
                                   </span>{' '}
-                                  News By{' '}
+                                  {t('News')}
+                                  {t('By')}{' '}
                                   <b>
                                     <Link
                                       href={`/profile?userId=${item[1].userId}`}
@@ -720,10 +843,14 @@ export default function Events() {
                                 </p>
                                 <div className='d-flex justify-content-center'>
                                   <Link
-                                    href={item[1].isStatic ? `${ARTICLE_STATIC_PATH + item[0].id}` : `/article?articleId=${item[0]}`}
+                                    href={
+                                      item[1].isStatic
+                                        ? `${ARTICLE_STATIC_PATH + item[0].id}`
+                                        : `/article?articleId=${item[0]}`
+                                    }
                                     style={{ width: '270px' }}
                                   >
-                                    Read More
+                                    {t('Read More')}
                                   </Link>
                                 </div>
                               </div>
@@ -747,7 +874,11 @@ export default function Events() {
                             >
                               <div className='img-pnl new d-flex align-items-center bg-dark'>
                                 <Link
-                                  href={item[1].isStatic ? `${ARTICLE_STATIC_PATH + item[0].id}` : `/article?articleId=${item[0]}`}
+                                  href={
+                                    item[1].isStatic
+                                      ? `${ARTICLE_STATIC_PATH + item[0].id}`
+                                      : `/article?articleId=${item[0]}`
+                                  }
                                   style={{
                                     aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
                                     position: 'relative',
@@ -799,10 +930,14 @@ export default function Events() {
                                 </p>
                                 <div className='d-flex justify-content-center'>
                                   <Link
-                                    href={item[1].isStatic ? `${ARTICLE_STATIC_PATH + item[0].id}` : `/article?articleId=${item[0]}`}
+                                    href={
+                                      item[1].isStatic
+                                        ? `${ARTICLE_STATIC_PATH + item[0].id}`
+                                        : `/article?articleId=${item[0]}`
+                                    }
                                     style={{ width: '270px' }}
                                   >
-                                    Read More
+                                    {t('Read More')}
                                   </Link>
                                 </div>
                               </div>

@@ -14,13 +14,16 @@
   background-size: 100% 240px;
   text-align: center;
   z-index: 1;
+
   @media (max-width: 1400px) {
     padding: 20px 10px;
     background-size: 100% 220px;
   }
+
   @media (max-width: 1200px) {
     background-size: 100% 200px;
   }
+
   @media (max-width: 767px) {
     max-width: 400px;
   }
@@ -36,48 +39,57 @@
     height: 70px;
     z-index: -1;
   }
+
   span {
     position: absolute;
     border-radius: 50%;
+
     img {
       border-radius: 50%;
     }
+
     &:nth-of-type(1) {
       width: 32px;
       height: 32px;
       left: 15px;
       top: 200px;
     }
+
     &:nth-of-type(2) {
       width: 32px;
       height: 32px;
       right: 30px;
       top: 160px;
     }
+
     &:nth-of-type(3) {
       width: 22px;
       height: 22px;
       top: 190px;
       left: 70px;
     }
+
     &:nth-of-type(4) {
       width: 22px;
       height: 22px;
       right: 20px;
       top: 20px;
     }
+
     &:nth-of-type(5) {
       width: 18px;
       height: 18px;
       left: 30px;
       top: 170px;
     }
+
     &:nth-of-type(6) {
       width: 18px;
       height: 18px;
       right: 5px;
       top: 120px;
     }
+
     &:nth-of-type(7) {
       width: 18px;
       height: 18px;
@@ -92,12 +104,15 @@
     justify-content: center;
     font-size: 80px;
     font-weight: 700;
+
     img {
       max-width: 90px;
       max-height: 90px;
     }
+
     @media (max-width: 1400px) {
       font-size: 60px;
+
       img {
         max-width: 60px;
         height: unset;
@@ -105,12 +120,14 @@
       }
     }
   }
+
   h2 {
     font-size: 14px;
     color: $white;
     font-weight: 400;
     max-width: 300px;
     margin: 0 auto 70px;
+
     @media (max-width: 1400px) {
       margin-bottom: 50px;
     }
@@ -125,6 +142,7 @@
     border-radius: 30px;
     margin-bottom: 20px;
     padding: 5px 15px 3px 10px;
+
     img {
       width: 30px;
     }
@@ -150,6 +168,7 @@
       position: relative;
       align-items: center;
       margin-bottom: 10px;
+
       .img-pnl {
         background-color: $blue;
         width: 50px;
@@ -179,6 +198,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+
         @media (max-width: 1400px) {
           width: calc(100% - 50px);
           margin-left: 10px;
@@ -186,6 +206,7 @@
       }
     }
   }
+
   .blue-button {
     background-color: $color;
     position: relative;
@@ -197,34 +218,42 @@
     font-size: 22px;
     border: 3px solid #ffa600;
     border-radius: 15px;
+
     &:hover {
       background-color: $blue;
       color: $white;
       border-color: $white;
     }
   }
+
 }
 
 .Take-Quiz-Pnl.leadrship-quiz {
   padding-top: 40px;
   padding-bottom: 15px;
+
   @media (max-width: 1400px) {
     background-size: 100% 250px;
     padding: 20px 10px;
   }
+
   @media (max-width: 1200px) {
     background-size: 100% 240px;
     max-width: 350px;
   }
+
   @media (max-width: 767px) {
     background-size: 100% 270px;
   }
+
   @media (max-width: 575px) {
     background-size: 100% 240px;
   }
+
   &:before {
     height: 85px;
   }
+
   .learnmore-bt {
     position: absolute;
     right: 15px;
@@ -232,6 +261,7 @@
     z-index: 2;
     font-size: 14px;
     color: $white;
+
     i {
       background-color: $color;
       color: black;
@@ -243,38 +273,47 @@
       align-items: center;
     }
   }
+
   span:nth-of-type(1) {
     left: 86px;
     top: 20px;
   }
+
   span:nth-of-type(2) {
     width: 36px;
     height: 36px;
     right: 10px;
     top: 40px;
   }
+
   span:nth-of-type(4) {
     width: 22px;
     height: 22px;
     right: 46px;
     top: 60px;
   }
+
   .blue-button {
     padding: 6px 15px;
+
     &:hover {
       background-color: $color;
     }
   }
+
   .hddr {
     display: flex;
   }
+
   .im {
     width: 130px;
     padding-top: 15px;
   }
+
   .txt {
     text-align: left;
     padding-left: 15px;
+
     h1 {
       font-size: 40px;
       text-align: left;
@@ -285,6 +324,7 @@
       text-transform: uppercase;
       margin: 0;
     }
+
     h3 {
       font-size: 20px;
       color: $color;
@@ -294,6 +334,7 @@
       margin-bottom: 0px;
     }
   }
+
   table {
     img {
       max-width: 25px;
@@ -314,6 +355,7 @@
         font-weight: 700;
         margin: 0;
         font-size: 15px;
+
         @media (max-width: 1600px) {
           font-size: 14px;
         }
@@ -324,6 +366,7 @@
         color: $black;
         font-size: 15px;
         margin: 0;
+
         @media (max-width: 1600px) {
           font-size: 14px;
         }
@@ -342,11 +385,14 @@
       font-size: 15px;
       font-weight: 600;
       border-color: $black;
+
       @media (max-width: 1600px) {
         padding: 0.5rem 5px;
       }
+
       b {
         font-size: 18px;
+
         @media (max-width: 1600px) {
           font-size: 16px;
         }
@@ -358,18 +404,23 @@
 .icp-leadership-pnl.hm {
   .Take-Quiz-Pnl.leadrship-quiz {
     background-size: 100% 270px;
+
     @media (max-width: 1600px) {
       background-size: 100% 290px;
     }
+
     @media (max-width: 1400px) {
       background-size: 100% 250px;
     }
+
     @media (max-width: 767px) {
       background-size: 100% 275px;
     }
+
     @media (max-width: 575px) {
       max-width: 380px;
       background-size: 100% 270px;
+
       .table-container .table-container-inner table {
         min-width: unset;
       }
@@ -383,17 +434,24 @@
       display: none;
     }
   }
+
   @media (max-width: 767px) {
     .Take-Quiz-Pnl {
       margin: 0 auto 30px;
+
       span:nth-of-type(1) {
         display: inline-block;
       }
     }
   }
+
   @media (max-width: 575px) {
     .Take-Quiz-Pnl span:nth-of-type(1) {
       display: none;
     }
   }
+}
+
+.fs-max {
+  font-size: 60px !important;
 }

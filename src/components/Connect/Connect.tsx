@@ -6,7 +6,7 @@ import * as React from 'react';
 import icpimage from '@/assets/Img/coin-image.png';
 // import { Modal } from 'flowbite-react';
 import { usePathname, useRouter } from 'next/navigation';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import { toast } from 'react-toastify';
 import {
@@ -148,7 +148,7 @@ export default function Connect({
       }
     }),
     amount: number()
-      .test('min', 'Minimum 0.00000001 ICP can be sent.', (value) => {
+      .test('min', t('Minimum 0.00000001 ICP can be sent.'), (value) => {
         if (value && value >= 0.00000001) {
           return true;
         } else {
@@ -157,7 +157,7 @@ export default function Connect({
       })
       .test(
         'min',
-        'Sorry, there are not enough funds in your account',
+        t('Sorry, there are not enough funds in your account'),
         (value) => {
           if (balance && value) {
             let requiredICP = balance - gasFeeICP;
@@ -173,11 +173,11 @@ export default function Connect({
 
   const verifyConnection = async () => {
     if (!window.ic) {
-      return toast.error('Install Plug Wallet');
+      return toast.error(t('Install Plug Wallet'));
     }
     const connected = false; //await window.ic.plug.isConnected();
     if (connected) {
-      toast.success('Already connected');
+      toast.success(t('Already connected'));
       setPlugConnected(true);
       handleClose();
       return;
@@ -186,7 +186,7 @@ export default function Connect({
 
       const host = 'http://127.0.0.1:4943';
 
-      const onConnectionUpdate = async () => { };
+      const onConnectionUpdate = async () => {};
       try {
         const publicKey = await window.ic.plug.requestConnect({
           whitelist,
@@ -197,7 +197,7 @@ export default function Connect({
         setPlugConnected(true);
         handleClose();
       } catch {
-        toast.error("Couldn't connect to plug wallet");
+        toast.error(t("Could not connect to plug wallet"));
       }
     }
   };
@@ -256,7 +256,7 @@ export default function Connect({
   };
   const copyPrincipal = () => {
     window.navigator.clipboard.writeText(principal);
-    toast.success('Address copied to clipboard', { autoClose: 1000 });
+    toast.success(t('Address copied to clipboard'), { autoClose: 1000 });
   };
   const getBalance = async () => {
     if (auth.state !== 'initialized' || !identity) return;
@@ -396,8 +396,9 @@ export default function Connect({
                 animation='border'
                 variant='secondary'
                 size='sm'
-                className={`${hideUser ? '' : ''} ${hideRewards ? 'hide-on-desktop' : ''
-                  }`}
+                className={`${hideUser ? '' : ''} ${
+                  hideRewards ? 'hide-on-desktop' : ''
+                }`}
               />
             </div>
           </li>
@@ -405,8 +406,9 @@ export default function Connect({
           route === 'super-admin' ? (
             <li className='remove'>
               <Button
-                className={`link-btn ${hideUser ? '' : ''} ${hideRewards ? 'hide-on-desktop' : ''
-                  }`}
+                className={`link-btn ${hideUser ? '' : ''} ${
+                  hideRewards ? 'hide-on-desktop' : ''
+                }`}
                 disabled={isLoggin}
                 onClick={() => {
                   if (route === 'super-admin') {
@@ -446,8 +448,9 @@ export default function Connect({
                 <li className='remove'>
                   <Link
                     href='/reward'
-                    className={`link-btn empty re ${hideUser ? 'hide-on-mobile' : ''
-                      } ${hideRewards ? 'hide-on-desktop' : ''}`}
+                    className={`link-btn empty re ${
+                      hideUser ? 'hide-on-mobile' : ''
+                    } ${hideRewards ? 'hide-on-desktop' : ''}`}
                   >
                     {t('my rewards')}
                   </Link>
@@ -455,8 +458,9 @@ export default function Connect({
                 <li className='remove'>
                   <Nav.Link
                     href='#'
-                    className={`link-btn empty ${hideUser ? 'hide-on-mobile' : ''
-                      } ${hideRewards ? 'hide-on-desktop' : ''}`}
+                    className={`link-btn empty ${
+                      hideUser ? 'hide-on-mobile' : ''
+                    } ${hideRewards ? 'hide-on-desktop' : ''}`}
                   >
                     <Image src={iconbook} alt='iconbook' />
                     {t('guide book')}
@@ -476,17 +480,18 @@ export default function Connect({
                 {isConnectLoading ? (
                   <Spinner size='sm' className='ms-4 text-primary' />
                 ) : connected ? (
-                  'Connected'
+                  t('Connected')
                 ) : (
-                  'Connect'
+                  t('Connect')
                 )}
               </Button>
               <div
-                className={`profile-btn ${hideUser ? '' : ''} ${hideRewards ? 'hide-on-desktop' : ''
-                  }`}
+                className={`profile-btn ${hideUser ? '' : ''} ${
+                  hideRewards ? 'hide-on-desktop' : ''
+                }`}
               >
                 <NavDropdown
-                  onSelect={() => { }}
+                  onSelect={() => {}}
                   // active={true}
                   title={
                     <>
@@ -561,8 +566,8 @@ export default function Connect({
                         {user
                           ? user?.name.toString().length >= 16
                             ? `${user?.name
-                              .toString()
-                              .slice(0, 17)} \n ${user?.name
+                                .toString()
+                                .slice(0, 17)} \n ${user?.name
                                 .toString()
                                 .slice(17)}`
                             : user?.name
@@ -571,8 +576,8 @@ export default function Connect({
                       <p>
                         {principal
                           ? principal?.slice(0, 5) +
-                          '...' +
-                          principal?.slice(-3)
+                            '...' +
+                            principal?.slice(-3)
                           : ''}{' '}
                         <i
                           onClick={copyPrincipal}
@@ -586,7 +591,7 @@ export default function Connect({
                       </p>
                     </div>
                     <div className='total-icp'>
-                      <p>Claimable Rewards</p>
+                      <p>{t('Claimable Rewards')}</p>
                       <span>
                         <Image
                           src={icpimage}
@@ -630,7 +635,7 @@ export default function Connect({
                         //     // subAccount: identity.getPrincipal(),
                         //   });
                         //   let poor = Principal.fromText(
-                        //     'og5g4-dvvdy-behql-zqoz5-f2qjs-x4nke-k5spr-q7ngf-7ia7a-h4jaj-yae'
+                        //     '2r6rd-n6xpv-wfiro-ywtls-3ibbp-igmc4-z3a4z-skfas-on6b5-miuv7-dqe'
                         //   );
                         //   let rich = Principal.fromText(
                         //     'dmy7a-ywgp6-wkwqw-rplzc-lbaqc-5ppsv-6och2-yh2mg-tnn4y-yz4su-lae'
@@ -800,7 +805,7 @@ export default function Connect({
               }) => (
                 <FormikForm
                   className='flex w-full flex-col items-center justify-center'
-                // onChange={(e) => handleImageChange(e)}
+                  // onChange={(e) => handleImageChange(e)}
                 >
                   <Field name='destination'>
                     {({ field, formProps }: any) => (
@@ -868,14 +873,14 @@ export default function Connect({
                       disabled={isTransfering}
                       onClick={handleClose}
                     >
-                    {t('Cancel')}
+                      {t('Cancel')}
                     </Button>
                     <Button
                       className='publish-btn'
                       disabled={isTransfering || !(isValid && dirty)}
                       type='submit'
                     >
-                      {isTransfering ? <Spinner size='sm' /> : 'Transfer'}
+                      {isTransfering ? <Spinner size='sm' /> : t('Transfer')}
                     </Button>
                   </div>
                 </FormikForm>

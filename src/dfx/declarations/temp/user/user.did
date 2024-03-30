@@ -2,13 +2,14 @@ type anon_class_22_1 =
  service {
    add_reward: (principal, nat) -> (bool);
    add_user: () -> (Result_1);
-   admin_update_user: (Id, InputUser) -> (Result);
+   admin_update_user: (Id, InputUser, text) -> (Result);
    assign_role: (principal, text, Role__1) -> (Result_1);
    block_sub_admin: (text, text) -> (Result_1);
    block_user: (text, text) -> (Result_1);
    check_user_exists: (principal) -> (bool);
    claim_rewards: (text) -> (bool);
    entry_require_permission: (principal, Permission) -> (bool) query;
+   get_NFT24Coin: () -> (nat) query;
    get_authorized_users: (text, nat, nat) ->
     (record {
        amount: nat;
@@ -26,6 +27,7 @@ type anon_class_22_1 =
                   };
      }) query;
    get_user_details: (UserId) -> (Result_2) query;
+   get_user_email: (principal) -> (opt record {email: opt text;}) query;
    get_user_name: (principal) ->
     (opt record {
            image: opt NewImageObject__1;
@@ -48,13 +50,14 @@ type anon_class_22_1 =
                     TopWinnerUserList;
                   };
      }) query;
-   give_reward: (Id, nat) -> (bool);
+   give_reward: (Id, nat, bool) -> (bool);
    make_admin: (principal, Role__1) -> (bool);
    request_verification: (NewImageObject__1) -> (Result);
    unBlock_sub_admin: (text, text) -> (Result_1);
    unBlock_user: (text, text) -> (Result_1);
    un_verify_user: (text, text) -> (Result);
-   update_user: (InputUser) -> (Result);
+   update_NFT24Coin: (nat) -> (bool);
+   update_user: (InputUser, text) -> (Result);
    verify_user: (text, text) -> (Result);
  };
 type UserId = opt text;

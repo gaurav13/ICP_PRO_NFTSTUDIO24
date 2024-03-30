@@ -5,7 +5,7 @@ import { Row, Col, Spinner, Form, Button, Modal } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import { usePathname, useRouter } from 'next/navigation';
 import { useConnectPlugWalletStore } from '@/store/useStore';
-import { makeEntryActor, makeUserActor } from '@/dfx/service/actor-locator';
+import { makeCommentActor, makeEntryActor, makeUserActor } from '@/dfx/service/actor-locator';
 import logger from '@/lib/logger';
 import { UsersList } from '@/components/UsersList';
 import { ConnectPlugWalletSlice } from '@/types/store';
@@ -23,14 +23,6 @@ import { toast } from 'react-toastify';
 import Tippy from '@tippyjs/react';
 import { t } from 'i18next';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-
 export default function UserManagment() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +33,11 @@ export default function UserManagment() {
     platform: 0,
     admin: 0,
   });
+  const [commentRewardVal, setCommentReward] = useState({commentReward:0});
+
   const [isLikeLoading, setIsLikeLoading] = useState(false);
+  const [isCommentLoading, setIsCommentLoading] = useState(false);
+
   const { auth, userAuth, identity } = useConnectPlugWalletStore((state) => ({
     auth: (state as ConnectPlugWalletSlice).auth,
     userAuth: (state as ConnectPlugWalletSlice).userAuth,
@@ -53,9 +49,16 @@ export default function UserManagment() {
       identity,
     },
   });
+  const commentActor = makeCommentActor({
+    agentOptions: {
+      identity,
+    },
+  });
 
   const formikRef = useRef<FormikProps<FormikValues>>(null);
   const likeRewardRef = useRef<FormikProps<FormikValues>>(null);
+  const commentRewardRef = useRef<FormikProps<FormikValues>>(null);
+
   const pathname = usePathname();
   const feeValues = {
     promotion: initialValues.promotion,
@@ -71,11 +74,19 @@ export default function UserManagment() {
       .min(10, 'Reward Amount can not be less than 10')
       .test(
         'is-multiple-of-10',
-        'Reward Ammount must be a multiple of 10',
+        'Reward Amount must be a multiple of 10',
         (value) => value % 10 === 0
       ),
   });
-
+  const commentRewardSchema = object().shape({
+    commentReward: number().required('Please Enter Reward Amount')
+      .min(10, 'Reward Amount can not be less than 10')
+      .test(
+        'is-multiple-of-10',
+        'Reward Amount must be a multiple of 10',
+        (value) => value % 10 === 0
+      ),
+    });
   const feeSchema = object().shape({
     promotion: number()
       .min(1, 'Promotion poll is required')
@@ -159,10 +170,37 @@ export default function UserManagment() {
       setIsLikeLoading(false);
     }
   };
+  const handleCommentRewardUpdate = async () => {
+    if (!identity || auth.state !== 'initialized') return;
+    try {
+      setIsCommentLoading(true);
+
+      let newReward = commentRewardRef?.current?.values.commentReward;
+      let updated = await commentActor.update_comment_reward(
+        userCanisterId,
+        newReward
+      );
+      // if (updated)
+      logger(updated, 'UPPPPPPppp');
+      toast.success('Comment Reward has been updated successfully');
+     
+      getInitValues();
+      commentRewardRef?.current?.resetForm();
+      setIsCommentLoading(false);
+    } catch (error) {
+      logger(error);
+      setIsCommentLoading(false);
+    }
+  }
   const getInitValues = async () => {
     if (!identity || auth.state !== 'initialized') return;
 
     const likeReward = await entryActor.get_like_reward();
+    const commentReward = await commentActor.get_comment_reward();
+    setCommentReward((prev) => {
+      return {
+        commentReward: parseInt(commentReward)
+      }})
     const config = await entryActor.get_reward();
     setInitialValues((prev) => {
       return {
@@ -187,7 +225,7 @@ export default function UserManagment() {
     }
   }, [userAuth, auth, pathname]);
 
-  return (userAuth.userPerms?.adminManagement && !userAuth.isAdminBlocked) ? (
+  return userAuth.userPerms?.adminManagement && !userAuth.isAdminBlocked ? (
     <>
       <main id='main' className='dark'>
         <div className='main-inner admin-main'>
@@ -234,12 +272,15 @@ export default function UserManagment() {
                                     controlId='formBasicEmail'
                                   >
                                     <Form.Label>
-                                      {t('Article Promotion Pool')}
+                                      Article Promotion Pool
                                       <Tippy
                                         content={
                                           <div>
                                             <p className='mb-0'>
-                                              {t('Percentage of icp that will go to the pool of article which will then be used to reward the users who vote on the article.')}
+                                              Percentage of icp that will go to
+                                              the pool of article which will
+                                              then be used to reward the users
+                                              who vote on the article.
                                             </p>
                                           </div>
                                         }
@@ -381,7 +422,7 @@ export default function UserManagment() {
                 </div>
               </Col>
               <Col xl='10' lg='12'>
-                <div className='mt-5'>
+                <div className='mt-5 d-flex gap-4'>
                   <Formik
                     initialValues={likeRewardValues}
                     enableReinitialize={true}
@@ -404,7 +445,7 @@ export default function UserManagment() {
                     }) => (
                       <FormikForm onSubmit={handleSubmit}>
                         <Row>
-                          <Col xl='3' lg='3' md='3'>
+                          <Col >
                             <Field name='likeReward'>
                               {({ field, formProps }: any) => (
                                 <Form.Group controlId='formBasicEmail'>
@@ -453,7 +494,7 @@ export default function UserManagment() {
                         </Row>
                         <Col xs='4' className='d-flex align-items-end'>
                           <Button
-                            disabled={isLikeLoading}
+                            disabled={isLoading}
                             className='publish-btn'
                             type='submit'
                           >
@@ -463,8 +504,91 @@ export default function UserManagment() {
                       </FormikForm>
                     )}
                   </Formik>
+                  <Formik
+                  
+                    initialValues={commentRewardVal}
+                    enableReinitialize={true}
+                    validationSchema={commentRewardSchema}
+                    innerRef={commentRewardRef}
+                    onSubmit={async (values) => {
+                      handleCommentRewardUpdate()
+                    }}
+                  >
+                    {({
+                      values,
+                      errors,
+                      touched,
+                      handleChange,
+                      handleBlur,
+                      handleSubmit,
+                      isSubmitting,
+                      validateForm,
+                      /* and other goodies */
+                    }) => (
+                      <FormikForm onSubmit={handleSubmit}>
+                        <Row>
+                          <Col >
+                            <Field name='commentReward'>
+                              {({ field, formProps }: any) => (
+                                <Form.Group controlId='formBasicEmail'>
+                                  <Form.Label>
+                                    Comment Reward
+                                    <Tippy
+                                      content={
+                                        <div>
+                                          <p className='mb-0'>
+                                          NFTStudio24 coins that user will get when like a promoted entry.
+                                          </p>
+                                          <p className='mb-0'>
+                                            {' '}
+                                            100000000  NFTStudio24 coins  = 1 ICP
+                                          </p>
+                                        </div>
+                                      }
+                                    >
+                                      <span className='ps-1'>
+                                        <i className='fa fa-circle-info'></i>
+                                      </span>
+                                    </Tippy>
+                                  </Form.Label>
+                                  <Form.Control
+                                    value={field.value}
+                                    onChange={handleChange}
+                                    onInput={handleBlur}
+                                    type='number'
+                                    name='commentReward'
+                                    placeholder='eg. 1000 e8s'
+                                  />
+                                </Form.Group>
+                              )}
+                            </Field>
+                            <div
+                              style={{ height: 35 }}
+                              className='text-danger '
+                            >
+                              <ErrorMessage
+                                className='Mui-err '
+                                name='commentReward'
+                                component='div'
+                              />
+                            </div>
+                          </Col>
+                        </Row>
+                        <Col xs='4' className='d-flex align-items-end'>
+                          <Button
+                            disabled={isCommentLoading}
+                            className='publish-btn'
+                            type='submit'
+                          >
+                            {isCommentLoading ? <Spinner size='sm' /> : 'Apply'}
+                          </Button>
+                        </Col>
+                      </FormikForm>
+                    )}
+                  </Formik>
                 </div>
               </Col>
+
             </Row>
           </div>
         </div>
@@ -492,7 +616,7 @@ export default function UserManagment() {
             </div>
             <div>
               <p className='text-danger text-center'>
-               {t(' Be Carefull changing the reward per vote can have serious impact on the platform!')}
+                 Be Carefull changing the reward per vote can have serious impact on the platform!
               </p>
             </div>
             <div className='d-flex justify-content-center'>
@@ -500,7 +624,7 @@ export default function UserManagment() {
                 className='publish-btn'
                 disabled={isLikeLoading}
                 onClick={handleLikeRewardUpdate}
-              // type='submit'
+                // type='submit'
               >
                 {isLikeLoading ? <Spinner size='sm' /> : 'Confirm'}
               </Button>

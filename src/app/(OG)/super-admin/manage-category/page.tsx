@@ -54,14 +54,6 @@ import uploadImage from '@/components/utils/uploadImage';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import { getIdFromUrl } from '@/constant/DateFormates';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-
 const CustomDropdownItem = ({ category, indexed = 0 }: any) => {
   // logger(category, 'DAAAAA CATEGODDD');
   const hasChildren = category[1]?.children && category[1].children.length > 0;
@@ -133,13 +125,24 @@ export default function ManageCategory() {
     logo: '',
   };
   const categorySchema = object().shape({
-    categoryName: string()
-      .required('Category Name is required')
-      .matches(/^[a-zA-Z0-9\s]+$/, 'Only AlphaNumeric characters are allowed')
-      .max(
-        MAX_CATEGORY_NAME_CHARACTERS,
-        'Name can not be more than 100 characters'
-      ),
+    categoryName:
+      LANG == 'en'
+        ? string()
+            .required('Category Name is required')
+            .matches(
+              /^[a-zA-Z0-9\s]+$/,
+              'Only AlphaNumeric characters are allowed'
+            )
+            .max(
+              MAX_CATEGORY_NAME_CHARACTERS,
+              'Name can not be more than 100 characters'
+            )
+        : string()
+            .required('Category Name is required')
+            .max(
+              MAX_CATEGORY_NAME_CHARACTERS,
+              'Name can not be more than 100 characters'
+            ),
     categorySlug: string()
       .required(t('Slug is required'))
       .max(
@@ -250,8 +253,8 @@ export default function ManageCategory() {
         type: 'image/jpeg',
       });
       const bannerImg = getImage(category.banner);
-      let logoId = getIdFromUrl(category.logo)
-      let bannerId = getIdFromUrl(category.banner)
+      let logoId = getIdFromUrl(category.logo);
+      let bannerId = getIdFromUrl(category.banner);
       setLogoLink(logoId);
       setBannerLink(bannerId);
 
@@ -259,7 +262,6 @@ export default function ManageCategory() {
       setLogoFile(logofile);
       setBannerPreview(bannerImg);
       setBannerFile(bannerFile);
-
     }
   };
   const handleImageChageCommon = (e: any, imgName: string) => {
@@ -280,6 +282,8 @@ export default function ManageCategory() {
           imgName: img.name,
           aspect: COMPANY_BANNER_IMAGE_ASPECT,
           callBack: bannerUpload,
+          maxWidth:MAX_COMPANY_BANNER_SIZES.width,
+          maxHeight:MAX_COMPANY_BANNER_SIZES.height
         });
         break;
       case 'logo':
@@ -288,13 +292,17 @@ export default function ManageCategory() {
           imgName: img.name,
           aspect: COMPANY_LOGO_IMAGE_ASPECT,
           callBack: logoUpload,
+          maxWidth:MAX_COMPANY_LOGO_SIZES.width,
+          maxHeight:MAX_COMPANY_LOGO_SIZES.height
         });
         break;
 
       default:
         toast.error(t('Errorr while uploading media'));
         logger(
-          t('Image name didn not match any of the provided cases please add a case if you want to use this function for more images')
+          t(
+            'Image name didn not match any of the provided cases please add a case if you want to use this function for more images'
+          )
         );
         break;
     }
@@ -415,7 +423,8 @@ export default function ManageCategory() {
 
                       if (newCategories?.ok) {
                         toast.success(
-                          `Category ${categoryId ? 'updated' : 'created'
+                          `Category ${
+                            categoryId ? 'updated' : 'created'
                           } successfully`
                         );
                         await getCategories();
@@ -476,7 +485,7 @@ export default function ManageCategory() {
                               {({ field, formProps }: any) => (
                                 <Form.Group
                                   className='mb-3'
-                                // controlId='formBasicEmail'
+                                  // controlId='formBasicEmail'
                                 >
                                   <Form.Label>Slug</Form.Label>
                                   <Form.Control
@@ -506,7 +515,7 @@ export default function ManageCategory() {
                               {({ field, formProps }: any) => (
                                 <Form.Group
                                   className='mb-3'
-                                // controlId='formBasicEmail'
+                                  // controlId='formBasicEmail'
                                 >
                                   <Form.Label>
                                     Parent Category{' '}
@@ -527,7 +536,7 @@ export default function ManageCategory() {
                                     onChange={handleChange}
                                     className='category-select'
                                     name='categoryParent'
-                                  // multiple
+                                    // multiple
                                   >
                                     <option value={''}>None </option>
                                     {categories &&
@@ -563,7 +572,7 @@ export default function ManageCategory() {
                               {({ field, formProps }: any) => (
                                 <Form.Group
                                   className='mb-3'
-                                // controlId='formBasicEmail'
+                                  // controlId='formBasicEmail'
                                 >
                                   <Form.Label>Description</Form.Label>
                                   <Form.Control
@@ -705,7 +714,7 @@ export default function ManageCategory() {
                           <Col xl='12' lg='12' md='12'>
                             <Form.Group
                               className='mb-3'
-                            // controlId='formBasicPassword'
+                              // controlId='formBasicPassword'
                             >
                               <div className='spacer-30'> </div>
                               <Button

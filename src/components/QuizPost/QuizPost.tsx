@@ -13,6 +13,7 @@ export default function QuizPost() {
   return (
     <>
       <div className='Quiz-Post-pnl'>
+        
         <Image src={quiz} alt='Quiz' />
         <div className='grey-heading'>
           <h2>

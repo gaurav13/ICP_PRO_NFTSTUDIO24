@@ -43,13 +43,6 @@ import uploadImage from '@/components/utils/uploadImage';
 import { BASE_IMG_URL, isValidFileType } from '@/constant/image';
 import { CropperProps } from '@/types/cropper';
 import ImageCropper from '@/components/Cropper';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function Profiles() {
   const router = useRouter();
@@ -103,7 +96,7 @@ export default function Profiles() {
 
   const handleShow = () => {
     if (user?.isVerificationRequested) {
-      return toast.info('Verification request is pending');
+      return toast.info(t('Verification request is pending'));
     }
     setShowModal(true);
   };
@@ -178,7 +171,7 @@ export default function Profiles() {
   const handleSubscribe = async () => {
     if (auth.state !== 'initialized') {
       return toast.error(
-        'To perform this action, kindly connect to Internet Identity.'
+        t('To perform this action, kindly connect to Internet Identity.')
       );
     }
     const authorId = Principal.fromText(userId as string);
@@ -210,7 +203,7 @@ export default function Profiles() {
   };
   const handleVerify = async () => {
     if (!identityFile) {
-      return toast.error('Please upload your identity card');
+      return toast.error(t('Please upload your identity card'));
     }
     setRequesting(true);
 
@@ -218,11 +211,11 @@ export default function Profiles() {
       let identityUrl = BASE_IMG_URL + identityImgId;
       let verify = await auth.actor.request_verification(identityUrl);
       if (verify?.ok) {
-        toast.success('Verification request sent successfully');
+        toast.success(t('Verification request sent successfully'));
         setIsVerificationRequested(true);
         handleModalClose();
       } else {
-        toast.error('Failed to send verification request');
+        toast.error(t('Failed to send verification request'));
       }
       setRequesting(false);
     } catch (error) {
@@ -274,6 +267,8 @@ export default function Profiles() {
       imgName: img.name,
       aspect: profileAspect,
       callBack: identityUpload,
+      maxWidth:MAX_ARTICLE_FEATURED_SIZES.width,
+      maxHeight:MAX_ARTICLE_FEATURED_SIZES.height
     });
     handleShowCropper();
     e.target.value = '';
@@ -655,7 +650,9 @@ export default function Profiles() {
         </Modal.Header>
         <Modal.Body>
           <p>
-            {t('Please provide an image of your identity card to verify your account.')}
+            {t(
+              'Please provide an image of your identity card to verify your account.'
+            )}
           </p>
           <input
             id='identityImg'
@@ -701,14 +698,14 @@ export default function Profiles() {
             disabled={!identityFile}
             onClick={handleVerify}
           >
-            {requesting ? <Spinner size='sm' /> : 'Send'}
+            {requesting ? <Spinner size='sm' /> : t('Send')}
           </Button>
           <Button
             disabled={requesting}
             className='default-btn'
             onClick={handleModalClose}
           >
-            Cancel
+            {t('Cancel')}
           </Button>
         </Modal.Footer>
       </Modal>

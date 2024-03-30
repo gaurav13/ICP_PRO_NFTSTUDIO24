@@ -141,7 +141,7 @@ const siteConfigJP = {
     "NFTStudio24の記事をご覧ください。NFTの最新トレンドやイノベーションをご紹介しています。ぜひ、最新情報を入手して、インスピレーションを呼び覚まし、NFTトークンが秘める無限の可能性を解き明かしましょう。刺激的なコンテンツでNFTの世界に飛び込みましょう。",
   description:
     '日本の分散型ビジネスの旅に出かけよう。無理なく学べる、やりがいのある体験。ユーザーフレンドリーな環境で、知識を広げ、同時に収入を得たい方に最適です。',
-  url: 'https://pro.nftstudio24.com',
+  url: 'https://dapp.nftstudio24.com',
   hinzaAsifDesc:
     'ヒンザ・アセフが辿った感動的な旅をご覧ください： ブロックチェーンとWeb3のリーダーであるNFTStudio24の創設者です。',
   contactusDesc:

@@ -84,7 +84,7 @@ export default function EventSlider({ eventList }: { eventList: any }) {
                 <div className='Event-Post-small'>
                   <div className='Event-Post-inner'>
                     <Link
-                      href={`event-details?eventId=${event.id}`}
+                      href={`/event-details?eventId=${event.id}`}
                       className='img-pnl'
                       style={{
                         aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,

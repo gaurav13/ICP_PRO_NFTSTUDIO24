@@ -46,13 +46,19 @@ import {
   makeLedgerCanister,
 } from '@/dfx/service/actor-locator';
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
-import { BASE_IMG_URL, isValidFileType } from '@/constant/image';
+import {
+  BASE_IMG_URL,
+  characterCount,
+  getCount,
+  isDescription,
+  isValidFileType,
+} from '@/constant/image';
 import { MAX_IMAGE_SIZE } from '@/constant/validations';
 import { getImage } from '@/components/utils/getImage';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { Principal } from '@dfinity/principal';
 import { utcToLocal } from '@/components/utils/utcToLocal';
-import Texteditor from '@/components/cutomeEditor/editor';
+import Texteditor from '@/components/cutomeEditor/Editor';
 import { canisterId as commentCanisterId } from '@/dfx/declarations/comment';
 import { canisterId as entryCanisterId } from '@/dfx/declarations/entry';
 import { E8S, GAS_FEE } from '@/constant/config';
@@ -78,13 +84,7 @@ import uploadImage from '@/components/utils/uploadImage';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import ReactPaginate from 'react-paginate';
 import { Date_m_d_y_h_m } from '@/constant/DateFormates';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+
 function ScrollToError() {
   const formik = useFormikContext();
   const submitting = formik?.isSubmitting;
@@ -170,6 +170,7 @@ export default function AddArticle() {
   const [isGettingweb3, setIsGettingweb3] = useState(true);
   const [forcePaginate, setForcePaginate] = useState(0);
   const [web3Size, setweb3SizeSize] = useState(0);
+  const [discriptionErr, setDiscriptionErr] = useState(false);
 
   const { auth, setAuth, identity, principal } = useConnectPlugWalletStore(
     (state: any) => ({
@@ -189,7 +190,7 @@ export default function AddArticle() {
 
   let gasFee = GAS_FEE / E8S;
 
-  const handleClose = () => { };
+  const handleClose = () => {};
   const handleModalClose = () => {
     if (isArticleSubmitting || isDraftSubmitting) {
       return false;
@@ -256,7 +257,7 @@ export default function AddArticle() {
       if (articleCreator !== principal) return router.replace('/');
 
       if (!tempEntry[0].isDraft) {
-        toast.error('This action is not allowed');
+        toast.error(t('This action is not allowed'));
         return router.push('/');
       }
       setDraftContent(tempEntry[0]);
@@ -273,8 +274,8 @@ export default function AddArticle() {
         tempEntry[0].isPodcast
           ? 'podcast'
           : tempEntry[0].pressRelease
-            ? 'pressRelease'
-            : 'article'
+          ? 'pressRelease'
+          : 'article'
       );
       setDraftPreviewImg(tempEntry[0].image[0]);
       if (tempEntry[0].isPodcast && tempEntry[0].podcastImg.length != 0) {
@@ -328,22 +329,25 @@ export default function AddArticle() {
   const articleSchema = object().shape({
     title: string()
       .required(t('Title is required'))
-      .max(150, t('Title cannot be more than 100 characters')),
+      .max(100, t('Title cannot be more than 100 characters')),
     // description: string().required('Description is required'),
-    seoTitle: string()
-      .required(t('Seo Title is required'))
-      .max(3000, t('Seo Title cannot be more than 3000 characters')),
+    seoTitle: string().max(
+      3000,
+      t('Seo Title cannot be more than 3000 characters')
+    ),
     seoDescription: string().max(
       3000,
       t('Meta Description cannot be more than 3000 characters')
-      
     ),
     seoExcerpt: string()
       .required(t('Short Description is required'))
-      .max(250, t('Short Description cannot be more than 250 characters')),
-    seoSlug: string()
-      .required(t('Slug is required'))
-      .max(3000, t('Slug cannot be more than 3000 characters')),
+      .max(
+        LANG == 'en' ? 250 : 80,
+        LANG == 'en'
+          ? 'Short Description cannot be more than 250 characters'
+          : '短い説明は 80 文字を超えることはできません'
+      ),
+    seoSlug: string().max(3000, t('Slug cannot be more than 3000 characters')),
     // img: mixed().required('Image is required'),
   });
 
@@ -466,6 +470,8 @@ export default function AddArticle() {
           imgName: img.name,
           aspect: ARTICLE_FEATURED_IMAGE_ASPECT,
           callBack: articlePreviewUpload,
+          maxWidth: MAX_ARTICLE_FEATURED_SIZES.width,
+          maxHeight: MAX_ARTICLE_FEATURED_SIZES.height,
         });
         break;
       case 'podcast':
@@ -474,12 +480,16 @@ export default function AddArticle() {
           imgName: img.name,
           aspect: ARTICLE_FEATURED_IMAGE_ASPECT,
           callBack: podcastPreviewUpload,
+          maxWidth: MAX_ARTICLE_FEATURED_SIZES.width,
+          maxHeight: MAX_ARTICLE_FEATURED_SIZES.height,
         });
         break;
       default:
         toast.error(t('Errorr while uploading media'));
         logger(
-          t('Image name did not match any of the provided cases please add a case if you want to use this function for more images')
+          t(
+            'Image name did not match any of the provided cases please add a case if you want to use this function for more images'
+          )
         );
         break;
     }
@@ -516,9 +526,14 @@ export default function AddArticle() {
   const uploadEntry = async (values: FormikValues) => {
     let previewArray = null;
     let podcastPreviewArray = null;
-    if (articleContent.length <= 0) {
+    logger(articleContent.length);
+    let isDec = isDescription(articleContent);
+    if (isDec.length <= 0) {
       return toast.error(t('Article cannot be empty.'));
     }
+    // if (articleContent.length <= 0) {
+    //   return toast.error(t('Article cannot be empty.'));
+    // }
     if (creationType !== 'podcast') {
       if (previewFile !== null) {
         // previewArray = await fileToCanisterBinaryStoreFormat(previewFile);
@@ -526,7 +541,7 @@ export default function AddArticle() {
       } else if (draftPreviewImg !== null) {
         previewArray = draftPreviewImg;
       } else {
-        return toast.error( t('Please select feature image'));
+        return toast.error(t('Please select feature image'));
       }
     }
     if (creationType == 'podcast') {
@@ -563,9 +578,9 @@ export default function AddArticle() {
     // if (selectedCategory.length === 0 && selectedCompany == '') {
     //   return toast.error('Please select at least one  category or Company');
     // }
-    if (selectedTags.length < 1) {
-      return toast.error(t('Please select at least one meta Tag.'));
-    }
+    // if (selectedTags.length < 1) {
+    //   return toast.error(t('Please select at least one meta Tag.'));
+    // }
     if (selectedTags.length > 5) {
       return toast.error(t("Meta Tags can't be more than five."));
     }
@@ -576,17 +591,17 @@ export default function AddArticle() {
       // if (selectedTagsImg.length > 5) {
       //   return toast.error("Image Tags can't be more five.");
       // }
-      if (imgCation.length < 3) {
-        return toast.error(t("Caption can't be less then 3 characters."));
-      }
+      // if (imgCation.length < 3) {
+      //   return toast.error(t("Caption can't be less then 3 characters."));
+      // }
       if (imgCation.length >= 200) {
         return toast.error(t("Caption can't be more 200 characters."));
       }
     }
     if (creationType == 'podcast' && podcastPreviewFile !== null) {
-      if (podcastImgCation.length < 3) {
-        return toast.error(t("Caption can't be less then 3 characters."));
-      }
+      // if (podcastImgCation.length < 3) {
+      //   return toast.error(t("Caption can't be less then 3 characters."));
+      // }
       if (podcastImgCation.length >= 200) {
         return toast.error(t("Caption can't be more 200 characters."));
       }
@@ -662,8 +677,8 @@ export default function AddArticle() {
         creationType == 'podcast'
           ? false
           : creationType == 'pressRelease'
-            ? true
-            : false,
+          ? true
+          : false,
       // imageTags:
       //   creationType == 'podcast'
       //     ? ['']
@@ -689,7 +704,8 @@ export default function AddArticle() {
             article.isPromoted = false;
             article.promotionICP = 0;
 
-            if (!confirmTransaction) toast.success('Draft Saved successfully');
+            if (!confirmTransaction)
+              toast.success(t('Draft Saved successfully'));
           } else {
             logger(res, 'draft Published successfully');
             // toast.success(reviewMsg);
@@ -739,7 +755,8 @@ export default function AddArticle() {
           logger(res, 'article Added successfully');
           draftId = res.ok[1];
           if (isArticleDraft) {
-            if (!confirmTransaction) toast.success('Draft Saved successfully');
+            if (!confirmTransaction)
+              toast.success(t('Draft Saved successfully'));
             setArticleStatus(false);
             router.replace(`/add-article?draftId=${res.ok[1]}`);
           } else {
@@ -752,7 +769,7 @@ export default function AddArticle() {
               router.replace(`/podcast?podcastId=${res.ok[1]}`);
             } else {
               if (creationType == 'pressRelease') {
-                toast.success(t('Your PressRelease has been sent for review.'));;
+                toast.success(t('Your PressRelease has been sent for review.'));
               } else {
                 toast.success(t('Your Article has been sent for review.'));
               }
@@ -847,13 +864,17 @@ export default function AddArticle() {
     } else {
       setSelectedTags(selectedOptions);
     }
-    logger(selectedOptions, 'selectedOptions');
+    // logger(selectedOptions, 'selectedOptions');
     // const nonEmptyTags = selectedOptions.filter((tag:any) => tag !== '');
   };
   // const handleTagChangeImg = (selectedOptions: any) => {
   //   setSelectedTagsImg(selectedOptions);
   // };
   const handlePublish = async () => {
+    let isDec = isDescription(articleContent);
+    if (isDec.length <= 0) {
+      setDiscriptionErr(true);
+    }
     setIsArticleDraft(false);
     formikRef.current?.handleSubmit();
     // const returniii = await formikRef.current?.validateForm();
@@ -908,7 +929,9 @@ export default function AddArticle() {
         setConfirmTransaction(false);
         setIsArticleSubmitting(false);
         return toast.error(
-          `Insufficient balance to promote. Current Balance: ${balanceICP}`
+          `${t(
+            'Insufficient balance to promote. Current Balance:'
+          )} ${balanceICP}`
         );
       } else {
       }
@@ -933,7 +956,7 @@ export default function AddArticle() {
         principal: adminPrincipal,
         // subAccount: identity.getPrincipal(),
       });
-      if (!entryCanisterId) return toast.error('Error in transaction');
+      if (!entryCanisterId) return toast.error(t('Error in transaction'));
       let entryPrincipal = Principal.fromText(entryCanisterId);
       let approval = await ledgerActor.icrc2_approve({
         amount: approvingPromotionE8S,
@@ -1092,7 +1115,7 @@ export default function AddArticle() {
                     {({ errors, touched, handleChange, handleBlur }) => (
                       <FormikForm
                         className='flex w-full flex-col items-center justify-center'
-                      // onChange={(e) => handleImageChange(e)}
+                        // onChange={(e) => handleImageChange(e)}
                       >
                         <Field name='title'>
                           {({ field, formProps }: any) => (
@@ -1131,11 +1154,18 @@ export default function AddArticle() {
                           />
                         </div>
                         <div className='full-div my-3'>
+                          <Form.Label>{t('Description')}</Form.Label>
                           <Texteditor
                             initialValue={articleContent}
                             value={articleContent}
                             onChangefn={setArticleContent}
+                            errorState={setDiscriptionErr}
                           />
+                          {discriptionErr && (
+                            <div className='text-danger mb-2'>
+                              {t('Description is required')}
+                            </div>
+                          )}
                         </div>
                         <Field name='seoExcerpt'>
                           {({ field, formProps }: any) => (
@@ -1143,7 +1173,10 @@ export default function AddArticle() {
                               className='mb-2'
                               controlId='exampleForm.ControlTextarea1'
                             >
-                              <Form.Label>{t('Short description')}</Form.Label>
+                              <Form.Label>
+                                {t('Short description')} {field.value.length}/
+                                {LANG == 'en' ? 250 : 80}
+                              </Form.Label>
                               <Form.Control
                                 className='small'
                                 as='textarea'
@@ -1174,7 +1207,7 @@ export default function AddArticle() {
                               </div>
                               <Form.Control
                                 type='text'
-                                placeholder='Title'
+                                placeholder={t('Title')}
                                 value={field.value}
                                 onChange={handleChange}
                                 onInput={handleBlur}
@@ -1250,11 +1283,9 @@ export default function AddArticle() {
                           onChange={handleTagChange}
                           placeholder={t('Enter tags...')}
                           allowNew // Allow users to add new tags
-                          newSelectionPrefix='Add new tag: '
+                          newSelectionPrefix={t('Add new tag:')}
                           clearButton // Show a clear button
                         />
-
-
 
                         {/* <Button
                           type='submit'
@@ -1346,24 +1377,27 @@ export default function AddArticle() {
                     </div>
                     <div className='d-flex justify-content-center my-2 gap-3'>
                       <Button
-                        className={`default-btn  ${creationType == 'article' ? 'active' : ''
-                          }`}
+                        className={`default-btn  ${
+                          creationType == 'article' ? 'active' : ''
+                        }`}
                         disabled={isDraftSubmitting || isArticleSubmitting}
                         onClick={() => setCreationType('article')}
                       >
                         {t('Article')}
                       </Button>
                       <Button
-                        className={`default-btn  ${creationType == 'pressRelease' ? 'active' : ''
-                          }`}
+                        className={`default-btn  ${
+                          creationType == 'pressRelease' ? 'active' : ''
+                        }`}
                         disabled={isDraftSubmitting || isArticleSubmitting}
                         onClick={() => setCreationType('pressRelease')}
                       >
                         {t('Press Release')}
                       </Button>
                       <Button
-                        className={`default-btn  ${creationType == 'podcast' ? 'active' : ''
-                          }`}
+                        className={`default-btn  ${
+                          creationType == 'podcast' ? 'active' : ''
+                        }`}
                         disabled={isDraftSubmitting || isArticleSubmitting}
                         onClick={() => setCreationType('podcast')}
                       >
@@ -1372,10 +1406,11 @@ export default function AddArticle() {
                     </div>
                     <div className='flex-div p-2'>
                       <Button
-                        className={`red-link  ${isDraftSubmitting || isArticleSubmitting
-                          ? 'disabledBtn'
-                          : ''
-                          }`}
+                        className={`red-link  ${
+                          isDraftSubmitting || isArticleSubmitting
+                            ? 'disabledBtn'
+                            : ''
+                        }`}
                         disabled={isDraftSubmitting || isArticleSubmitting}
                         onClick={clearPost}
                       >
@@ -1477,10 +1512,11 @@ export default function AddArticle() {
                         ) : Companies.length > 0 ? (
                           Companies.map((Company: any, index) => (
                             <p
-                              className={`category ${selectedCompany.includes(Company[0])
-                                ? 'active'
-                                : ''
-                                }`}
+                              className={`category ps-1 ${
+                                selectedCompany.includes(Company[0])
+                                  ? 'active selectedBgClr'
+                                  : ''
+                              }`}
                               key={index}
                               onClick={() => {
                                 if (selectedCompany.includes(Company[0])) {
@@ -1771,7 +1807,8 @@ export default function AddArticle() {
                 <div className='txt-pnl'>
                   <h6>
                     <Link href={`/`} onClick={(e) => e.preventDefault()}>
-                      By {user?.name[0] ?? ''}{' '}
+                      {t('by')}
+                      {user?.name[0] ?? ''}{' '}
                     </Link>
                     {/* <Button>
               <Image src={iconcap} alt='Cap' /> Expert
@@ -1782,9 +1819,9 @@ export default function AddArticle() {
             </Button>
           )} */}
                   </h6>
-                  <p>
+                  {/* <p>
                     Content Felow of <b>NFTStudio24</b>
-                  </p>
+                  </p> */}
                   <span className='small'>
                     {' '}
                     {/* {user
@@ -1829,13 +1866,14 @@ export default function AddArticle() {
               <div className='spacer-20'></div>
             </div>
             <ul className='hash-list'>
-              {selectedCategoriesNames && selectedCategoriesNames.map(
-                (category: string, index: number) => (
-                  <li key={index}>
-                    <span>#</span> {category}
-                  </li>
-                )
-              )}
+              {selectedCategoriesNames &&
+                selectedCategoriesNames.map(
+                  (category: string, index: number) => (
+                    <li key={index}>
+                      <span>#</span> {category}
+                    </li>
+                  )
+                )}
             </ul>
           </div>
         </Modal.Body>

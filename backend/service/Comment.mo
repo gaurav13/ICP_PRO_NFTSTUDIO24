@@ -36,13 +36,13 @@ shared ({ caller = initializer }) actor class () {
   };
   type Activities = [Activity];
   type Permission = UserType.Permission;
-
+  type Entry = EntryType.Entry;
   type AdminActivityType = UserType.AdminActivityType;
   type AdminActivity = {
     activity_type : AdminActivityType;
     time : Int;
     target : Text;
-    title:Text;
+    title : Text;
   };
   type AdminActivities = [AdminActivity];
 
@@ -58,7 +58,7 @@ shared ({ caller = initializer }) actor class () {
   type CommentsStore = [(Key, Comments)];
   type ActivityStore = [(UserId, Activities)];
   type AdminActivityStore = [(UserId, AdminActivities)];
-
+  stable var comment_reward : Nat = 1000;
   stable var stable_comments : CommentsStore = [];
   var commentstorage = Map.fromIter<Key, Comments>(stable_comments.vals(), 0, Text.equal, Text.hash);
 
@@ -85,7 +85,7 @@ shared ({ caller = initializer }) actor class () {
         // user = user;
         target = target;
         activity_type = activityType;
-        title=title;
+        title = title;
       };
       switch (oldActivities) {
         case (?isActivities) {
@@ -139,7 +139,7 @@ shared ({ caller = initializer }) actor class () {
     };
 
   };
-  public shared ({ caller }) func addAdminActivity(user : UserId, target : Text, activityType : AdminActivityType,title:Text) : async Bool {
+  public shared ({ caller }) func addAdminActivity(user : UserId, target : Text, activityType : AdminActivityType, title : Text) : async Bool {
     assert not Principal.isAnonymous(caller);
     assert Principal.isController(caller);
     assert activitystorage.size() <= MAX_ACTIVITIES;
@@ -154,7 +154,7 @@ shared ({ caller = initializer }) actor class () {
         // user = user;
         target = target;
         activity_type = activityType;
-        title=title;
+        title = title;
       };
       switch (oldActivities) {
         case (?isActivities) {
@@ -215,12 +215,43 @@ shared ({ caller = initializer }) actor class () {
     };
 
   };
-  public shared ({ caller }) func addComment(inputComment : InputComment, userCanisterId : Text, article : Text,title:Text,entryType:Text) : async Result.Result<(Comment, Text), Text> {
-    assert not Principal.isAnonymous(caller);
-    assert commentstorage.size() <= MAX_COMMENTS;
-    let userCanister = actor (userCanisterId) : actor {
-      check_user_exists : (caller : Principal) -> async Bool;
+  func isUserCommented(userId : Principal, articleId : Text) : Bool {
+    let oldComments = commentstorage.get(articleId);
+    switch (oldComments) {
+      case (?isComment) {
+        let isCommented = Array.find<Comment>(isComment, func x = x == userId);
+        switch (isCommented) {
+          case (?useComment) {
+            return true;
+          };
+          case (null) {
+            return false;
+          };
+        };
+
+      };
+      case (null) {
+        return false;
+      };
     };
+  };
+  public shared ({ caller }) func addComment(inputComment : InputComment, userCanisterId : Text, entryCanisterId : Text, article : Text, title : Text, entryType : Text) : async Result.Result<(Comment, Text), Text> {
+    assert not Principal.isAnonymous(caller);
+    let userCanister = actor (userCanisterId) : actor {
+      add_reward : (caller : Principal, like_reward : Nat) -> async Bool;
+      check_user_exists : (caller : Principal) -> async Bool;
+      get_NFT24Coin :() -> async Nat ;
+    };
+    let entryCanister = actor (entryCanisterId) : actor {
+      getEntry : (key : Text) -> async ?Entry;
+      updateEntry(tempEntry : Entry, key : Text) : async Bool;
+    };
+
+    let maybeEntry = await entryCanister.getEntry(article);
+    var isfirstComment = true;
+
+    assert commentstorage.size() <= MAX_COMMENTS;
+
     let isUser = await userCanister.check_user_exists(caller);
     assert isUser;
     // assert inputComment
@@ -234,51 +265,175 @@ shared ({ caller = initializer }) actor class () {
         user = caller;
         content = inputComment;
       };
-      switch (oldComments) {
-        case (?isComments) {
-          assert isComments.size() <= MAX_COMMENTS_PER_ARTICLE;
-          let newComments = Array.append<Comment>(isComments, [tempComment]);
-          commentstorage.put(article, newComments);
-          if(entryType=="podcast"){
-          let activitied = addActivity(caller, article, #comment_podcats,title);
 
-          }else if(entryType=="pressRelease"){
-          let activitied = addActivity(caller, article, #comment_pressRelease,title);
+      switch (maybeEntry) {
+        case (?isEntry) {
 
-          }else{
-          let activitied = addActivity(caller, article, #comment,title);
+          //  tempLikedUsers = isEntry.likedUsers;
+          var isCommented = isUserCommented(caller, article);
+          var isPromoted = isEntry.isPromoted;
+          var newPromoted = false;
 
+          if (isPromoted) {
+            if (isCommented) {
+              return #err("You already comment on this entry.");
+            } else {
+
+              var newPromotionICP : Nat = isEntry.promotionICP;
+              var shouldReward = false;
+              var oneCoinsValue=await userCanister.get_NFT24Coin();
+              var tempRewardAmount=oneCoinsValue*comment_reward;
+              if ((newPromotionICP - tempRewardAmount) : Int == 0) {
+                newPromotionICP := newPromotionICP - tempRewardAmount;
+                newPromoted := false;
+                shouldReward := true;
+              } else if ((newPromotionICP - tempRewardAmount) : Int <= 0) {
+                shouldReward := false;
+                newPromoted := false;
+              } else {
+                newPromotionICP := newPromotionICP - tempRewardAmount;
+                newPromoted := true;
+                shouldReward := true;
+              };
+              // let newLikedUsers = Array.append(tempLikedUsers, [caller]);
+              var isUserRewarded = true;
+              if (shouldReward) {
+                isUserRewarded := await userCanister.add_reward(caller, comment_reward);
+              };
+
+              if (isUserRewarded) {
+
+                var tempEntry : Entry = {
+                  title = isEntry.title;
+                  description = isEntry.description;
+                  image = isEntry.image;
+                  creation_time = isEntry.creation_time;
+                  user = isEntry.user;
+                  views = isEntry.views;
+                  likes = isEntry.likes;
+                  category = isEntry.category;
+                  seoTitle = isEntry.seoTitle;
+                  seoSlug = isEntry.seoSlug;
+                  viewedUsers = isEntry.viewedUsers;
+                  likedUsers = isEntry.likedUsers;
+                  seoDescription = isEntry.seoDescription;
+                  seoExcerpt = isEntry.seoExcerpt;
+                  subscription = isEntry.subscription;
+                  isDraft = isEntry.isDraft;
+                  isPromoted = newPromoted;
+                  minters = isEntry.minters;
+                  userName = isEntry.userName;
+                  // promotionLikesTarget = isEntry.promotionLikesTarget;
+                  promotionICP = newPromotionICP;
+                  status = isEntry.status;
+                  promotionHistory = isEntry.promotionHistory;
+                  pressRelease = isEntry.pressRelease;
+                  caption = isEntry.caption;
+                  tags = isEntry.tags;
+                  isCompanySelected = isEntry.isCompanySelected;
+                  companyId = isEntry.companyId;
+                  isPodcast = isEntry.isPodcast;
+                  podcastVideoLink = isEntry.podcastVideoLink;
+                  podcastImgCation = isEntry.podcastImgCation;
+                  podcastImg = isEntry.podcastImg;
+                  isStatic = isEntry.isStatic;
+
+                };
+                let newEntry = entryCanister.updateEntry(tempEntry, article);
+                switch (oldComments) {
+                  case (?isComments) {
+                    assert isComments.size() <= MAX_COMMENTS_PER_ARTICLE;
+                    let newComments = Array.append<Comment>(isComments, [tempComment]);
+                    commentstorage.put(article, newComments);
+                    if (entryType == "podcast") {
+                      let activitied = addActivity(caller, article, #comment_podcats, title);
+
+                    } else if (entryType == "pressRelease") {
+                      let activitied = addActivity(caller, article, #comment_pressRelease, title);
+
+                    } else {
+                      let activitied = addActivity(caller, article, #comment, title);
+
+                    };
+                    isfirstComment := false;
+                  };
+                  case (null) {
+                    let initComments = [tempComment];
+                    commentstorage.put(article, initComments);
+                    if (entryType == "podcast") {
+                      let activitied = addActivity(caller, article, #comment_podcats, title);
+
+                    } else if (entryType == "pressRelease") {
+                      let activitied = addActivity(caller, article, #comment_pressRelease, title);
+
+                    } else {
+                      let activitied = addActivity(caller, article, #comment, title);
+
+                    };
+                  };
+                };
+
+              } else {
+
+                return #err("Error while adding comment");
+              };
+              //  return #err("HIIIIi");
+
+            };
+
+          } else {
+
+            switch (oldComments) {
+              case (?isComments) {
+                assert isComments.size() <= MAX_COMMENTS_PER_ARTICLE;
+                let newComments = Array.append<Comment>(isComments, [tempComment]);
+                commentstorage.put(article, newComments);
+                if (entryType == "podcast") {
+                  let activitied = addActivity(caller, article, #comment_podcats, title);
+
+                } else if (entryType == "pressRelease") {
+                  let activitied = addActivity(caller, article, #comment_pressRelease, title);
+
+                } else {
+                  let activitied = addActivity(caller, article, #comment, title);
+
+                };
+                isfirstComment := false;
+              };
+              case (null) {
+                let initComments = [tempComment];
+                commentstorage.put(article, initComments);
+                if (entryType == "podcast") {
+                  let activitied = addActivity(caller, article, #comment_podcats, title);
+
+                } else if (entryType == "pressRelease") {
+                  let activitied = addActivity(caller, article, #comment_pressRelease, title);
+
+                } else {
+                  let activitied = addActivity(caller, article, #comment, title);
+
+                };
+              };
+            };
           };
-          return #ok(tempComment, "Comment added successfully");
         };
         case (null) {
-          let initComments = [tempComment];
-          commentstorage.put(article, initComments);
-             if(entryType=="podcast"){
-          let activitied = addActivity(caller, article, #comment_podcats,title);
+          return #err("Error while adding comment");
 
-          }else if(entryType=="pressRelease"){
-          let activitied = addActivity(caller, article, #comment_pressRelease,title);
-
-          }else{
-          let activitied = addActivity(caller, article, #comment,title);
-
-          };
-          return #ok(tempComment, "First Comment added successfully");
         };
       };
+
+      if (isfirstComment) {
+        return #ok(tempComment, "First Comment added successfully");
+
+      } else {
+        return #ok(tempComment, "Comment added successfully");
+
+      };
+
     } catch (err) {
       return #err("Error while adding comment");
     };
-    // oldComments.add(tempComment);
-    // commentstorage.put(article, tempComment);
-    // let newEntryStorage : Map.HashMap<Key, Comments> = Map.fromIter<Key, Comments>(stable_comments.vals(), 0, Text.equal, Text.hash);
-    // return newEntryStorage;
-
-    // // let entryId = EntryType.generateNewRemoteObjectId();
-    // // entryStorage := EntryStoreHelper.addNewEntry(entryStorage, entry, entryId, caller);
-
-    // return "entryId";
   };
   public query func getComments(article : Text) : async Result.Result<(Comments, Text), Text> {
     let maybeComments = commentstorage.get(article);
@@ -293,6 +448,20 @@ shared ({ caller = initializer }) actor class () {
       };
     };
 
+  };
+  public query ({ caller }) func get_comment_reward() : async Nat {
+    assert not Principal.isAnonymous(caller);
+    return comment_reward;
+  };
+  public shared ({ caller }) func update_comment_reward(userCanisterId : Text, inputReward : Nat) : async Nat {
+    assert not Principal.isAnonymous(caller);
+    let userCanister = actor (userCanisterId) : actor {
+      entry_require_permission : (pal : Principal, perm : Permission) -> async Bool;
+    };
+    assert await userCanister.entry_require_permission(caller, #assign_role);
+    assert comment_reward < 100000000;
+    comment_reward := inputReward;
+    return comment_reward;
   };
   system func preupgrade() {
     Debug.print("Starting pre-upgrade hook...");

@@ -665,14 +665,14 @@ export default function SidebarHome() {
           <Modal.Body>
             <div className='flex-div connect-heading-pnl'>
               <i className='fa fa-question-circle-o'></i>
-              <p>Connect Wallet</p>
+              <p>{t('Connect Wallet')}</p>
               <Button className='close-btn' onClick={handleClose}>
                 <i className='fa fa-close'></i>
               </Button>
             </div>
             <div className='full-div'>
               <Button className='grey-btn'>
-                <p>Plug Wallet</p>
+                <p>{t('Plug Wallet')}</p>
                 <Image src={Wallet} alt='Wallet' />
               </Button>
               <Link
@@ -682,7 +682,7 @@ export default function SidebarHome() {
                 href='/entriesn'
                 className='grey-btn'
               >
-                <p>Internet Identity</p>
+                <p>{t('Internet Identity')}</p>
                 <Image src={Infinity} alt='Infinity' />
               </Link>
             </div>

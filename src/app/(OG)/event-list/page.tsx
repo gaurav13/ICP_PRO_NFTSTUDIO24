@@ -11,14 +11,6 @@ import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import smallpost4 from '@/assets/Img/event-4.png';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-
 export default function AllArticles() {
   const { t, changeLocale } = useLocalization(LANG);
   return (
@@ -26,7 +18,7 @@ export default function AllArticles() {
       <main id='main'>
         <div className='main-inner home'>
           <Head>
-            <title>Hi</title>
+            <title>{t('Hi')}</title>
           </Head>
           <div className='section text-left' id='top'>
             <Row>
@@ -43,7 +35,7 @@ export default function AllArticles() {
                   <Col xxl='12' xl='12' lg='12' md='12' sm='12'>
                     <div className='spacer-20'></div>
                     <Link className='upcoming-btn' href='#'>
-                      Upcoming <i className='fa fa-angle-down'></i>
+                      {t('Upcoming')} <i className='fa fa-angle-down'></i>
                     </Link>
                     <div className='spacer-40'></div>
                   </Col>
@@ -67,7 +59,9 @@ export default function AllArticles() {
                             Australia, Australia
                           </p>
                           <p>
-                            {t('Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!')}
+                            {t(
+                              'Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!'
+                            )}
                           </p>
                         </div>
                         <div className='img-pnl'>

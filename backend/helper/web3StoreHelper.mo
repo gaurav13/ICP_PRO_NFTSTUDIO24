@@ -28,6 +28,7 @@ module Web3StoreHelper {
   type Id = Principal;
   type Key = Text;
   private let MAX_LINK_CHARS = 2048;
+    private let MAX_EMAIL_CHARS = 320;
   public func companyExists(company : Text, web3Storage : Web3Storage) : Bool {
     // let users = Map.HashMap.entries<Id, User>(userStorage);
     for ((_, web3) : (Text, Web3) in web3Storage.entries()) {
@@ -90,6 +91,7 @@ module Web3StoreHelper {
 
     assert web3.twitter.size() <= MAX_LINK_CHARS;
     temptwitterLink := web3.twitter;
+    assert web3.founderEmail.size() <= MAX_EMAIL_CHARS;
 
     var web3Status : Web3Status = #un_verfied;
 
@@ -124,6 +126,9 @@ module Web3StoreHelper {
             podcastCount = isweb3.podcastCount;
             pressReleaseCount = isweb3.pressReleaseCount;
             totalCount = isweb3.totalCount;
+             isStatic=isweb3.isStatic;
+             founderEmail=isweb3.founderEmail;
+
 
           };
           let res=web3Storage.replace(web3Id, tempWeb3);
@@ -163,6 +168,9 @@ module Web3StoreHelper {
       podcastCount = 0;
       pressReleaseCount = 0;
       totalCount = 0;
+      isStatic=false;
+             founderEmail=web3.founderEmail;
+
 
     };
 

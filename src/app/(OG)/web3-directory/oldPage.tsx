@@ -28,14 +28,6 @@ import DirectorySlider from '@/components/DirectorySlider/oldDirectorySlider';
 import CompanySlider from '@/components/CompanySlider/CompanySlider';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-
 export default function article() {
   const { t, changeLocale } = useLocalization(LANG);
   const [userImg, setUserImg] = useState<string | null>();
@@ -164,7 +156,8 @@ export default function article() {
               </Col>
               <Col xl='8' lg='8'>
                 <h2>
-                  <b>{t('Uncover and Explore')}</b> {t('innovation WEB3 Companies and their Leaders')}
+                  <b>{t('Uncover and Explore')}</b>{' '}
+                  {t('innovation WEB3 Companies and their Leaders')}
                 </h2>
               </Col>
               <Col xl='4' lg='4' className='text-right'>
@@ -195,7 +188,7 @@ export default function article() {
                   <div className='left-side-pnl'>
                     <div className='spacer-50'></div>
                     <Link href='#' className='reg-btn'>
-                      FAQ
+                      {t('FAQ')}
                     </Link>
                     <div className='spacer-20'></div>
                     <Dropdown>
@@ -204,7 +197,8 @@ export default function article() {
                         className='fill'
                         id='dropdown-basic'
                       >
-                        All Company <i className='fa fa-angle-down'></i>
+                        {t('All Company')}
+                        <i className='fa fa-angle-down'></i>
                       </Dropdown.Toggle>
                       {/* 
                       <Dropdown.Menu>
@@ -220,8 +214,8 @@ export default function article() {
                     <ul className='tab-blue-list'>
                       <li>
                         <Link className='active' href='#'>
-                          <i className='fa fa-angle-right'></i> Search for
-                          People
+                          <i className='fa fa-angle-right'></i>{' '}
+                          {t('Search for People')}
                         </Link>
                       </li>
                       <li>

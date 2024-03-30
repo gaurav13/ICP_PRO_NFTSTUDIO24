@@ -61,10 +61,11 @@ shared ({ caller = initializer }) actor class () {
   private var sectek = "#cosa@erwe0ss1s<e}s*dfCc<e>c!dwa)<vvde>";
 
   stable var stable_users : Users = [];
-
+  stable var oneNFT24Coin : Nat = 100000;
   var userStorage = Map.fromIter<Id, User>(stable_users.vals(), stable_users.size(), Principal.equal, Principal.hash);
   var GAS_FEE = 10000;
   var MIN_REWARD = GAS_FEE * 3;
+  let E8S : Nat = 100000000;
   let MASTER_WALLET = UserType.MASTER_WALLET;
 
   func emailExists(email : Text) : Bool {
@@ -379,7 +380,7 @@ shared ({ caller = initializer }) actor class () {
 
   };
   // artificial reward
-  public shared ({ caller }) func give_reward(userId : Id, givenReward : Nat) : async Bool {
+  public shared ({ caller }) func give_reward(userId : Id, givenReward : Nat, isMenual : Bool) : async Bool {
     assert require_permission(caller, #assign_role);
 
     let isOldUser = userStorage.get(userId);
@@ -397,8 +398,12 @@ shared ({ caller = initializer }) actor class () {
       let user = userStorage.get(userId);
       switch user {
         case (?iuser) {
+          var tempIsClaimed = true;
+          if (isMenual) {
+            tempIsClaimed := false;
+          };
           var tempReward : Reward = {
-            isClaimed = true;
+            isClaimed = tempIsClaimed;
             creation_time = Time.now() / 1000000;
             claimed_at = ?(Time.now() / 1000000);
             amount = givenReward;
@@ -475,9 +480,9 @@ shared ({ caller = initializer }) actor class () {
         joinedFrom = user.joinedFrom;
         isBlocked = user.isBlocked;
         isAdminBlocked = user.isAdminBlocked;
-            isVerified = user.isVerified;
-    isVerificationRequested = user.isVerificationRequested;
-    identificationImage =user.identificationImage;
+        isVerified = user.isVerified;
+        isVerificationRequested = user.isVerificationRequested;
+        identificationImage = user.identificationImage;
       };
       switch (user.role) {
         // case (#admin or #sub_admin or #user_admin) {
@@ -642,6 +647,29 @@ shared ({ caller = initializer }) actor class () {
         return ?{
           name = iuser.name;
           image = iuser.profileImg;
+        };
+      };
+      case (null) {
+        return null;
+
+      };
+    };
+
+    // let user = userStorage.get(caller);
+
+  };
+  public query func get_user_email(userId : Principal) : async ?{
+    email : ?Text;
+  } {
+    // assert is_user(userId) != null;
+
+    let user = userStorage.get(userId);
+
+    switch user {
+      case (?iuser) {
+        return ?{
+          email = iuser.email;
+
         };
       };
       case (null) {
@@ -919,7 +947,10 @@ shared ({ caller = initializer }) actor class () {
   };
 
   // Edit User details by the caller
-  public shared ({ caller }) func update_user(user : InputUser) : async Result.Result<(Text, User, ?User), Text> {
+  public shared ({ caller }) func update_user(user : InputUser, entryCanisterId : Text) : async Result.Result<(Text, User, ?User), Text> {
+    let entryCanister = actor (entryCanisterId) : actor {
+      updateUserEntries : (userId : Principal, userName : Text) -> async Bool;
+    };
     let oldUser = is_user(caller);
     assert oldUser != null;
     var tempRewareds : Rewards = [];
@@ -1055,6 +1086,21 @@ shared ({ caller = initializer }) actor class () {
         tempVerified := isUser.isVerified;
         tempVerificationRequested := isUser.isVerificationRequested;
         tempidentificationImage := isUser.identificationImage;
+        // let oldname = isUser.name;
+        switch (isUser.name) {
+          case (?oldname) {
+            let isOldname = Text.notEqual(oldname, tempName);
+
+            if (isOldname) {
+
+              let result = entryCanister.updateUserEntries(caller, tempName);
+            };
+          };
+          case (null) {
+
+          };
+        };
+
       };
       case (null) {
         return #err("Error while updating joined date");
@@ -1091,9 +1137,12 @@ shared ({ caller = initializer }) actor class () {
 
   };
   // Edit User details by the admin
-  public shared ({ caller }) func admin_update_user(userId : Id, user : InputUser) : async Result.Result<(Text, User, ?User), Text> {
+  public shared ({ caller }) func admin_update_user(userId : Id, user : InputUser, entryCanisterId : Text) : async Result.Result<(Text, User, ?User), Text> {
     let oldUser = is_user(userId);
     assert require_permission(caller, #assign_role);
+    let entryCanister = actor (entryCanisterId) : actor {
+      updateUserEntries : (userId : Principal, userName : Text) -> async Bool;
+    };
     assert oldUser != null;
     var tempRewareds : Rewards = [];
     var tempRole : Role = #authorized;
@@ -1227,6 +1276,19 @@ shared ({ caller = initializer }) actor class () {
         tempVerified := isUser.isVerified;
         tempVerificationRequested := isUser.isVerificationRequested;
         tempidentificationImage := isUser.identificationImage;
+        switch (isUser.name) {
+          case (?oldname) {
+            let isOldname = Text.notEqual(oldname, tempName);
+
+            if (isOldname) {
+
+              let result = entryCanister.updateUserEntries(userId, tempName);
+            };
+          };
+          case (null) {
+
+          };
+        };
       };
       case (null) {
         return #err("Error while updating joined date");
@@ -1262,7 +1324,7 @@ shared ({ caller = initializer }) actor class () {
     return #ok("User Updated Successfuly", tempUser, beforeUser)
 
   };
-   public query ({ caller }) func get_users(search : Text,status:Bool, startIndex : Nat, length : Nat) : async {
+  public query ({ caller }) func get_users(search : Text, status : Bool, startIndex : Nat, length : Nat) : async {
     users : [(Id, ListUser)];
     amount : Nat;
   } {
@@ -1276,13 +1338,13 @@ shared ({ caller = initializer }) actor class () {
         joinedFrom = user.joinedFrom;
         isBlocked = user.isBlocked;
         isAdminBlocked = user.isAdminBlocked;
-         isVerified = user.isVerified;
-    isVerificationRequested = user.isVerificationRequested;
-    identificationImage =user.identificationImage;
+        isVerified = user.isVerified;
+        isVerificationRequested = user.isVerificationRequested;
+        identificationImage = user.identificationImage;
       };
-if(status==user.isVerified and user.isVerificationRequested){
-   usersList.put(id, listUser);
-}
+      if (status == user.isVerified and user.isVerificationRequested) {
+        usersList.put(id, listUser);
+      };
     };
     return EntryStoreHelper.searchSortUserList(usersList, search, startIndex, length);
 
@@ -1428,7 +1490,7 @@ if(status==user.isVerified and user.isVerificationRequested){
           isAdminBlocked = user.isAdminBlocked;
           isVerified = false;
           isVerificationRequested = false;
-        identificationImage = null;
+          identificationImage = null;
         };
         // tempUser.isBlocked := true
         let oldUser = userStorage.replace(userPrincipal, tempUser);
@@ -1510,11 +1572,15 @@ if(status==user.isVerified and user.isVerificationRequested){
     assert not Principal.isAnonymous(caller);
     switch (oldUser) {
       case (?isUser) {
-        if (isUser.isVerified) {
+        if (not isUser.isVerified) {
+          Debug.print(debug_show ("66", "rewardToGive"));
+
           return false;
         };
       };
       case (null) {
+        Debug.print(debug_show ("88", "rewardToGive"));
+
         return false;
       };
     };
@@ -1550,8 +1616,13 @@ if(status==user.isVerified and user.isVerificationRequested){
     switch (oldUser) {
       case (?isUser) {
         let oldRewards = isUser.rewards;
+        let ttt : Nat = 100_011_600;
+
         var newRewards = Array.map<Reward, Reward>(oldRewards, claim_reward);
-        if (claimableAmount < MIN_REWARD) {
+        var totalICP : Nat = (claimableAmount * oneNFT24Coin);
+
+
+        if (totalICP < MIN_REWARD) {
           newRewards := oldRewards;
         };
         var tempUser = {
@@ -1579,12 +1650,14 @@ if(status==user.isVerified and user.isVerificationRequested){
           isVerificationRequested = isUser.isVerificationRequested;
           identificationImage = isUser.identificationImage;
         };
-        if (claimableAmount >= MIN_REWARD) {
+        if (totalICP >= MIN_REWARD) {
           let newEntry = userStorage.replace(caller, tempUser);
           newRewards := oldRewards;
 
           let gasFee = 10000;
-          let rewardToGive : Nat = claimableAmount - gasFee;
+
+          let rewardToGive = totalICP - gasFee;
+
           if (rewardToGive <= 0) {
             return false;
           };
@@ -1608,6 +1681,22 @@ if(status==user.isVerified and user.isVerificationRequested){
 
       };
     };
+  };
+
+  public shared ({ caller }) func update_NFT24Coin(inputReward : Nat) : async Bool {
+    assert not Principal.isAnonymous(caller);
+
+    assert await entry_require_permission(caller, #assign_role);
+    assert inputReward > 0;
+    assert inputReward <= E8S;
+
+    var oneCoinVal = E8S / inputReward;
+    oneNFT24Coin := oneCoinVal;
+    return true;
+  };
+  public query ({ caller }) func get_NFT24Coin() : async Nat {
+    assert not Principal.isAnonymous(caller);
+    return oneNFT24Coin;
   };
 
   system func preupgrade() {

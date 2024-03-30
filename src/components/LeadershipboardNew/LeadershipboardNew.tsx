@@ -87,7 +87,7 @@ export default function LeadershipboardNew({ more }: { more?: boolean }) {
         </span>
         <div className='hddr'>
           <Link className='learnmore-bt' href='#'>
-          {t('Learn More')} <i className='fa fa-angle-right'></i>
+            {t('Learn More')} <i className='fa fa-angle-right'></i>
           </Link>
           <div className='im'>
             <Image src={cup} alt='Coin' />
@@ -293,8 +293,12 @@ export default function LeadershipboardNew({ more }: { more?: boolean }) {
           </Link>
         </div>
         <div className='spacer-20'></div>
-        <Button className='blue-button'>
-          <Image src={leadership} alt='leadership' />
+        <Button className='blue-button'>{
+
+
+          LANG === 'en' ? <Image src={leadership} alt='leadership' /> : 'リーダーボード'
+
+        }
         </Button>
       </div>
     </>

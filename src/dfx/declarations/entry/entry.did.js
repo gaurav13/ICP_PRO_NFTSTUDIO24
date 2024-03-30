@@ -20,6 +20,7 @@ export const idlFactory = ({ IDL }) => {
     'applyTicket' : IDL.Text,
     'description' : IDL.Text,
     'website' : IDL.Text,
+    'discountTicket' : IDL.Text,
     'shortDescription' : IDL.Text,
     'facebook' : IDL.Text,
     'category' : IDL.Vec(IDL.Text),
@@ -72,7 +73,7 @@ export const idlFactory = ({ IDL }) => {
     'approved' : IDL.Null,
     'rejected' : IDL.Null,
   });
-  const UserId = IDL.Principal;
+  const UserId__1 = IDL.Principal;
   List.fill(IDL.Opt(IDL.Tuple(IDL.Int, List)));
   const Entry = IDL.Record({
     'creation_time' : IDL.Int,
@@ -86,7 +87,7 @@ export const idlFactory = ({ IDL }) => {
     'subscription' : IDL.Bool,
     'views' : IDL.Nat,
     'tags' : IDL.Vec(IDL.Text),
-    'user' : UserId,
+    'user' : UserId__1,
     'podcastImg' : IDL.Opt(NewImageObject),
     'minters' : IDL.Vec(IDL.Principal),
     'isStatic' : IDL.Bool,
@@ -160,8 +161,9 @@ export const idlFactory = ({ IDL }) => {
     'founderImage' : NewImageObject,
     'instagram' : IDL.Opt(IDL.Text),
     'companyDetail' : IDL.Text,
-    'user' : UserId,
+    'user' : UserId__1,
     'totalCount' : IDL.Int,
+    'isStatic' : IDL.Bool,
     'catagory' : IDL.Text,
     'pressReleaseCount' : IDL.Int,
     'likes' : IDL.Nat,
@@ -174,6 +176,7 @@ export const idlFactory = ({ IDL }) => {
     'articleCount' : IDL.Int,
     'telegram' : IDL.Opt(IDL.Text),
     'podcastCount' : IDL.Int,
+    'founderEmail' : IDL.Text,
     'founderDetail' : IDL.Text,
   });
   const ListEntryItem = IDL.Record({
@@ -182,7 +185,7 @@ export const idlFactory = ({ IDL }) => {
     'userName' : IDL.Text,
     'title' : IDL.Text,
     'views' : IDL.Nat,
-    'user' : UserId,
+    'user' : UserId__1,
     'podcastImg' : IDL.Opt(NewImageObject),
     'minters' : IDL.Vec(IDL.Principal),
     'isStatic' : IDL.Bool,
@@ -206,7 +209,7 @@ export const idlFactory = ({ IDL }) => {
     'seoTitle' : IDL.Text,
     'seoSlug' : IDL.Text,
     'tags' : IDL.Vec(IDL.Text),
-    'user' : UserId,
+    'user' : UserId__1,
     'podcastImg' : IDL.Opt(NewImageObject),
     'description' : IDL.Text,
     'isPodcast' : IDL.Bool,
@@ -222,6 +225,35 @@ export const idlFactory = ({ IDL }) => {
     'podcastImgCation' : IDL.Text,
     'companyId' : IDL.Text,
   });
+  const EventMetadata = IDL.Record({
+    'creation_time' : IDL.Int,
+    'month' : IDL.Nat,
+    'organiser' : IDL.Text,
+    'title' : IDL.Text,
+    'country' : IDL.Text,
+    'seoTitle' : IDL.Text,
+    'endDate' : IDL.Int,
+    'seoSlug' : IDL.Text,
+    'city' : IDL.Text,
+    'date' : IDL.Int,
+    'tags' : IDL.Vec(IDL.Text),
+    'user' : UserId__1,
+    'applyTicket' : IDL.Text,
+    'description' : IDL.Text,
+    'website' : IDL.Text,
+    'shortDescription' : IDL.Text,
+    'category' : IDL.Vec(IDL.Text),
+    'image' : NewImageObject,
+    'seoDescription' : IDL.Text,
+    'freeTicket' : IDL.Text,
+    'seoExcerpt' : IDL.Text,
+    'location' : IDL.Text,
+  });
+  const EntryStatus__1 = IDL.Variant({
+    'pending' : IDL.Null,
+    'approved' : IDL.Null,
+    'rejected' : IDL.Null,
+  });
   const ListPodcastItem = IDL.Record({
     'creation_time' : IDL.Int,
     'status' : EntryStatus,
@@ -229,7 +261,7 @@ export const idlFactory = ({ IDL }) => {
     'title' : IDL.Text,
     'likedUsers' : IDL.Vec(IDL.Principal),
     'views' : IDL.Nat,
-    'user' : UserId,
+    'user' : UserId__1,
     'podcastImg' : IDL.Opt(NewImageObject),
     'minters' : IDL.Vec(IDL.Principal),
     'isStatic' : IDL.Bool,
@@ -244,12 +276,7 @@ export const idlFactory = ({ IDL }) => {
     'seoExcerpt' : IDL.Text,
     'companyId' : IDL.Text,
   });
-  const EntryStatus__1 = IDL.Variant({
-    'pending' : IDL.Null,
-    'approved' : IDL.Null,
-    'rejected' : IDL.Null,
-  });
-  const UserId__1 = IDL.Principal;
+  const UserId = IDL.Principal;
   const Web3Status__1 = IDL.Variant({
     'all' : IDL.Null,
     'un_verfied' : IDL.Null,
@@ -260,21 +287,46 @@ export const idlFactory = ({ IDL }) => {
     'status' : Web3Status,
     'founderName' : IDL.Text,
     'views' : IDL.Nat,
-    'user' : UserId,
+    'user' : UserId__1,
+    'isStatic' : IDL.Bool,
     'catagory' : IDL.Text,
     'company' : IDL.Text,
     'companyLogo' : NewImageObject,
     'companyUrl' : IDL.Opt(IDL.Text),
+    'founderEmail' : IDL.Text,
   });
   const Web3List = IDL.Record({
     'creation_time' : IDL.Int,
     'views' : IDL.Nat,
     'totalCount' : IDL.Int,
+    'isStatic' : IDL.Bool,
     'catagory' : IDL.Text,
     'pressReleaseCount' : IDL.Int,
     'company' : IDL.Text,
     'articleCount' : IDL.Int,
     'podcastCount' : IDL.Int,
+    'founderEmail' : IDL.Text,
+  });
+  const Web3MetaData = IDL.Record({
+    'creation_time' : IDL.Int,
+    'status' : Web3Status,
+    'linkedin' : IDL.Opt(IDL.Text),
+    'companyBanner' : NewImageObject,
+    'founderName' : IDL.Text,
+    'twitter' : IDL.Opt(IDL.Text),
+    'founderImage' : NewImageObject,
+    'instagram' : IDL.Opt(IDL.Text),
+    'companyDetail' : IDL.Text,
+    'user' : UserId__1,
+    'catagory' : IDL.Text,
+    'company' : IDL.Text,
+    'shortDescription' : IDL.Text,
+    'facebook' : IDL.Opt(IDL.Text),
+    'companyLogo' : NewImageObject,
+    'discord' : IDL.Opt(IDL.Text),
+    'companyUrl' : IDL.Opt(IDL.Text),
+    'telegram' : IDL.Opt(IDL.Text),
+    'founderDetail' : IDL.Text,
   });
   const Event__1 = IDL.Record({
     'lat' : IDL.Float64,
@@ -293,10 +345,12 @@ export const idlFactory = ({ IDL }) => {
     'date' : IDL.Int,
     'instagram' : IDL.Text,
     'tags' : IDL.Vec(IDL.Text),
-    'user' : UserId,
+    'user' : UserId__1,
     'applyTicket' : IDL.Text,
+    'isStatic' : IDL.Bool,
     'description' : IDL.Text,
     'website' : IDL.Text,
+    'discountTicket' : IDL.Text,
     'shortDescription' : IDL.Text,
     'facebook' : IDL.Text,
     'category' : IDL.Vec(IDL.Text),
@@ -325,10 +379,12 @@ export const idlFactory = ({ IDL }) => {
     'date' : IDL.Int,
     'instagram' : IDL.Text,
     'tags' : IDL.Vec(IDL.Text),
-    'user' : UserId,
+    'user' : UserId__1,
     'applyTicket' : IDL.Text,
+    'isStatic' : IDL.Bool,
     'description' : IDL.Text,
     'website' : IDL.Text,
+    'discountTicket' : IDL.Text,
     'shortDescription' : IDL.Text,
     'facebook' : IDL.Text,
     'category' : IDL.Vec(IDL.Text),
@@ -396,6 +452,7 @@ export const idlFactory = ({ IDL }) => {
     'discord' : IDL.Text,
     'companyUrl' : IDL.Text,
     'telegram' : IDL.Text,
+    'founderEmail' : IDL.Text,
     'founderDetail' : IDL.Text,
   });
   const Web3Id = IDL.Text;
@@ -413,7 +470,7 @@ export const idlFactory = ({ IDL }) => {
     'userName' : IDL.Text,
     'title' : IDL.Text,
     'views' : IDL.Nat,
-    'user' : UserId,
+    'user' : UserId__1,
     'isStatic' : IDL.Bool,
     'isPromoted' : IDL.Bool,
     'likes' : IDL.Nat,
@@ -477,6 +534,8 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getAllEntryIds' : IDL.Func([IDL.Bool], [IDL.Vec(Key)], ['query']),
+    'getAllEventsIds' : IDL.Func([], [IDL.Vec(Key)], ['query']),
+    'getAllWeb3Ids' : IDL.Func([], [IDL.Vec(Key)], ['query']),
     'getApprovedWeb3List' : IDL.Func(
         [IDL.Nat],
         [IDL.Vec(IDL.Tuple(Key, Web3))],
@@ -511,6 +570,7 @@ export const idlFactory = ({ IDL }) => {
     'getEntry' : IDL.Func([Key], [IDL.Opt(Entry)], ['query']),
     'getEntryMeta' : IDL.Func([Key], [EntryMetadata], ['query']),
     'getEntry_admin' : IDL.Func([Key], [IDL.Opt(Entry)], ['query']),
+    'getEventMeta' : IDL.Func([Key], [EventMetadata], ['query']),
     'getOnlyArticles' : IDL.Func(
         [IDL.Nat, IDL.Vec(IDL.Text)],
         [IDL.Vec(IDL.Tuple(Key, Entry))],
@@ -534,16 +594,6 @@ export const idlFactory = ({ IDL }) => {
     'getPendingWeb3List' : IDL.Func(
         [IDL.Nat],
         [IDL.Vec(IDL.Tuple(Key, Web3))],
-        ['query'],
-      ),
-    'getPodcastList' : IDL.Func(
-        [IDL.Text, IDL.Bool, IDL.Text, IDL.Nat, IDL.Nat],
-        [
-          IDL.Record({
-            'entries' : IDL.Vec(IDL.Tuple(Key, ListPodcastItem)),
-            'amount' : IDL.Nat,
-          }),
-        ],
         ['query'],
       ),
     'getPressEntries' : IDL.Func(
@@ -586,8 +636,18 @@ export const idlFactory = ({ IDL }) => {
         ],
         [],
       ),
+    'getUniqueDataList' : IDL.Func(
+        [IDL.Text, IDL.Bool, IDL.Text, IDL.Nat, IDL.Nat, IDL.Nat],
+        [
+          IDL.Record({
+            'entries' : IDL.Vec(IDL.Tuple(Key, ListPodcastItem)),
+            'amount' : IDL.Nat,
+          }),
+        ],
+        ['query'],
+      ),
     'getUserEntries' : IDL.Func(
-        [UserId__1],
+        [UserId],
         [IDL.Vec(IDL.Tuple(Key, Entry))],
         ['query'],
       ),
@@ -602,7 +662,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getUserPodcast' : IDL.Func(
-        [UserId__1],
+        [UserId],
         [IDL.Vec(IDL.Tuple(Key, Entry))],
         ['query'],
       ),
@@ -647,6 +707,7 @@ export const idlFactory = ({ IDL }) => {
         ],
         ['query'],
       ),
+    'getWeb3Meta' : IDL.Func([Key], [Web3MetaData], ['query']),
     'getWeb3_for_admin' : IDL.Func([Key, IDL.Text], [IDL.Opt(Web3)], []),
     'get_categories' : IDL.Func(
         [IDL.Text, IDL.Nat, IDL.Nat, IDL.Bool],
@@ -711,6 +772,8 @@ export const idlFactory = ({ IDL }) => {
     'likeEntry' : IDL.Func([Key, IDL.Text, IDL.Text], [Result], []),
     'likeWeb3' : IDL.Func([Key, IDL.Text, IDL.Text], [Result], []),
     'makeStatic' : IDL.Func([Key], [IDL.Bool], []),
+    'makeStaticEvent' : IDL.Func([Key], [IDL.Bool], []),
+    'makeStaticWeb3' : IDL.Func([Key], [IDL.Bool], []),
     'mintEntry' : IDL.Func([Key, IDL.Text], [Result], []),
     'trendingEntryItemSidebar' : IDL.Func(
         [IDL.Nat],
@@ -722,11 +785,13 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(Key, TrendingEntryItemSidebar))],
         ['query'],
       ),
+    'updateEntry' : IDL.Func([Entry, IDL.Text], [IDL.Bool], []),
     'updateEvent' : IDL.Func(
         [InputEvent, IDL.Text, IDL.Text, IDL.Text],
         [Result_2],
         [],
       ),
+    'updateUserEntries' : IDL.Func([UserId, IDL.Text], [IDL.Bool], []),
     'update_category' : IDL.Func(
         [InputCategory, CategoryId, IDL.Text, IDL.Text],
         [Result_1],

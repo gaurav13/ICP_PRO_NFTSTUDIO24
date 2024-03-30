@@ -43,13 +43,6 @@ import ConnectModal from '@/components/Modal';
 import Tippy from '@tippyjs/react';
 import { ARTICLE_STATIC_PATH, Podcast_STATIC_PATH } from '@/constant/routes';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 const MAX_ENTRIES = 12;
 
 function EntryItem({ entry, entryActor }: { entry: any; entryActor: any }) {
@@ -140,8 +133,10 @@ function EntryItem({ entry, entryActor }: { entry: any; entryActor: any }) {
             <Link href={contentRoute}>
               <h6>{entry?.title}</h6>
             </Link>
-            <p   style={{ maxHeight: '45px', overflow: 'hidden' }}
-              className='customstyle'>
+            <p
+              style={{ maxHeight: '45px', overflow: 'hidden' }}
+              className='customstyle'
+            >
               {/* {HTMLReactParser(entry?.description)} */}
               {entry?.seoExcerpt}
             </p>
@@ -315,8 +310,6 @@ export default function CategoryDetails() {
           isStatic: entry[1].isStatic,
           views: entry[1].views,
           seoExcerpt: entry[1].seoExcerpt,
-
-
         };
         // if (user.ok) {
         //   newItem.userName = user.ok[1].name ?? entry[1].userName;
@@ -387,7 +380,7 @@ export default function CategoryDetails() {
                     <input
                       type='text'
                       className='form-control'
-                      placeholder='Search News'
+                      placeholder={t('Search News')}
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       onKeyDown={handleSearch}
@@ -424,11 +417,11 @@ export default function CategoryDetails() {
                         ))
                       ) : (
                         <p className='d-flex justify-content-center w-full'>
-                          No news found{' '}
+                          {t('No news found')}{' '}
                           {tag && (
                             <span className='ms-1'>
-                              on <b>#{tag} </b>
-                              tag
+                              {t('ON')} <b>#{tag} </b>
+                              {t('Tag')}
                             </span>
                           )}
                         </p>

@@ -63,6 +63,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import ConnectModal from '@/components/Modal';
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 import { canisterId as commentCanisterId } from '@/dfx/declarations/comment';
+import { canisterId as entryCanisterId } from '@/dfx/declarations/entry';
+
 import PromotedSVG from '@/components/PromotedSvg/Promoted';
 import Tippy from '@tippyjs/react';
 import { ARTICLE_FEATURED_IMAGE_ASPECT, profileAspect } from '@/constant/sizes';
@@ -80,15 +82,15 @@ import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import DirectorySlider from '@/components/CompanySlider/CompanySlider';
 import Web3HomeSlider from '@/components/web3Homeslider/Web3homeSlider';
 import PodcastHomeSlider from '@/components/PodcastSliderHome/PodcastHomeSlider';
-import { ARTICLE_STATIC_PATH, Podcast_STATIC_PATH } from '@/constant/routes';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+import {
+  ARTICLE_STATIC_PATH,
+  DIRECTORY_STATIC_PATH,
+  Podcast_STATIC_PATH,
+} from '@/constant/routes';
+import { SocialShimmer } from 'react-content-shimmer';
+import CustomeShimmer from '@/components/Shimmers/CustomeShimmer';
+import CustomeShimmerSlider from '@/components/Shimmers/CustomeShimmer';
+import ArticleShimmer from '@/components/Shimmers/ArticleShimmer';
 
 function HomeArticle({ article, small }: { article: any; small?: boolean }) {
   let [commentVal, setCommentVal] = useState('');
@@ -101,9 +103,7 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
   const [isCommenting, setIsCommenting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   let [likeCount, setLikeCount] = useState(0 ?? Number(article[1].likes));
-  let [isliked, setIsLiked] = useState(
-    article[1]?.likedUsers?.some((u: any) => u?.toString() == article[1].userId)
-  );
+  let [isliked, setIsLiked] = useState(false);
 
   const { auth, setAuth, identity, principal } = useConnectPlugWalletStore(
     (state) => ({
@@ -135,10 +135,10 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
     e.preventDefault();
     logger(commentVal.trim().length, 'c2');
     if (commentVal.trim().length < 1) {
-      return toast.error("Comment can't be empty.");
+      return toast.error(t("Comment can't be empty."));
     }
     if (commentVal.trim().length > 400) {
-      return toast.error("Comment can't be more then 400 characters.");
+      return toast.error(t("Comment can't be more then 400 characters."));
     }
     try {
       if (!isUserConnected(auth, handleConnectModal)) return;
@@ -158,26 +158,16 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
       const addedComment = await commentsActor.addComment(
         commentVal,
         userCanisterId,
+        entryCanisterId,
         article[0],
         article[1]?.title,
         entrytype
       );
-      // const user = await auth.actor.get_user_details([principal]);
-      // const dateNow = moment.utc().format('MMMM Do, YYYY');
-      // const newComment = {
-      //   creation_time: utcToLocal('', 'MMMM Do, YYYY, HH:mm'),
-      //   user: user.ok[1],
-      //   content: currentComment,
-      //   userId: principal,
-      // };
-      // setUserArticleComments((prev: any) => {
-      //   return [newComment, ...prev];
-      // });
       if (addedComment.ok) {
         setIsCommenting(false);
         setCommentsLength((pre: any) => pre + 1);
         setCommentVal('');
-        toast.success('Comment added successfully.');
+        toast.success(t('Comment added successfully.'));
       } else {
         setIsCommenting(false);
         toast.error(t('Something went wrong.'));
@@ -233,17 +223,12 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
   };
   let copyToClipboard = (e: any, link: string) => {
     e.preventDefault();
-    let newPath = path.split('/');
-    // newPath = newPath + link;
-    // const currentURL = window.location.href.split('/');
-    // const fetched = currentURL[2] + '/';
-    // logger(currentURL, 'PEPEPEPEPEP');
     let location = window.navigator.clipboard.writeText(window.location.href);
-    toast.success('URL copied to clipboard');
+    toast.success(t('URL copied to clipboard'));
   };
   const getUser = async (userId: string) => {
     let newUser = null;
-    if(!userId) return;
+    if (!userId) return;
     newUser = await auth.actor.get_user_details([userId]);
     logger(newUser, '34a344');
     if (newUser.ok) {
@@ -275,12 +260,12 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
     setLikeCount(Number(article[1].likes));
     logger(
       {
-        liked: article[1].userId,
-        article: article[1].likedUsers[0]?.toString(),
+        liked: article[1],
       },
       'article245'
     );
   }, [article]);
+
   const { t, changeLocale } = useLocalization(LANG);
   return (
     <>
@@ -394,8 +379,10 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                       article[1]?.directory
                     ) {
                       openArticleLink(
-                        `/directory?directoryId=${article.length != 0 ? article[1]?.companyId : '#'
-                        }`
+                        article[1]?.directory[0].isStatic
+                          ? `${DIRECTORY_STATIC_PATH + article[1]?.companyId}`
+                          : `/directory?directoryId=${article.length != 0 ? article[1]?.companyId : '#'
+                          }`
                       );
                     } else {
                       openArticleLink(
@@ -405,7 +392,7 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                     }
                   }}
                 >
-                  <h6>0n</h6>
+                  <h6>{t('ON')}</h6>
                   <h4 className='mb-0' style={{ lineHeight: 1 }}>
                     {article[1]?.isCompanySelected
                       ? article[1]?.directory
@@ -475,7 +462,7 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                       className='me-2 '
                     />{' '} */}
                 <p className='mb-0' style={{ fontWeight: '600' }}>
-                {t("Promoted Article")}
+                  {t('Promoted Article')}
                 </p>
               </div>
             )}
@@ -601,7 +588,7 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                 <div
                   className='d-flex align-items-center gap-1'
                   style={{ cursor: 'pointer' }}
-                  onClick={likeEntry}
+
                 >
                   <div className='viewbox'>
                     <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
@@ -637,8 +624,7 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
               <li>
                 <a href='#' onClick={fouceOnInputField}>
                   <Image src={iconmessage} alt='Icon Comment' />{' '}
-                  {commentsLength ?? 0}
-                  {t('Comments')}
+                  {commentsLength ?? 0} {t('Comments')}
                 </a>
               </li>
               {/* <li>
@@ -767,6 +753,8 @@ export default function Authenticated() {
   const [paginatedEntries, setPaginatedEntries] = useState<any[]>([]);
 
   const [entriesAmount, setEntriesAmount] = useState(0);
+  const [entriesLength, setEntriesLength] = useState(0);
+
   const [isArticleLoading, setIsArticleLoading] = useState<any>(true);
   const [HideTrendinpost, setHideTrendinpost] = useState<any>(true);
 
@@ -778,6 +766,7 @@ export default function Authenticated() {
       principal: state.principal,
     })
   );
+
   const urlparama = useSearchParamsHook();
   const searchParams = new URLSearchParams(urlparama);
   let cRoute = searchParams.get('route');
@@ -918,6 +907,7 @@ export default function Authenticated() {
       const resp = await entryActor.getPaginatedEntries(0, 6);
       logger(resp, 'REsp of paginations');
       let tempEntries = resp.entries;
+      setEntriesAmount(parseInt(resp.amount));
       if (tempEntries.length > 5) {
         const filteredEntries = tempEntries;
         let refined = await refineEntries(filteredEntries);
@@ -946,6 +936,7 @@ export default function Authenticated() {
   };
   const getNewEntries = async () => {
     logger('new entries were called');
+
     try {
       const entryActor = makeEntryActor({
         agentOptions: {
@@ -956,6 +947,16 @@ export default function Authenticated() {
       // if (entriesAmount > 5) {
       //   startIndex = lastIndex > entriesAmount ? entriesAmount - 1 : lastIndex;
       // }
+      if (entriesAmount < paginatedEntries.length + 3) {
+        if (entriesAmount < entriesLength) {
+          setEntriesLength(0);
+          startIndex = 0;
+        } else {
+          startIndex = entriesLength;
+          setEntriesLength((pre) => pre + 3);
+          logger({ entriesAmount, entriesLength }, 'asgsafdgasgsadgads');
+        }
+      }
 
       logger(startIndex, 'getting for diddd');
       const resp = await entryActor.getPaginatedEntries(startIndex, 3);
@@ -991,10 +992,10 @@ export default function Authenticated() {
     // const fetched = currentURL[2] + '/';
     // logger(currentURL, 'PEPEPEPEPEP');
     let location = window.navigator.clipboard.writeText(window.location.href);
-    toast.success('URL copied to clipboard');
+    toast.success(t('URL copied to clipboard'));
   };
   useEffect(() => {
-    getNewEntries();
+    // getNewEntries();
     getEntries();
   }, []);
   useEffect(() => {
@@ -1118,12 +1119,11 @@ export default function Authenticated() {
                     <div className='log-home '>
                       <div className='anime-right dashleft-pnl'>
                         <Row>
-                          {isArticleLoading ? (
-                            <div className='d-flex justify-content-center'>
-                              <Spinner />
-                            </div>
+                          {isArticleLoading && latestEntry.length == 0 ? (
+                            <ArticleShimmer />
                           ) : (
-                            latestEntry.length > 0 && (
+                            latestEntry.length > 0 &&
+                            !isArticleLoading && (
                               <HomeArticle article={latestEntry[0]} />
                             )
                           )}
@@ -1144,12 +1144,7 @@ export default function Authenticated() {
                             <NewsSlider />
                           </Col>
                           {isArticleLoading ? (
-                            <div
-                              style={{
-                                width: '100%',
-                                height: 1100,
-                              }}
-                            ></div>
+                            <ArticleShimmer />
                           ) : (
                             latestEntry.length > 1 && (
                               <HomeArticle article={latestEntry[1]} />
@@ -1179,12 +1174,7 @@ export default function Authenticated() {
                           </Col>
                           <div className='spacer-30'></div>
                           {isArticleLoading ? (
-                            <div
-                              style={{
-                                width: '100%',
-                                height: 1100,
-                              }}
-                            ></div>
+                            <ArticleShimmer />
                           ) : (
                             latestEntry.length > 2 && (
                               <HomeArticle article={latestEntry[2]} />
@@ -1226,8 +1216,12 @@ export default function Authenticated() {
                   <Row>
                     <InfiniteScroll
                       dataLength={paginatedEntries.length} //This is important field to render the next data
-                      next={getNewEntries}
-                      scrollThreshold={'10px'}
+                      next={() => {
+                        setTimeout(() => {
+                          getNewEntries();
+                        }, 2000);
+                      }}
+                      // scrollThreshold={'10px'}
                       hasMore={true}
                       style={{ overflow: 'unset' }}
                       loader={
@@ -1269,6 +1263,7 @@ export default function Authenticated() {
                                         md='12'
                                         className='heding w-100'
                                         id='blockchain'
+                                        key={index}
                                       >
                                         <h4>
                                           <Image src={iconrss} alt='RSS' />{' '}
@@ -1290,6 +1285,7 @@ export default function Authenticated() {
                                         lg='12'
                                         md='12'
                                         className='w-100'
+                                        key={index}
                                       >
                                         <div className='anime-right'>
                                           <Row>
@@ -1302,7 +1298,7 @@ export default function Authenticated() {
                                             >
                                               <h4>
                                                 <Image src={press} alt='Hot' />{' '}
-                                                Press Release
+                                                {t('Press Release')}
                                               </h4>
                                               <div className='spacer-20'></div>
                                             </Col>
@@ -1324,6 +1320,7 @@ export default function Authenticated() {
                                         lg='12'
                                         md='12'
                                         className='w-100'
+                                        key={index}
                                       >
                                         <div className='anime-left'>
                                           <Row>
@@ -1358,6 +1355,7 @@ export default function Authenticated() {
                                         lg='12'
                                         md='12'
                                         className='w-100'
+                                        key={index}
                                       >
                                         <div className='anime-right'>
                                           <Row>

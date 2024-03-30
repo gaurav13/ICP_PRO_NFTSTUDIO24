@@ -72,7 +72,7 @@ function ConnectModal({
             ) : connected ? (
               <span className='text-black'>{t('Disconnect')}</span>
             ) : (
-              <span className='text-black'>{t('Connect')}</span>
+              <span className='text-black'>{t('Connect ')}</span>
             )}
           </Button>
           {/* <Button className='default-btn' onClick={handleClose}>

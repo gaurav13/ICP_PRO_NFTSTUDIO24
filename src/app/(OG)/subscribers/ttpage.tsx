@@ -2,16 +2,8 @@
 import React from 'react';
 import Head from 'next/head';
 import { Row, Col, Table, Dropdown, Form } from 'react-bootstrap';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function subscribers() {
   const { t, changeLocale } = useLocalization(LANG);
@@ -73,11 +65,11 @@ export default function subscribers() {
                       <div className='full-div'>
                         <ul className='filter-list'>
                           <li>
-                            <Form.Select aria-label='All Dates'>
-                              <option>All Dates</option>
-                              <option value='1'>All Dates</option>
-                              <option value='2'>All Dates</option>
-                              <option value='3'>All Dates</option>
+                            <Form.Select aria-label={t('All Dates')}>
+                              <option>{t('All Dates')}</option>
+                              <option value='1'>{t('All Dates')}</option>
+                              <option value='2'>{t('All Dates')}</option>
+                              <option value='3'>{t('All Dates')}</option>
                             </Form.Select>
                           </li>
                           <li>

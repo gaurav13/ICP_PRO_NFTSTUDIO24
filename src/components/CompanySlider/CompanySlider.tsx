@@ -7,6 +7,7 @@ import logger from '@/lib/logger';
 import { useRouter } from 'next/navigation';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { DIRECTORY_STATIC_PATH } from '@/constant/routes';
 export default function DirectorySlider({
   trendingDirectries,
 }: {
@@ -104,6 +105,7 @@ export default function DirectorySlider({
     router.push(entryLink);
   };
   const { t, changeLocale } = useLocalization(LANG);
+  logger(trendingDirectries,"sdfdsafsadfsadfasdf")
   return (
     <>
       {trendingDirectries.length != 0 ? (
@@ -121,7 +123,7 @@ export default function DirectorySlider({
                     e.preventDefault();
 
                     openArticleLink(
-                      `/directory?directoryId=${
+                      entry[1].isStatic? `${DIRECTORY_STATIC_PATH +entry[0]}`: `/directory?directoryId=${
                         entry.length != 0 ? entry[0] : '#'
                       }`
                     );

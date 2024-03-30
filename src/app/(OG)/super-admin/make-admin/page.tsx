@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import Head from 'next/head';
 import { Row, Col, Form, Button, Spinner } from 'react-bootstrap';
@@ -20,13 +20,6 @@ import { Roles } from '@/types/profile';
 import { Principal } from '@dfinity/principal';
 import { toast } from 'react-toastify';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 interface adminDetails {
   name: string;
   address: string;
@@ -62,10 +55,18 @@ export default function MakeAdmin() {
     admin: [],
   };
   const detailSchema = object().shape({
-    name: string()
-      .required('Name is required')
-      .matches(/^[a-zA-Z\s]+$/, 'Only alphabets are allowed')
-      .max(MAX_NAME_CHARACTERS, 'Name can not be more than 40 characters'),
+    name:
+      LANG == 'en'
+        ? string()
+            .required('Name is required')
+            .matches(/^[a-zA-Z\s]+$/, 'Only alphabets are allowed')
+            .max(MAX_NAME_CHARACTERS, 'Name can not be more than 40 characters')
+        : string()
+            .required('Name is required')
+            .max(
+              MAX_NAME_CHARACTERS,
+              'Name can not be more than 40 characters'
+            ),
     address: string()
       .required('Wallet Address is required')
       .test('min', 'Not a valid address', (value) => {
@@ -227,7 +228,7 @@ export default function MakeAdmin() {
                                     onInput={handleBlur}
                                     type='text'
                                     name='address'
-                                  // placeholder='John Doe'
+                                    // placeholder='John Doe'
                                   />
                                 </Form.Group>
                               )}

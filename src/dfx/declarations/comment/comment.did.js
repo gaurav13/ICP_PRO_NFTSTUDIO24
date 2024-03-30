@@ -29,11 +29,13 @@ export const idlFactory = ({ IDL }) => {
     'add_category' : IDL.Null,
     'editWeb3Views' : IDL.Null,
     'delete_category' : IDL.Null,
+    'verify_user' : IDL.Null,
     'verify_web3' : IDL.Null,
     'delete_event' : IDL.Null,
     'block' : IDL.Null,
     'editViews' : IDL.Null,
     'delete_pressRelease' : IDL.Null,
+    'un_verify_user' : IDL.Null,
     'add_event' : IDL.Null,
     'delete_web3' : IDL.Null,
   });
@@ -86,13 +88,15 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'addComment' : IDL.Func(
-        [InputComment, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [InputComment, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [Result_3],
         [],
       ),
     'getActivities' : IDL.Func([], [Result_2], ['query']),
     'getAdminActivities' : IDL.Func([UserId, IDL.Text], [Result_1], []),
     'getComments' : IDL.Func([IDL.Text], [Result], ['query']),
+    'get_comment_reward' : IDL.Func([], [IDL.Nat], ['query']),
+    'update_comment_reward' : IDL.Func([IDL.Text, IDL.Nat], [IDL.Nat], []),
   });
   return anon_class_19_1;
 };

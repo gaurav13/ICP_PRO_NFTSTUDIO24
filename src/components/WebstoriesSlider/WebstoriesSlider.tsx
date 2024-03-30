@@ -107,7 +107,7 @@ export default function WebstoriesSlider() {
               <h2>{t('Why is everyone obsessed with...')}</h2>
               <ul>
                 <li>{t('Buy NFT Studio 24')}</li>
-                <li>On Jan 12, 2023</li>
+                <li>{LANG=="en"?"On Dec 30, 2022":"2022 年 12 月 30 日"}</li>
               </ul>
             </Link>
           </div>
@@ -141,7 +141,7 @@ export default function WebstoriesSlider() {
               <h2>{t('What is Blockchain Security: Everything...')}</h2>
               <ul>
                 <li>{t('Buy NFT Studio 24')}</li>
-                <li>On Dec 30, 2022</li>
+                <li>{LANG=="en"?"On Dec 30, 2022":"2022 年 12 月 30 日"}</li>
               </ul>
             </Link>
           </div>
@@ -175,7 +175,7 @@ export default function WebstoriesSlider() {
               <h2>{t('TON Blockchain:')} {t('The Complete Guide 2023...')}</h2>
               <ul>
                 <li>{t('Buy NFT Studio 24')}</li>
-                <li>On Dec 29, 2022</li>
+                <li>{LANG=="en"?"On Dec 30, 2022":"2022 年 12 月 30 日"}</li>
               </ul>
             </Link>
           </div>
@@ -209,7 +209,7 @@ export default function WebstoriesSlider() {
               <h2>{t('How to transfer Crypto from Freewell to...')}</h2>
               <ul>
                 <li>{t('Buy NFT Studio 24')}</li>
-                <li>On Dec 30, 2022</li>
+                <li>{LANG=="en"?"On Dec 30, 2022":"2022 年 12 月 30 日"}</li>
               </ul>
             </Link>
           </div>
@@ -243,7 +243,7 @@ export default function WebstoriesSlider() {
               <h2>{t('Why is everyone obsessed with...')}</h2>
               <ul>
                 <li>{t('Buy NFT Studio 24')}</li>
-                <li>On Jan 12, 2023</li>
+                <li>{LANG=="en"?"On Dec 30, 2022":"2022 年 12 月 30 日"}</li>
               </ul>
             </Link>
           </div>
@@ -277,7 +277,7 @@ export default function WebstoriesSlider() {
               <h2>{t('What is Blockchain Security: Everything...')}</h2>
               <ul>
                 <li>{t('Buy NFT Studio 24')}</li>
-                <li>On Dec 30, 2022</li>
+                <li>{LANG=="en"?"On Dec 30, 2022":"2022 年 12 月 30 日"}</li>
               </ul>
             </Link>
           </div>
@@ -311,7 +311,7 @@ export default function WebstoriesSlider() {
               <h2>{t('TON Blockchain:')} {t('The Complete Guide 2023...')}</h2>
               <ul>
                 <li>{t('Buy NFT Studio 24')}</li>
-                <li>On Dec 29, 2022</li>
+                <li>{LANG=="en"?"On Dec 30, 2022":"2022 年 12 月 30 日"}</li>
               </ul>
             </Link>
           </div>
@@ -345,7 +345,7 @@ export default function WebstoriesSlider() {
               <h2>{t('How to transfer Crypto from Freewell to...')}</h2>
               <ul>
                 <li>{t('Buy NFT Studio 24')}</li>
-                <li>On Dec 30, 2022</li>
+                <li>{LANG=="en"?"On Dec 30, 2022":"2022 年 12 月 30 日"}</li>
               </ul>
             </Link>
           </div>

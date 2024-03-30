@@ -39,13 +39,6 @@ import TrendingArticleSide from '@/components/TrendingArticleSide/TrendingArticl
 import LeadershipboardNew from '@/components/LeadershipboardNew/LeadershipboardNew';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function HomePage() {
   const router = useRouter();
@@ -110,7 +103,7 @@ export default function HomePage() {
                     className='heding icp-leadership-pnl'
                   >
                     <h4>
-                      <Image src={iconevents} alt='Hot' /> Events
+                      <Image src={iconevents} alt='Hot' />{t('Events')}
                     </h4>
                     <div className='spacer-20'></div>
                     <div className='flex-div-xs align-items-center'>
@@ -302,7 +295,11 @@ export default function HomePage() {
                       </div>
                     </div>
                   </Col> */}
-                  <span className={HideTrendinpost ? 'content show' : 'content hide'}>
+                  <span
+                    className={
+                      HideTrendinpost ? 'content show' : 'content hide'
+                    }
+                  >
                     <TrendingArticleSide isArticle={true} />
                   </span>
                 </Row>
@@ -399,7 +396,7 @@ export default function HomePage() {
                                 <ul className='vote-comment-list'>
                                   <li>
                                     <div>
-                                      <Image src={iconrise} alt='Rise' /> 
+                                      <Image src={iconrise} alt='Rise' />
                                     </div>
                                     <div>{t('Vote')}</div>
                                   </li>
@@ -408,7 +405,8 @@ export default function HomePage() {
                             </li>
                             <li>
                               <a href='#' className='mr-3'>
-                                <Image src={iconthumb} alt='Icon Thumb' /> {t('Like')}
+                                <Image src={iconthumb} alt='Icon Thumb' />{' '}
+                                {t('Like')}
                               </a>
                             </li>
                             <li>
@@ -475,7 +473,8 @@ export default function HomePage() {
                     <div className='spacer-40'></div>
                     <Col xl='12' lg='12' md='12' className='heding'>
                       <h4>
-                        <Image src={iconrss} alt='RSS' />{t('Blockchain News')}
+                        <Image src={iconrss} alt='RSS' />
+                        {t('Blockchain News')}
                       </h4>
                       <div className='spacer-20'></div>
                       <GeneralSlider />
@@ -569,7 +568,8 @@ export default function HomePage() {
                                 <ul className='vote-comment-list'>
                                   <li>
                                     <div>
-                                      <Image src={iconrise} alt='Rise' /> {t('Vote')}
+                                      <Image src={iconrise} alt='Rise' />{' '}
+                                      {t('Vote')}
                                     </div>
                                     <div>{t('Vote')}</div>
                                   </li>
@@ -578,7 +578,8 @@ export default function HomePage() {
                             </li>
                             <li>
                               <a href='#' className='mr-3'>
-                                <Image src={iconthumb} alt='Icon Thumb' />{t('Like')}
+                                <Image src={iconthumb} alt='Icon Thumb' />
+                                {t('Like')}
                               </a>
                             </li>
                             <li>
@@ -650,7 +651,8 @@ export default function HomePage() {
                             <div className='spacer-30'></div>
 
                             <h4>
-                              <Image src={press} alt='Hot' />  {t('Press Release')}
+                              <Image src={press} alt='Hot' />{' '}
+                              {t('Press Release')}
                             </h4>
                             <div className='spacer-20'></div>
                           </Col>
@@ -748,16 +750,18 @@ export default function HomePage() {
                                 <ul className='vote-comment-list'>
                                   <li>
                                     <div>
-                                      <Image src={iconrise} alt='Rise' /> {t("vote")}
+                                      <Image src={iconrise} alt='Rise' />{' '}
+                                      {t('vote')}
                                     </div>
-                                    <div>{t("vote")}</div>
+                                    <div>{t('vote')}</div>
                                   </li>
                                 </ul>
                               </div>
                             </li>
                             <li>
                               <a href='#' className='mr-3'>
-                                <Image src={iconthumb} alt='Icon Thumb' /> {t('Like')}
+                                <Image src={iconthumb} alt='Icon Thumb' />{' '}
+                                {t('Like')}
                               </a>
                             </li>
                             <li>
@@ -829,7 +833,7 @@ export default function HomePage() {
                             <div className='spacer-30'></div>
                             <h4>
                               <Image src={stars} alt='Hot' />
-                              {t('Featured Campaigns')} {' '}
+                              {t('Featured Campaigns')}{' '}
                             </h4>
                             <div className='spacer-20'></div>
                           </Col>

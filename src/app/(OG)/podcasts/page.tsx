@@ -29,13 +29,7 @@ import TrendingArticleSide from '@/components/TrendingArticleSide/TrendingArticl
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import { Podcast_STATIC_PATH } from '@/constant/routes';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+
 export default function NewPodcast() {
   const { t, changeLocale } = useLocalization(LANG);
   const [isGetting, setIsGetting] = useState(true);
@@ -79,11 +73,11 @@ export default function NewPodcast() {
       return [];
     }
     // logger(tempEntriesList,"tempEntriesList33")
-    const userActor = makeUserActor({
-      agentOptions: {
-        identity,
-      },
-    });
+    // const userActor = makeUserActor({
+    //   agentOptions: {
+    //     identity,
+    //   },
+    // });
     const refinedPromise = await Promise.all(
       tempEntriesList.map(async (entry: any) => {
         let image = null;
@@ -95,8 +89,8 @@ export default function NewPodcast() {
         }
 
         const userId = entry[1].user.toString();
-        const user = await userActor.get_user_details([userId]);
-        let date = utcToLocal(entry[1].creation_time.toString(), 'MMM d, YYYY');
+        // const user = await userActor.get_user_details([userId]);
+        let date = utcToLocal(entry[1].creation_time.toString(), 'MMM D, YYYY');
         let newItem = {
           title: entry[1].title,
           entryId: entry[0],
@@ -118,9 +112,9 @@ export default function NewPodcast() {
           seoExcerpt: entry[1].seoExcerpt,
           isStatic: entry[1].isStatic,
         };
-        if (user.ok) {
-          newItem.userName = user.ok[1].name ?? entry[1].userName;
-        }
+        // if (user.ok) {
+        //   newItem.userName = user.ok[1].name ?? entry[1].userName;
+        // }
         return newItem;
       })
     );
@@ -146,12 +140,17 @@ export default function NewPodcast() {
 
     const newOffset = (event.selected * itemsPerPage) % entriesSize.all;
 
-    const resp = await entryActorDefault.getPodcastList(
+//  dataType for below function 
+// 1 =pressRelease
+// 2 =podcast
+// 3 =article
+
+    const resp = await entryActorDefault.getUniqueDataList(
       'All',
       false,
       search,
       newOffset,
-      itemsPerPage
+      itemsPerPage,2
     );
     list = resp.entries;
 
@@ -167,12 +166,17 @@ export default function NewPodcast() {
         identity,
       },
     });
-    const resp = await entryActor.getPodcastList(
+    //  dataType for below function 
+// 1 =pressRelease
+// 2 =podcast
+// 3 =article
+
+    const resp = await entryActor.getUniqueDataList(
       'All',
       false,
       search,
       forcePaginate * itemsPerPage,
-      itemsPerPage
+      itemsPerPage,2
     );
 
     let amount = parseInt(resp.amount);

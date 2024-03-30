@@ -56,6 +56,7 @@ import NavBarNew from '@/components/NavBar/NavabrNew';
 import NewSidebarHome from '@/components/SideBarHome/NewSideBarHome';
 import Head from 'next/head';
 import { LANG } from '@/constant/language';
+import useLocalization from "@/lib/UseLocalization"
 export default function RootLayout({
   children,
   hide,
@@ -97,7 +98,7 @@ export default function RootLayout({
         ></script>
       </head>
       {/* </Head> */}
-      <body className={`${LANG=="jp"? "ENStyle":""}`}>
+      <body className={`${LANG == "jp" ? "ENStyle" : ""}`}>
         <NewSidebarHome />
         <NavBarNew />
         {children}
@@ -108,6 +109,7 @@ export default function RootLayout({
           src='https://kit.fontawesome.com/3fcb35e151.js'
           crossOrigin='anonymous'
         ></script>
+
       </body>
     </html>
   );

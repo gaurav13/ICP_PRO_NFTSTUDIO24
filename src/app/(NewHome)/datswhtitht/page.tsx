@@ -40,16 +40,8 @@ import { E8S } from '@/constant/config';
 import TrendingArticleSide from '@/components/TrendingArticleSide/TrendingArticleSide';
 import LeadershipboardNew from '@/components/LeadershipboardNew/LeadershipboardNew';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function HomePage() {
   const router = useRouter();
@@ -209,7 +201,7 @@ export default function HomePage() {
                   <Row>
                     <Col xl='12' lg='12' md='12' className='heding'>
                       <h4>
-                        <Image src={press} alt='Hot' />  {t('Press Release')}
+                        <Image src={press} alt='Hot' /> {t('Press Release')}
                       </h4>
                       <div className='spacer-20'></div>
                     </Col>
@@ -258,7 +250,11 @@ export default function HomePage() {
                     <div className='spacer-20'></div>
                   </Col>
 
-                  <span className={HideTrendinpost ? 'content show' : 'content hide'}>
+                  <span
+                    className={
+                      HideTrendinpost ? 'content show' : 'content hide'
+                    }
+                  >
                     <TrendingArticleSide isArticle={true} />
                   </span>
                 </Row>
@@ -275,8 +271,9 @@ export default function HomePage() {
                     <div className='img-pnl'>
                       {latestEntry.length != 0 && latestEntry[1].image && (
                         <Link
-                          href={`/article?articleId=${latestEntry.length != 0 ? latestEntry[0] : '#'
-                            }`}
+                          href={`/article?articleId=${
+                            latestEntry.length != 0 ? latestEntry[0] : '#'
+                          }`}
                           target='_self'
                           style={{ height: '100%', width: '100%' }}
                         >
@@ -297,7 +294,7 @@ export default function HomePage() {
                             <Image
                               src={
                                 latestEntry.length != 0 &&
-                                  latestEntry[1].user.profileImg.length != 0
+                                latestEntry[1].user.profileImg.length != 0
                                   ? latestEntry[1].user.profileImg[0]
                                   : girl
                               }
@@ -306,7 +303,7 @@ export default function HomePage() {
                           </div>
                           <div className='txte-pnl d-flex align-items-center'>
                             <h5>
-                              By{' '}
+                              {t('by')}{' '}
                               {latestEntry.length != 0
                                 ? latestEntry[1].user.name[0]
                                 : 'User'}
@@ -320,7 +317,7 @@ export default function HomePage() {
                           </div>
                           <div className='txte-pnl  d-flex align-items-center'>
                             <h5>
-                              On{' '}
+                              {t('ON')}{' '}
                               {latestEntry.length != 0
                                 ? latestEntry[1].category[0]
                                 : 'category'}
@@ -331,8 +328,9 @@ export default function HomePage() {
                       </div>
                       <div className='spacer-20'></div>
                       <Link
-                        href={`/article?articleId=${latestEntry.length != 0 ? latestEntry[0] : '#'
-                          }`}
+                        href={`/article?articleId=${
+                          latestEntry.length != 0 ? latestEntry[0] : '#'
+                        }`}
                         target='_self'
                       >
                         <h1 className='text-black'>
@@ -351,18 +349,22 @@ export default function HomePage() {
                         }}
                         onClick={() =>
                           openArticleLink(
-                            `/article?articleId=${latestEntry.length != 0 ? latestEntry[0] : '#'
+                            `/article?articleId=${
+                              latestEntry.length != 0 ? latestEntry[0] : '#'
                             }`
                           )
                         }
                       >
                         {latestEntry.length !== 0
-                          ?  latestEntry[1].seoExcerpt.length > 90? `${ latestEntry[1].seoExcerpt.slice(0, 90)}...`:  latestEntry[1].seoExcerpt: ''
-                        }
+                          ? latestEntry[1].seoExcerpt.length > 90
+                            ? `${latestEntry[1].seoExcerpt.slice(0, 90)}...`
+                            : latestEntry[1].seoExcerpt
+                          : ''}
                       </p>
                       <Link
-                        href={`/article?articleId=${latestEntry.length != 0 ? latestEntry[0] : '#'
-                          }`}
+                        href={`/article?articleId=${
+                          latestEntry.length != 0 ? latestEntry[0] : '#'
+                        }`}
                         target='_self'
                         className='text-secondary'
                       >
@@ -395,8 +397,9 @@ export default function HomePage() {
                         <li>
                           {/* <a href='#'> */}
                           <Link
-                            href={`/article?articleId=${latestEntry.length != 0 ? latestEntry[0] : '#'
-                              }`}
+                            href={`/article?articleId=${
+                              latestEntry.length != 0 ? latestEntry[0] : '#'
+                            }`}
                             target='_self'
                           >
                             <Image src={iconmessage} alt='Icon Comment' /> 12
@@ -410,13 +413,14 @@ export default function HomePage() {
                               <ul className='vote-comment-list'>
                                 <li>
                                   <div>
-                                    <Image src={iconrise} alt='Rise' /> {t('Vote')}
+                                    <Image src={iconrise} alt='Rise' />{' '}
+                                    {t('Vote')}
                                   </div>
                                   <div>
                                     {latestEntry.length != 0
                                       ? formatLikesCount(
-                                        Number(latestEntry[1].likes)
-                                      )
+                                          Number(latestEntry[1].likes)
+                                        )
                                       : 0}
                                   </div>
                                 </li>

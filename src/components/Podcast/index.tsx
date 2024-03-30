@@ -35,14 +35,11 @@ import ConnectModal from '@/components/Modal';
 import Tippy from '@tippyjs/react';
 import { Date_m_d_y_h_m } from '@/constant/DateFormates';
 import { ConnectPlugWalletSlice } from '@/types/store';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+import NewsSlider from '@/components/NewsSlider';
+import iconrss from '@/assets/Img/Icons/icon-rss.png';
+import { DIRECTORY_STATIC_PATH } from '@/constant/routes';
+import ArticleDetailShimmer from '@/components/Shimmers/ArticleDetailShimmer';
+import ArticleHeaderShimmer from '@/components/Shimmers/ArticleHeaderShimmer';
 
 export default function Podcast({ articleId }: { articleId: string }) {
   const { t, changeLocale } = useLocalization(LANG);
@@ -76,7 +73,7 @@ export default function Podcast({ articleId }: { articleId: string }) {
       ? new Array(articleHeadingsHierarchy.length).fill(false)
       : []
   );
-
+  const [timeoutId, setTimeoutId] = useState<any>(null);
   const updateImg = async (img: any, name: string) => {
     if (img) {
       const tempImg = await getImage(img);
@@ -260,6 +257,18 @@ export default function Podcast({ articleId }: { articleId: string }) {
     if (tempEntry.length == 0 && auth?.state == 'anonymous') {
       return router.push(`/`);
     }
+    if (auth?.state == 'initialized') {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      const newTimeoutId = setTimeout(() => {
+        // Your logic here
+        if (tempEntry.length == 0) {
+          router.push(`/`);
+        }
+      }, 4000);
+      setTimeoutId(newTimeoutId);
+    }
     if (tempEntry[0] && tempEntry[0].isDraft) {
       return router.push(`/add-article?draftId=${articleId}`);
     }
@@ -357,6 +366,11 @@ export default function Podcast({ articleId }: { articleId: string }) {
   };
   useEffect(() => {
     if (auth.state == 'anonymous' || auth.state === 'initialized') getEntry();
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [articleId, auth, promote]);
   useEffect(() => {
     if (userId && auth.actor) {
@@ -461,7 +475,9 @@ export default function Podcast({ articleId }: { articleId: string }) {
                     </ul>
                   </Col>
                 )}
-              <Col xl='6' lg='12' md='12'>
+                      {isArticleLoading ?    <Col xl='6' lg='12' md='12'>
+                  <ArticleHeaderShimmer />
+                </Col> : <Col xl='6' lg='12' md='12'>
                 <div className='flex-div '>
                   <div className='user-panel'>
                     <Image
@@ -487,7 +503,7 @@ export default function Podcast({ articleId }: { articleId: string }) {
                       </p>
                       <p>
                         {entry
-                          ? `Created at: ${utcToLocal(
+                          ? ` ${t('Created At')}: ${utcToLocal(
                               entry.creation_time.toString(),
                               Date_m_d_y_h_m
                             )}`
@@ -519,9 +535,11 @@ export default function Podcast({ articleId }: { articleId: string }) {
                         e.preventDefault();
                         if (entry?.isCompanySelected && entry?.directory) {
                           router.push(
-                            `/directory?directoryId=${
-                              entry ? entry?.companyId : '#'
-                            }`
+                            entry?.directory[0].isStatic
+                              ? `${DIRECTORY_STATIC_PATH + entry?.companyId}`
+                              : `/directory?directoryId=${
+                                  entry ? entry?.companyId : '#'
+                                }`
                           );
                         } else {
                           router.push(
@@ -532,7 +550,7 @@ export default function Podcast({ articleId }: { articleId: string }) {
                         }
                       }}
                     >
-                      <h6 className='big'>0n</h6>
+                      <h6 className='big'>{t('ON')}</h6>
                       <h4 className='mb-0' style={{ lineHeight: 1 }}>
                         {entry?.isCompanySelected && entry?.directory
                           ? entry?.directory[0].company
@@ -554,7 +572,7 @@ export default function Podcast({ articleId }: { articleId: string }) {
                   </div>
                 </div>
                 <div className='article-top-border'></div>
-              </Col>
+              </Col>}
               <Col xxl='12'></Col>
               <Col
                 xxl={{ span: '3', order: 5 }}
@@ -637,9 +655,18 @@ export default function Podcast({ articleId }: { articleId: string }) {
               >
                 <Row>
                   {isArticleLoading ? (
-                    <div className='d-flex justify-content-center mt-4'>
-                      <Spinner />
-                    </div>
+                       <Row>
+                       <Col
+                         xxl={{ span: '12', order: 1 }}
+                         xl={{ span: '12', order: 1 }}
+                         lg={{ span: '12', order: 1 }}
+                         md={{ span: '12', order: 1 }}
+                         sm={{ span: '12', order: 1 }}
+                         xs={{ span: '12', order: 1 }}
+                       >
+                         <ArticleDetailShimmer />
+                       </Col>
+                     </Row>
                   ) : (
                     <Col
                       xxl={{ span: '12', order: 1 }}
@@ -707,9 +734,27 @@ export default function Podcast({ articleId }: { articleId: string }) {
                         </h4>
                         <div className='spacer-10'></div>
                         <p className='m-0'>
-                          {t('The content provided here is for general informational purposes only. It should not be considered as professional advice. Any actions taken based on this information are at your own risk. We do not assume any responsibility or liability for the accuracy, completeness, or suitability of the information. Always consult with a qualified professional for specific advice related to your circumstances.')}
+                          {t(
+                            'The content provided here is for general informational purposes only. It should not be considered as professional advice. Any actions taken based on this information are at your own risk. We do not assume any responsibility or liability for the accuracy, completeness, or suitability of the information. Always consult with a qualified professional for specific advice related to your circumstances.'
+                          )}
                         </p>
                       </div>
+                    </Col>
+                    <Col
+                      xxl='12'
+                      xl='12'
+                      lg='12'
+                      className='heding mt-3'
+                      id='blockchain'
+                    >
+                      <div className='spacer-20 web-view-display'></div>
+                      <h4>
+                        <Image src={iconrss} alt='RSS' />
+                        {t('Blockchain News')}
+                      </h4>
+                      <div className='spacer-20'></div>
+                      {/* <GeneralSlider /> */}
+                      <NewsSlider isdetailpage={true} />
                     </Col>
                     <Col
                       xxl={{ span: '12', order: 1 }}
@@ -727,7 +772,7 @@ export default function Podcast({ articleId }: { articleId: string }) {
                       >
                         <div className='spacer-20'></div>
                         <h4>
-                          <Image src={iconrelated} alt='icon related' /> Related
+                          <Image src={iconrelated} alt='icon related' /> {t('Related')}{' '}
                           {t('podcast')}
                         </h4>
                         <div className='spacer-20'></div>

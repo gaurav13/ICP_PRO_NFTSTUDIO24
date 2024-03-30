@@ -48,6 +48,7 @@ import {
 } from '@/dfx/service/actor-locator';
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 import {
+  commentTime,
   formatLikesCount,
   isUserConnected,
   utcToLocal,
@@ -72,7 +73,7 @@ import { ARTICLE_FEATURED_IMAGE_ASPECT, profileAspect } from '@/constant/sizes';
 import CommentBox from '@/components/CommentBox/CommentBox';
 import ConnectModal from '@/components/Modal';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
-import { Date_m_d_y_h_m } from '@/constant/DateFormates';
+import { Date_m_d_y_h_m, dateTranslate } from '@/constant/DateFormates';
 import TwitterSVGIcon from '@/components/twitterIconSVG/TwitterSVGIcon';
 import { TAG_CONTENT_ROUTE } from '@/constant/routes';
 import iconmessage from '@/assets/Img/Icons/icon-comment.png';
@@ -246,7 +247,7 @@ function MintButton({
         <Button
           onClick={mintNft}
           disabled={isMinted || isMinting}
-          className='blue-button'
+          className='yellow-button'
         >
           {isMinting ? (
             <Spinner size='sm'></Spinner>
@@ -286,7 +287,6 @@ export default function NFTArticlePost({
   const searchParams = new URLSearchParams(urlparama);
   const CommentRoute = searchParams.get('route');
   const pathName = usePathname();
-
   const [showModal, setShowModal] = useState(false);
   const [heading, setheading] = useState<any[]>([]);
   const [userImage, setuserImage] = useState('');
@@ -520,13 +520,17 @@ export default function NFTArticlePost({
     try {
       if (!isUserConnected(auth, handleConnectModal)) return;
       if (isPending) {
-        return toast.error(` You can't add comment on pending ${entrytype}.`);
+        return toast.error(
+          ` ${t('You can not add comment on pending')} ${entrytype}.`
+        );
       }
       if (isRejected) {
-        return toast.error(` You can't add comment on rejected ${entrytype}.`);
+        return toast.error(
+          ` ${t('You can not add comment on rejected')} ${entrytype}.`
+        );
       }
       if (currentComment.trim().length > 400) {
-        return toast.error("Comment can't be more then 400 characters.");
+        return toast.error(t('Comment can not be more then 400 characters.'));
       }
       setIsCommenting(true);
       const commentsActor = makeCommentActor({
@@ -537,6 +541,7 @@ export default function NFTArticlePost({
       const addedComment = await commentsActor.addComment(
         currentComment,
         userCanisterId,
+        entryCanisterId,
         articleId,
         entry.title,
         entrytype
@@ -570,10 +575,10 @@ export default function NFTArticlePost({
         const user = await auth.actor.get_user_details([userId]);
         const creatDate = comment.creation_time.toString();
 
-        const stillUtc = moment.utc(parseInt(creatDate)).toDate();
+        let tempCreation = commentTime(creatDate);
         const newComment = {
           creation_time: utcToLocal(creatDate, Date_m_d_y_h_m),
-          newCreation: moment(stillUtc).local().fromNow(),
+          newCreation: tempCreation,
           user: user.ok[1],
           userId: userId,
           content: comment.content,
@@ -643,7 +648,7 @@ export default function NFTArticlePost({
       .insertEntry(article, userCanisterId, true, articleId, commentCanisterId)
       .then((res: any) => {
         logger(res, 'draft Published successfully');
-        toast.success('Your article has been promoted successfuly');
+        toast.success(t('Your article has been promoted successfuly'));
         updateBalance({ identity, auth, setBalance });
         setIsArticleSubmitting(false);
         getEntry();
@@ -711,12 +716,16 @@ export default function NFTArticlePost({
         setConfirmTransaction(false);
         setIsArticleSubmitting(false);
         return toast.error(
-          `Insufficient balance to promote. Current Balance: ${balanceICP}`
+          `${t(
+            'Insufficient balance to promote. Current Balance:'
+          )} ${balanceICP} ${t(
+            'please transfer assets to your wallet to promote article'
+          )}`
         );
       } else {
       }
 
-      if (!entryCanisterId) return toast.error('Error in transaction');
+      if (!entryCanisterId) return toast.error(t('Error in transaction'));
       let entryPrincipal = Principal.fromText(entryCanisterId);
       let approval = await ledgerActor.icrc2_approve({
         amount: approvingPromotionE8S,
@@ -1012,7 +1021,7 @@ export default function NFTArticlePost({
     // const fetched = currentURL[2] + '/';
     // logger(currentURL, 'PEPEPEPEPEP');
     let location = window.navigator.clipboard.writeText(window.location.href);
-    toast.success('URL copied to clipboard');
+    toast.success(t('URL copied to clipboard'));
   };
   useEffect(() => {
     if (entry?.likedUsers && identity && entry?.minters) {
@@ -1049,7 +1058,6 @@ export default function NFTArticlePost({
       // headingsHierarchy.map((d: any) => {
       //   console.log(d, 'it tried');
       // });
-      logger(_headingsHierarchys, 'dfgdfgdfg');
     }
   }, [auth, entry]);
   useEffect(() => {
@@ -1073,12 +1081,12 @@ export default function NFTArticlePost({
   }, [articleComments]);
   useEffect(() => {
     if (entry) {
-      let entrytype = 'article';
+      let entrytype = t('article');
       if (entry?.isPodcast) {
-        entrytype = 'podcast';
+        entrytype = t('podcast');
       }
       if (entry?.pressRelease) {
-        entrytype = 'pressRelease';
+        entrytype = t('pressRelease');
       }
       setEntrytype(entrytype);
     }
@@ -1116,7 +1124,7 @@ export default function NFTArticlePost({
     e.preventDefault();
     const currentURL = window.location.href;
     window.navigator.clipboard.writeText(currentURL);
-    toast.success('URL copied to clipboard');
+    toast.success(t('URL copied to clipboard'));
   };
   useEffect(() => {
     if (entry) {
@@ -1360,15 +1368,17 @@ export default function NFTArticlePost({
                             <div>
                               <p className='m-0'>
                                 {isPending &&
-                                  'Your Article will be reviewed soon'}
+                                  t('Your Article will be reviewed soon')}
                                 {isRejected &&
-                                  'Your Article Review has been rejected'}
+                                  t('Your Article Review has been rejected')}
                               </p>
                             </div>
                           }
                         >
                           <p className={`${statusString} status`}>
-                            {statusString}
+                            {/* {statusString} */}
+                            {isPending && t('Pending')}
+                            {isRejected && t('Rejected')}
                           </p>
                         </Tippy>
                       </div>
@@ -1384,7 +1394,7 @@ export default function NFTArticlePost({
                       className='me-2 '
                     />{' '} */}
                         <p className='mb-0' style={{ fontWeight: '600' }}>
-                        {t("Promoted Article")}
+                          {t('Promoted Article')}
                         </p>
                       </div>
                     )}
@@ -1402,55 +1412,53 @@ export default function NFTArticlePost({
                           fill={true}
                           alt={`${entry.caption}`}
                         />
-                        <div
-                          className='btnnn'
-                          style={{
-                            position: 'absolute',
-                            right: '15px',
-                            bottom: '0px',
-                            zIndex: '5',
-                          }}
-                        >
-                          {!(
-                            statusString == 'pending' ||
-                            statusString == 'rejected'
-                          ) && (
-                            <div className='d-flex'>
-                              {!entry.isPromoted &&
-                                !entry.pressRelease &&
-                                !entry.isPodcast &&
-                                identity &&
-                                identity._principal &&
-                                identity._principal.toString() === userId && (
-                                  <div>
-                                    <Button
-                                      className='blue-button btn btn-primary'
-                                      onClick={handleShow}
-                                    >
-                                      {t(' Promote Article')}
-                                    </Button>
-                                  </div>
-                                )}
-                              {auth.state === 'initialized' &&
-                                !entry.pressRelease &&
-                                !entry.isPodcast && (
-                                  <MintButton
-                                    isMinted={isMinted}
-                                    isMinting={isMinting}
-                                    mintNft={mintNft}
-                                    entry={entry}
-                                    commentsLength={userArticleComments.length}
-                                    tempLike={tempLike}
-                                  />
-                                )}
-                            </div>
-                          )}
-                        </div>
                       </div>
                     </Tippy>
                   </div>
                 </div>
-
+                <div
+                  className='btnnn'
+                  style={{
+                    position: 'relative',
+                    right: '15px',
+                    bottom: '0px',
+                    zIndex: '5',
+                  }}
+                >
+                  {!(
+                    statusString == 'pending' || statusString == 'rejected'
+                  ) && (
+                    <div className='d-flex justify-content-end'>
+                      {!entry.isPromoted &&
+                        !entry.pressRelease &&
+                        !entry.isPodcast &&
+                        identity &&
+                        identity._principal &&
+                        identity._principal.toString() === userId && (
+                          <div>
+                            <Button
+                              className='yellow-button btn '
+                              onClick={handleShow}
+                            >
+                              {t(' Promote Article')}
+                            </Button>
+                          </div>
+                        )}
+                      {auth.state === 'initialized' &&
+                        !entry.pressRelease &&
+                        !entry.isPodcast && (
+                          <MintButton
+                            isMinted={isMinted}
+                            isMinting={isMinting}
+                            mintNft={mintNft}
+                            entry={entry}
+                            commentsLength={userArticleComments.length}
+                            tempLike={tempLike}
+                          />
+                        )}
+                    </div>
+                  )}
+                </div>
                 {/* Shery */}
                 {articleHeadingsHierarchy &&
                   articleHeadingsHierarchy.length != 0 && (
@@ -1465,7 +1473,7 @@ export default function NFTArticlePost({
                           className='fill'
                           id='dropdown-basic'
                         >
-                          All Content{' '}
+                          {t('All Content')}{' '}
                           {showContent ? (
                             <i className='fa fa-angle-down'></i>
                           ) : (
@@ -1508,7 +1516,7 @@ export default function NFTArticlePost({
                 <div className='txt-pnl'>
                   <h6>
                     <Link href={`/profile?userId=${userId}`}>
-                      By {user?.name[0] ?? ''}{' '}
+                    {t('By')} {user?.name[0] ?? ''}{' '}
                     </Link>
                    
                     {entry?.isPromoted && (
@@ -1724,31 +1732,36 @@ export default function NFTArticlePost({
                     </>
                   )}
                 </div>
-                <div className='footer-comment-pnl'>
-                  <ul>
-                    <VoteButton
-                      isLiked={isLiked}
-                      isLiking={isLiking}
-                      handleLikeEntry={handleLikeEntry}
-                      entry={entry}
-                      commentsLength={commentCount}
-                      tempLike={tempLike}
-                      isFooter={true}
-                    />
+                {!(isPending || isRejected) && (
+                  <div className='footer-comment-pnl'>
+                    <ul>
+                      <VoteButton
+                        isLiked={isLiked}
+                        isLiking={isLiking}
+                        handleLikeEntry={handleLikeEntry}
+                        entry={entry}
+                        commentsLength={commentCount}
+                        tempLike={tempLike}
+                        isFooter={true}
+                      />
 
-                    <li>
-                      <Link
-                        href='#'
-                        onClick={(e) => {
-                          e.preventDefault();
-                          copyToClipboard(e, `article?articleId=${articleId}`);
-                        }}
-                      >
-                        <Image src={iconshare} alt='Icon Share' /> Share
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
+                      <li>
+                        <Link
+                          href='#'
+                          onClick={(e) => {
+                            e.preventDefault();
+                            copyToClipboard(
+                              e,
+                              `article?articleId=${articleId}`
+                            );
+                          }}
+                        >
+                          <Image src={iconshare} alt='Icon Share' /> Share
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </>
             ) : (
               <div className='d-flex justify-content-center my-4'>
@@ -1765,7 +1778,9 @@ export default function NFTArticlePost({
               <div className='flex-div connect-heading-pnl mb-3'>
                 {/* <i className='fa fa-question-circle-o'></i> */}
                 <p></p>
-                <p className='text-bold h5 fw-bold m-0'>{t('Confirm Transaction')}</p>
+                <p className='text-bold h5 fw-bold m-0'>
+                  {t('Confirm Transaction')}
+                </p>
                 {/* <i onClick={handleModalClose} className='fa fa-close'></i> */}
                 <i
                   style={{

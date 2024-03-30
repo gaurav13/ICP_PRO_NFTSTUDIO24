@@ -73,6 +73,9 @@ shared ({ caller = initializer }) actor class () {
   type Events = EntryType.Events;
   type InputEvent = EntryType.InputEvent;
   type EntryMetadata = EntryType.EntryMetadata;
+  type EventMetadata = EntryType.EventMetadata;
+  type Web3MetaData = EntryType.Web3MetaData;
+
   type EventStatus = EntryType.EventStatus;
   //
   type TransactionHistoryItem = {
@@ -387,6 +390,60 @@ shared ({ caller = initializer }) actor class () {
       return #ok("Published", entryId);
     };
   };
+  public shared ({ caller }) func updateEntry(tempEntry : Entry, key : Text) : async Bool {
+    let newEntry = entryStorage.replace(key, tempEntry);
+    return true;
+  };
+  public shared ({ caller }) func updateUserEntries(userId : UserId, userName : Text) : async Bool {
+    assert not Principal.isAnonymous(caller);
+
+    for ((key, entry) in entryStorage.entries()) {
+      if (entry.user == userId) {
+        //  Debug.print(debug_show (entry,userId,userName,"entry is here"));
+        let tempEntry : Entry = {
+          title = entry.title;
+          description = entry.description;
+          image = entry.image;
+          creation_time = entry.creation_time;
+          user = entry.user;
+          views = entry.views;
+          likes = entry.likes;
+          category = entry.category;
+          seoTitle = entry.seoTitle;
+          seoSlug = entry.seoSlug;
+          viewedUsers = entry.viewedUsers;
+          likedUsers = entry.viewedUsers;
+          seoDescription = entry.seoDescription;
+          seoExcerpt = entry.seoExcerpt;
+          subscription = entry.subscription;
+          isDraft = entry.isDraft;
+          isPromoted = entry.isPromoted;
+          promotionICP = entry.promotionICP;
+          minters = entry.minters;
+          userName = userName;
+          status = entry.status;
+          promotionHistory = entry.promotionHistory;
+          pressRelease = entry.pressRelease;
+          caption = entry.caption;
+          tags = entry.tags;
+          isCompanySelected = entry.isCompanySelected;
+          companyId = entry.companyId;
+          isPodcast = entry.isPodcast;
+          podcastVideoLink = entry.podcastVideoLink;
+          podcastImgCation = entry.podcastImgCation;
+          isStatic = entry.isStatic;
+          podcastImg = entry.podcastImg;
+        };
+        let isok = entryStorage.replace(key, tempEntry);
+
+      };
+
+    };
+
+    return true;
+
+  };
+
   public query ({ caller }) func getEntry(key : Key) : async ?Entry {
     let maybeEntry = entryStorage.get(key);
     switch (maybeEntry) {
@@ -475,6 +532,64 @@ shared ({ caller = initializer }) actor class () {
       };
     };
   };
+  public query ({ caller }) func getEventMeta(key : Key) : async EventMetadata {
+    let maybeEntry = eventStorage.get(key);
+    switch (maybeEntry) {
+      case (?isEntry) {
+        return {
+          title = isEntry.title;
+          shortDescription = isEntry.shortDescription;
+          date = isEntry.date;
+          endDate = isEntry.endDate;
+          location = isEntry.location;
+          country = isEntry.country;
+          city = isEntry.city;
+          website = isEntry.website;
+          category = isEntry.category;
+          tags = isEntry.tags;
+          organiser = isEntry.organiser;
+          image = isEntry.image;
+          creation_time = isEntry.creation_time;
+          month = isEntry.month;
+          user = isEntry.user;
+          seoTitle = isEntry.seoTitle;
+          seoSlug = isEntry.seoSlug;
+          seoDescription = isEntry.seoDescription;
+          seoExcerpt = isEntry.seoExcerpt;
+          description = isEntry.description;
+          freeTicket = isEntry.freeTicket;
+          applyTicket = isEntry.applyTicket;
+        };
+      };
+      case (null) {
+        return {
+
+          title = "Default field";
+          shortDescription = "Default field";
+          date = Time.now() / 100000;
+          endDate = Time.now() / 100000;
+          location = "Default location";
+          country = "Default country";
+          city = "Default city";
+          website = "Default website";
+          category = ["Default field"];
+          tags = ["Default field"];
+          organiser = "Default field";
+          image = "Default field";
+          creation_time = Time.now() / 100000;
+          month = 2;
+          user = caller;
+          seoTitle = "Default field";
+          seoSlug = "Default field";
+          seoDescription = "Default field";
+          seoExcerpt = "Default field";
+          description = "description";
+          freeTicket = "freeTicket";
+          applyTicket = "applyTicket";
+        };
+      };
+    };
+  };
   public shared ({ caller }) func makeStatic(key : Key) : async Bool {
     let maybeEntry = entryStorage.get(key);
     switch (maybeEntry) {
@@ -515,6 +630,174 @@ shared ({ caller = initializer }) actor class () {
           isStatic = newStatic;
         };
         let old = entryStorage.replace(key, tempEntry);
+        return true;
+      };
+      case (null) {
+        return false;
+      };
+    };
+  };
+  public shared ({ caller }) func makeStaticEvent(key : Key) : async Bool {
+    let maybeEntry = eventStorage.get(key);
+    switch (maybeEntry) {
+      case (?isEntry) {
+        let newStatic = true;
+        var tempEntry : Event = {
+          title = isEntry.title;
+          shortDescription = isEntry.shortDescription;
+          description = isEntry.description;
+          date = isEntry.date;
+          endDate = isEntry.endDate;
+          location = isEntry.location;
+          country = isEntry.country;
+          city = isEntry.city;
+          website = isEntry.website;
+          category = isEntry.category;
+          tags = isEntry.tags;
+          linkdin = isEntry.linkdin;
+          image = isEntry.image;
+          creation_time = isEntry.creation_time;
+          user = isEntry.user;
+          seoTitle = isEntry.seoTitle;
+          seoSlug = isEntry.seoSlug;
+          seoDescription = isEntry.seoDescription;
+          seoExcerpt = isEntry.seoExcerpt;
+          month = isEntry.month;
+          facebook = isEntry.facebook;
+          telegram = isEntry.telegram;
+          instagram = isEntry.instagram;
+          twitter = isEntry.twitter;
+          organiser = isEntry.organiser;
+          freeTicket = isEntry.freeTicket;
+          applyTicket = isEntry.applyTicket;
+          lat = isEntry.lat;
+          lng = isEntry.lng;
+          isStatic = newStatic;
+          discountTicket = isEntry.discountTicket;
+
+        };
+        let old = eventStorage.replace(key, tempEntry);
+        return true;
+      };
+      case (null) {
+        return false;
+      };
+    };
+  };
+  public query ({ caller }) func getWeb3Meta(key : Key) : async Web3MetaData {
+    let maybeEntry = web3Storage.get(key);
+    switch (maybeEntry) {
+      case (?isWeb3) {
+
+        return {
+          company = isWeb3.company;
+          shortDescription = isWeb3.shortDescription;
+          companyUrl = isWeb3.companyUrl;
+          facebook = isWeb3.facebook;
+          instagram = isWeb3.instagram;
+          linkedin = isWeb3.linkedin;
+          discord = isWeb3.discord;
+          telegram = isWeb3.telegram;
+          twitter = isWeb3.twitter;
+          founderName = isWeb3.founderName;
+          companyBanner = isWeb3.companyBanner;
+          catagory = isWeb3.catagory;
+          founderDetail = isWeb3.founderDetail;
+          founderImage = isWeb3.founderImage;
+          companyDetail = isWeb3.companyDetail;
+          creation_time = isWeb3.creation_time;
+          user = isWeb3.user;
+          status = isWeb3.status;
+          companyLogo = isWeb3.companyLogo;
+        };
+      };
+      case (null) {
+        return {
+          company = "company";
+          shortDescription = "shortDescription";
+          companyUrl = ?"companyUrl";
+          facebook = ?"facebook";
+          instagram = ?"instagram";
+          linkedin = ?"linkedin";
+          discord = ?"discord";
+          telegram = ?"telegram";
+          twitter = ?"twitter";
+          founderName = "founderName";
+          companyBanner = "companyBanner";
+          catagory = "catagory";
+          founderDetail = "founderDetail";
+          founderImage = "founderImage";
+          companyDetail = "companyDetail";
+          creation_time = Time.now() / 100000;
+          user = caller;
+          status = #un_verfied;
+          companyLogo = "companyLogo";
+        };
+      };
+    };
+  };
+  public query func getAllWeb3Ids() : async [Key] {
+    var filteredKeys : [Key] = [];
+    for (key in web3Storage.keys()) {
+      let entry = web3Storage.get(key);
+      switch (entry) {
+        case (null) {
+          // Handle null case if needed
+        };
+        case (?entryValue) {
+          switch (entryValue.status) {
+            case (#verfied) {
+              filteredKeys := Array.append(filteredKeys, [key]);
+
+            };
+            case (_) {
+
+            };
+          };
+
+        };
+      };
+    };
+    return filteredKeys;
+
+  };
+  public shared ({ caller }) func makeStaticWeb3(key : Key) : async Bool {
+    let maybeEntry = web3Storage.get(key);
+    switch (maybeEntry) {
+      case (?web3) {
+
+        let tempWeb3 : Web3 = {
+          company = web3.company;
+          shortDescription = web3.shortDescription;
+          founderName = web3.founderName;
+          founderDetail = web3.founderDetail;
+          founderImage = web3.founderImage;
+          companyBanner = web3.companyBanner;
+          catagory = web3.catagory;
+          creation_time = web3.creation_time;
+          user = web3.user;
+          status = web3.status;
+          likes = web3.likes;
+          likedUsers = web3.likedUsers;
+          companyUrl = web3.companyUrl;
+          facebook = web3.facebook;
+          instagram = web3.instagram;
+          linkedin = web3.linkedin;
+          companyDetail = web3.companyDetail;
+          companyLogo = web3.companyLogo;
+          discord = web3.discord;
+          telegram = web3.telegram;
+          twitter = web3.twitter;
+          views = web3.views;
+          articleCount = web3.articleCount;
+          podcastCount = web3.podcastCount;
+          pressReleaseCount = web3.pressReleaseCount;
+          totalCount = web3.totalCount;
+          isStatic = true;
+          founderEmail = web3.founderEmail;
+
+        };
+        let newEntry = web3Storage.replace(key, tempWeb3);
         return true;
       };
       case (null) {
@@ -608,6 +891,8 @@ shared ({ caller = initializer }) actor class () {
           podcastCount = web3.podcastCount;
           pressReleaseCount = web3.pressReleaseCount;
           totalCount = web3.totalCount;
+          isStatic = web3.isStatic;
+          founderEmail = web3.founderEmail;
 
         };
         let newEntry = web3Storage.replace(key, tempWeb3);
@@ -663,6 +948,8 @@ shared ({ caller = initializer }) actor class () {
           podcastCount = tempPodcastCount;
           pressReleaseCount = temppressReleaseCount;
           totalCount = temptotalCount;
+          isStatic = web3.isStatic;
+          founderEmail = web3.founderEmail;
 
         };
         let newEntry = web3Storage.replace(key, tempWeb3);
@@ -771,6 +1058,8 @@ shared ({ caller = initializer }) actor class () {
           podcastCount = web3.podcastCount;
           pressReleaseCount = web3.pressReleaseCount;
           totalCount = web3.totalCount;
+          isStatic = web3.isStatic;
+          founderEmail = web3.founderEmail;
 
         };
 
@@ -806,6 +1095,7 @@ shared ({ caller = initializer }) actor class () {
     let userCanister = actor (userCanisterId) : actor {
       add_reward : (caller : Principal, like_reward : Nat) -> async Bool;
       check_user_exists : (caller : Principal) -> async Bool;
+      get_NFT24Coin : () -> async Nat;
     };
     let commentCanister = actor (commentCanisterId) : actor {
       addActivity : (user : Principal, target : Text, activityType : ActivityType, title : Text) -> async Bool;
@@ -834,18 +1124,19 @@ shared ({ caller = initializer }) actor class () {
               // } else {
               //   newPromoted := true;
               // };
-
+              var oneCoinsValue = await userCanister.get_NFT24Coin();
+              var tempRewardAmount = oneCoinsValue * like_reward;
               var newPromotionICP : Nat = isEntry.promotionICP;
               var shouldReward = false;
-              if ((newPromotionICP - like_reward) : Int == 0) {
-                newPromotionICP := newPromotionICP - like_reward;
+              if ((newPromotionICP - tempRewardAmount) : Int == 0) {
+                newPromotionICP := newPromotionICP - tempRewardAmount;
                 newPromoted := false;
                 shouldReward := true;
-              } else if ((newPromotionICP - like_reward) : Int <= 0) {
+              } else if ((newPromotionICP - tempRewardAmount) : Int <= 0) {
                 shouldReward := false;
                 newPromoted := false;
               } else {
-                newPromotionICP := newPromotionICP - like_reward;
+                newPromotionICP := newPromotionICP - tempRewardAmount;
                 newPromoted := true;
                 shouldReward := true;
               };
@@ -1334,6 +1625,22 @@ shared ({ caller = initializer }) actor class () {
     return filteredKeys;
 
   };
+  public query func getAllEventsIds() : async [Key] {
+    var filteredKeys : [Key] = [];
+    for (key in eventStorage.keys()) {
+      let entry = eventStorage.get(key);
+      switch (entry) {
+        case (null) {
+          // Handle null case if needed
+        };
+        case (?entryValue) {
+          filteredKeys := Array.append(filteredKeys, [key]);
+        };
+      };
+    };
+    return filteredKeys;
+
+  };
   public query func getPaginatedEntries(startIndex : Nat, length : Nat) : async {
     entries : [(Key, Entry)];
     amount : Nat;
@@ -1671,7 +1978,12 @@ shared ({ caller = initializer }) actor class () {
     return EntryStoreHelper.searchSortList(entiresList, search, startIndex, length);
 
   };
-  public query func getPodcastList(inputCategory : Text, draft : Bool, search : Text, startIndex : Nat, length : Nat) : async {
+  //  dataType for below function
+  // 1 =pressRelease
+  // 2 =podcast
+  // 3 =article
+
+  public query func getUniqueDataList(inputCategory : Text, draft : Bool, search : Text, startIndex : Nat, length : Nat, dataType : Nat) : async {
     entries : [(Key, ListPodcastItem)];
     amount : Nat;
   } {
@@ -1719,25 +2031,68 @@ shared ({ caller = initializer }) actor class () {
         seoExcerpt = entry.seoExcerpt;
         isStatic = entry.isStatic;
       };
-      if (entry.isPodcast) {
-        if ((inputCategory == "All")) {
-          if (draft and entry.isDraft or not draft and not entry.isDraft and shouldSendListEntry(entry.status)) {
-            entiresList.put(key, lisEntryItem);
-          };
-        } else {
-          if (draft and entry.isDraft or not draft and not entry.isDraft and shouldSendListEntry(entry.status)) {
-            let tempCategories = entry.category;
-            for (category in tempCategories.vals()) {
-              if (category == inputCategory) {
-                entiresList.put(key, lisEntryItem);
+      if (dataType == 1) {
+        if (entry.pressRelease) {
+          if ((inputCategory == "All")) {
+            if (draft and entry.isDraft or not draft and not entry.isDraft and shouldSendListEntry(entry.status)) {
+              entiresList.put(key, lisEntryItem);
+            };
+          } else {
+            if (draft and entry.isDraft or not draft and not entry.isDraft and shouldSendListEntry(entry.status)) {
+              let tempCategories = entry.category;
+              for (category in tempCategories.vals()) {
+                if (category == inputCategory) {
+                  entiresList.put(key, lisEntryItem);
+                };
               };
+
             };
 
+            // entiresList := sortByCategory(inputCategory, entiresList, key, lisEntryItem, entry);
           };
+        };
+      } else if (dataType == 2) {
+        if (entry.isPodcast) {
+          if ((inputCategory == "All")) {
+            if (draft and entry.isDraft or not draft and not entry.isDraft and shouldSendListEntry(entry.status)) {
+              entiresList.put(key, lisEntryItem);
+            };
+          } else {
+            if (draft and entry.isDraft or not draft and not entry.isDraft and shouldSendListEntry(entry.status)) {
+              let tempCategories = entry.category;
+              for (category in tempCategories.vals()) {
+                if (category == inputCategory) {
+                  entiresList.put(key, lisEntryItem);
+                };
+              };
 
-          // entiresList := sortByCategory(inputCategory, entiresList, key, lisEntryItem, entry);
+            };
+
+            // entiresList := sortByCategory(inputCategory, entiresList, key, lisEntryItem, entry);
+          };
+        };
+      } else if (dataType == 3) {
+        if (not entry.pressRelease and not entry.isPodcast) {
+          if ((inputCategory == "All")) {
+            if (draft and entry.isDraft or not draft and not entry.isDraft and shouldSendListEntry(entry.status)) {
+              entiresList.put(key, lisEntryItem);
+            };
+          } else {
+            if (draft and entry.isDraft or not draft and not entry.isDraft and shouldSendListEntry(entry.status)) {
+              let tempCategories = entry.category;
+              for (category in tempCategories.vals()) {
+                if (category == inputCategory) {
+                  entiresList.put(key, lisEntryItem);
+                };
+              };
+
+            };
+
+            // entiresList := sortByCategory(inputCategory, entiresList, key, lisEntryItem, entry);
+          };
         };
       };
+
     };
     // let entryArray = Iter.toArray(entiresList.entries());
 
@@ -1993,6 +2348,9 @@ shared ({ caller = initializer }) actor class () {
         companyUrl = entry.companyUrl;
         companyLogo = entry.companyLogo;
         views = entry.views;
+        isStatic = entry.isStatic;
+        founderEmail = entry.founderEmail;
+
       };
       if (cate == "All") {
 
@@ -2478,6 +2836,8 @@ shared ({ caller = initializer }) actor class () {
               podcastCount = web3.podcastCount;
               pressReleaseCount = web3.pressReleaseCount;
               totalCount = web3.totalCount;
+              isStatic = web3.isStatic;
+              founderEmail = web3.founderEmail;
 
             };
             let newEntry = web3Storage.replace(key, tempWeb3);
@@ -2513,6 +2873,8 @@ shared ({ caller = initializer }) actor class () {
               podcastCount = web3.podcastCount;
               pressReleaseCount = web3.pressReleaseCount;
               totalCount = web3.totalCount;
+              isStatic = web3.isStatic;
+              founderEmail = web3.founderEmail;
 
             };
             let newEntry = web3Storage.replace(key, tempWeb3);
@@ -2573,6 +2935,8 @@ shared ({ caller = initializer }) actor class () {
           podcastCount = web3.podcastCount;
           pressReleaseCount = web3.pressReleaseCount;
           totalCount = web3.totalCount;
+          isStatic = web3.isStatic;
+          founderEmail = web3.founderEmail;
 
         };
         let newEntry = web3Storage.replace(key, tempWeb3);
@@ -2630,6 +2994,8 @@ shared ({ caller = initializer }) actor class () {
           podcastCount = web3.podcastCount;
           pressReleaseCount = web3.pressReleaseCount;
           totalCount = web3.totalCount;
+          isStatic = web3.isStatic;
+          founderEmail = web3.founderEmail;
 
         };
         if ((inputCategory == "")) {
@@ -2690,6 +3056,9 @@ shared ({ caller = initializer }) actor class () {
           podcastCount = web3.podcastCount;
           pressReleaseCount = web3.pressReleaseCount;
           totalCount = web3.totalCount;
+          isStatic = web3.isStatic;
+          founderEmail = web3.founderEmail;
+
         };
         if ((inputCategory == "All")) {
 
@@ -2740,6 +3109,9 @@ shared ({ caller = initializer }) actor class () {
           podcastCount = web3.podcastCount;
           pressReleaseCount = web3.pressReleaseCount;
           totalCount = web3.totalCount;
+          isStatic = web3.isStatic;
+          founderEmail = web3.founderEmail;
+
         };
         if ((inputCategory == "")) {
 
@@ -3339,6 +3711,7 @@ shared ({ caller = initializer }) actor class () {
     assert inputEvent.seoSlug.size() <= MAX_SEO_SLUG_CHARS;
     assert inputEvent.seoDescription.size() <= MAX_SEO_DESCRIPTION_CHARS;
     assert inputEvent.seoExcerpt.size() <= MAX_SEO_EXCERPT_CHARS;
+    assert inputEvent.discountTicket.size() <= MAX_LINKEDIN_CHARS;
 
     let eventId = EntryType.generateNewRemoteObjectId();
     let newEvent : Event = {
@@ -3371,6 +3744,8 @@ shared ({ caller = initializer }) actor class () {
       applyTicket = inputEvent.applyTicket;
       lat = inputEvent.lat;
       lng = inputEvent.lng;
+      isStatic = false;
+      discountTicket = inputEvent.discountTicket;
     };
     eventStorage.put(eventId, newEvent);
     for (cat in inputEvent.category.vals()) {
@@ -3451,6 +3826,9 @@ shared ({ caller = initializer }) actor class () {
           applyTicket = inputEvent.applyTicket;
           lat = inputEvent.lat;
           lng = inputEvent.lng;
+          isStatic = isEvent.isStatic;
+          discountTicket = inputEvent.discountTicket;
+
         };
         let resp = eventStorage.replace(eventId, newEvent);
         let addactivity = commentCanister.addAdminActivity(caller, eventId, #edit_event, inputEvent.title);

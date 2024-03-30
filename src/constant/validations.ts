@@ -11,8 +11,11 @@ export const VALID_IMAGE_EXTENSIONS = {
   image: ['jpg', 'gif', 'png', 'jpeg', 'svg', 'webp'],
 };
 export const MAX_CATEGORY_NAME_CHARACTERS = 100;
+import useLocalization from "@/lib/UseLocalization"
+import { LANG } from '@/constant/language';
 export const MAX_CATEGORY_DESCRIPTION_CHARACTERS = 3000;
 export const STRONG_PASSWORD =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-export const STRONG_PASSWORD_SMS =
-  'Password must contain at least one uppercase letter, one lowercase letter, one number, one special character and minimum length of 6 characters.';
+export const STRONG_PASSWORD_SMS = LANG === 'en' ?
+  'Password must contain at least one uppercase letter, one lowercase letter, one number, one special character and minimum length of 6 characters.'
+  : 'パスワードは、少なくとも大文字1文字、小文字1文字、数字1文字、特殊文字1文字を含み、6文字以上でなければなりません。'

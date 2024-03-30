@@ -12,16 +12,8 @@ import { ArticlesList } from '@/components/ArticlesList';
 import { EntrySizeMap } from '@/types/dashboard';
 import { fromNullable } from '@dfinity/utils';
 import getCategories from '@/components/utils/getCategories';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function Reward() {
   const [entriesList, setEntriesList] = useState([]);
@@ -76,11 +68,11 @@ export default function Reward() {
     if (tempEntriesList.length === 0) {
       return [];
     }
-    const userActor = makeUserActor({
-      agentOptions: {
-        identity,
-      },
-    });
+    // const userActor = makeUserActor({
+    //   agentOptions: {
+    //     identity,
+    //   },
+    // });
     const refinedPromise = await Promise.all(
       tempEntriesList.map(async (entry: any) => {
         let image = null;
@@ -110,7 +102,7 @@ export default function Reward() {
           })
         );
 
-        const user = await userActor.get_user_details([userId]);
+        // const user = await userActor.get_user_details([userId]);
         let newItem = {
           entryId: entry[0],
           creation_time: entry[1].creation_time,
@@ -127,11 +119,11 @@ export default function Reward() {
           status: entry[1].status,
           pressRelease: entry[1].pressRelease,
           isPodcast: entry[1].isPodcast,
-          isStatic:entry[1].isStatic, 
+          isStatic: entry[1].isStatic,
         };
-        if (user.ok) {
-          newItem.userName = user.ok[1].name ?? entry[1].userName;
-        }
+        // if (user.ok) {
+        //   newItem.userName = user.ok[1].name ?? entry[1].userName;
+        // }
         return newItem;
       })
     );
@@ -172,7 +164,6 @@ export default function Reward() {
     all?: string
   ) => {
     // logger({reset,draft,all,search}, 'Entri234esList');
-    logger(activeListName, "activeListName")
 
     const entryActor = makeEntryActor({
       agentOptions: {
@@ -187,6 +178,7 @@ export default function Reward() {
       6
     );
     const tempList = resp.entries;
+
     // setEntriesSize();
     let amount = parseInt(resp.amount);
 
@@ -474,11 +466,11 @@ export default function Reward() {
                       <div className='full-div'>
                         <ul className='filter-list'>
                           {/* <li>
-                              <Form.Select aria-label='All Dates'>
-                                <option>All Dates</option>
-                                <option value='1'>All Dates</option>
-                                <option value='2'>All Dates</option>
-                                <option value='3'>All Dates</option>
+                              <Form.Select aria-label='{t('All Dates')}'>
+                                <option>{t('All Dates')}</option>
+                                <option value='1'>{t('All Dates')}</option>
+                                <option value='2'>{t('All Dates')}</option>
+                                <option value='3'>{t('All Dates')}</option>
                               </Form.Select>
                             </li> */}
                           <li>
@@ -501,7 +493,10 @@ export default function Reward() {
                             </Form.Select>
                           </li>
                           <li>
-                            <Button className='filter-btn showbtn' onClick={filter}>
+                            <Button
+                              className='filter-btn showbtn'
+                              onClick={filter}
+                            >
                               {t('filter')}
                             </Button>
                           </li>

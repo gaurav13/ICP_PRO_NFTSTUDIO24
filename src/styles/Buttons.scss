@@ -278,7 +278,29 @@
     padding: 8px 15px;
   }
 }
+.yellow-button {
+  background-color: #eaca08;
+  border-radius: 5px;
+  padding: 5px 30px;
+  font-size: 18px;
+  font-weight: 700;
+  color: $white;
+  border: 0;
+  // border-color: $blue;
 
+  &:hover {
+    background-color: $black;
+    color: $white;
+    // border-color: $black;
+  }
+
+  &.sm {
+    padding: 8px 15px;
+  }
+}
+.selectedBgClr{
+  background-color: #ebe8e8;
+}
 // Reg Button
 
 // Grey Button
@@ -480,6 +502,11 @@
     font-size: 12px;
   }
   @media (max-width: 1400px) {
+    min-width: 80px;
+    max-width: 90px;
+    font-size: 12px;
+  }
+  @media (max-width: 1200px) {
     min-width: 130px;
     max-width: 150px;
     font-size: 14px;
@@ -574,3 +601,19 @@
 // .rounded-button svg {
 //   margin-right: 5px;
 // }
+
+.slick-dots {
+  display: flex !important;
+  li {
+    min-height: 102px !important;
+    min-width: 195px !important;
+  }
+};
+.expectedRatioheader{
+  font-size: 18px;
+    color: #727171;
+    span{
+  font-size: 14px;
+
+    }
+};

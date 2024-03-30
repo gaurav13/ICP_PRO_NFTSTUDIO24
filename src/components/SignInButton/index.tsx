@@ -184,7 +184,7 @@ export default function SignInButton({
       </Button>
       <Modal centered show={show} onHide={handleClose} onClose={handleClose}>
         <Modal.Header closeButton className=''>
-          <h5 className='mb-0'>{isRegister ? t('Sign out') : t('Sign In')}</h5>
+          <h5 className='mb-0'>{isRegister ? t('Sign Up') : t('Sign In')}</h5>
         </Modal.Header>
         <Modal.Body>
           <div className=''>

@@ -8,16 +8,8 @@ import smallpost1 from '@/assets/Img/Posts/Small-Post-1.png';
 import smallpost2 from '@/assets/Img/Posts/Small-Post-2.png';
 import smallpost3 from '@/assets/Img/Posts/Small-Post-3.png';
 import banner from '@/assets/Img/banner.png';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function AllArticles() {
   const { t, changeLocale } = useLocalization(LANG);
@@ -26,7 +18,7 @@ export default function AllArticles() {
       <main id='main'>
         <div className='main-inner home'>
           <Head>
-            <title>Hi</title>
+            <title>{t('Hi')}</title>
           </Head>
           <div className='section text-left' id='top'>
             <Row>
@@ -51,17 +43,19 @@ export default function AllArticles() {
                 <Image src={banner} alt='Post' />
                 <div className='spacer-20'></div>
                 <p>
-                {t('Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!')}
+                  {t(
+                    'Are you ready to embark on a journey of discovery and learning? Do not miss the WikiExpo SYDNEY 2023, the premier event for knowledge enthusiasts!'
+                  )}
                 </p>
                 <p>
                   <b>📅 {t('date')}:</b> 16th Nov. 2023
                 </p>
                 <p>
-                  <b>📍 Location:</b> The Fullerton Hotel Sydney No. 1 Martin
+                  <b>📍 {t('Location:')}</b> The Fullerton Hotel Sydney No. 1 Martin
                   Place, Sydney NSW 2000, Australia
                 </p>
                 <p>
-                  <b>🔥 Event Highlights:</b>
+                  <b>🔥 {t('Event Highlights:')}</b>
                 </p>
                 <ul className='blut-dot-list'>
                   <li>
@@ -92,11 +86,11 @@ export default function AllArticles() {
                 </p>
                 <div className='full-div'>
                   <Link href='#' className='submit-btn w-auto'>
-                    Get Your Tickets Now
+                    {t('Get Your Tickets Now')}
                   </Link>
                 </div>
                 <Link href='#' className='simple-link'>
-                  WikiExpo Tickets
+                  {t('WikiExpo Tickets')}
                 </Link>
                 <div className='spacer-20'></div>
                 <p>
@@ -104,10 +98,10 @@ export default function AllArticles() {
                   us for the latest event news and exciting announcements.
                 </p>
                 <p>
-                  👉 <b>{t('website')}:</b> WikiExpo Website
+                  👉 <b>{t('website')}:</b> {t('WikiExpo Website')}
                 </p>
                 <p>
-                  👥 <b>Join our LinkedIn Group:</b>{' '}
+                  👥 <b>{t('Join our LinkedIn Group:')}</b>{' '}
                   <Link href='#' className='simple-link'>
                     [ WikiExpo ]
                   </Link>
@@ -118,7 +112,7 @@ export default function AllArticles() {
                 <Row>
                   <Col xxl='3' xl='4' lg='6' md='6' sm='6'>
                     <h4>
-                      <b>DETAILS</b>
+                      <b>{t('DETAILS')}</b>
                     </h4>
                     <p>
                       <b>{t('date')}</b>
@@ -126,7 +120,7 @@ export default function AllArticles() {
                       November 16
                     </p>
                     <p>
-                      <b>Event Tags:</b>
+                      <b>{t('Event Tags:')}</b>
                       <br></br>
                       <Link href='#' className='simple-link'>
                         WikiExpo 2023
@@ -146,7 +140,7 @@ export default function AllArticles() {
                   </Col>
                   <Col xxl='3' xl='4' lg='6' md='6' sm='6'>
                     <h4>
-                      <b>VENUE</b>
+                      <b>{t('VENUE')}</b>
                     </h4>
                     <div className='full-div'>
                       <p>
