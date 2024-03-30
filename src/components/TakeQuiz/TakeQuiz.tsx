@@ -37,14 +37,14 @@ export default function TakeQuiz() {
         </span>
         <div>
           <h1>
-            <Image src={iconcoin} alt='Quiz' /> {t('Quiz')}{' '}
+            <Image src={iconcoin} alt='Quiz' /> <h1 className={LANG === 'jp' ? 'fs-max' : ""}>{t('Quiz')}</h1>{' '}
             <Image src={icondollar} alt='Quiz' />
           </h1>
         </div>
-        <h2>
+        <h2 >
           {t('NIGERIAN LOCAL TRARDERS COMMENT ON THE USE OF CRYPTOCURRENCY FOR RECIECVING PAYMENTS')}
         </h2>
-        <p>{t('A review of crucial points stated in the article')}</p>
+        <p className='text-dark'>{t('A review of crucial points stated in the article')}</p>
         <ul>
           <li>
             <div className='img-pnl'>
@@ -57,7 +57,7 @@ export default function TakeQuiz() {
               <Image src={icontest} alt='icon test' />
             </div>
             <p>
-             {t('Each quiz will have single or multiple correct answers, choose wisely.')}
+              {t('Each quiz will have single or multiple correct answers, choose wisely.')}
             </p>
           </li>
           <li>
@@ -65,7 +65,7 @@ export default function TakeQuiz() {
               <Image src={iconrefresh} alt='icon test' />
             </div>
             <p>
-             {t('You will be able to retry multiple times if you fail the quiz.')}
+              {t('You will be able to retry multiple times if you fail the quiz.')}
             </p>
           </li>
         </ul>

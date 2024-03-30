@@ -131,7 +131,7 @@ export default function DirectorySlider() {
 
                 <div>
                   <h5>NFTStudio 24</h5>
-                  <p>Founder</p>
+                  <p>{t('Founder')}</p>
                 </div>
               </div>
             </div>
@@ -200,7 +200,7 @@ export default function DirectorySlider() {
 
                 <div>
                   <h5>NFTStudio 24</h5>
-                  <p>Founder</p>
+                  <p>{t('Founder')}</p>
                 </div>
               </div>
             </div>

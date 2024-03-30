@@ -2,10 +2,12 @@ type anon_class_19_1 =
  service {
    addActivity: (UserId, text, ActivityType, text) -> (bool);
    addAdminActivity: (UserId, text, AdminActivityType, text) -> (bool);
-   addComment: (InputComment, text, text, text, text) -> (Result_3);
+   addComment: (InputComment, text, text, text, text, text) -> (Result_3);
    getActivities: () -> (Result_2) query;
    getAdminActivities: (UserId, text) -> (Result_1);
    getComments: (text) -> (Result) query;
+   get_comment_reward: () -> (nat) query;
+   update_comment_reward: (text, nat) -> (nat);
  };
 type UserId = principal;
 type Result_3 = 
@@ -67,6 +69,8 @@ type AdminActivityType =
    edit_web3;
    reject;
    unBlock;
+   un_verify_user;
+   verify_user;
    verify_web3;
  };
 type AdminActivity = 

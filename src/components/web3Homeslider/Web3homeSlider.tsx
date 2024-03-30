@@ -13,6 +13,7 @@ import { formatLikesCount } from '@/components/utils/utcToLocal';
 import tempimg from '@/assets/Img/banner-1.png';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { DIRECTORY_STATIC_PATH } from '@/constant/routes';
 export default function Web3HomeSlider({ category }: { category?: any }) {
   const { t, changeLocale } = useLocalization(LANG);
   let [trendingDirectries, setTrendingDirectries] = useState([]);
@@ -176,7 +177,7 @@ export default function Web3HomeSlider({ category }: { category?: any }) {
                     e.preventDefault();
 
                     openArticleLink(
-                      `/directory?directoryId=${
+                      entry[1].isStatic? `${DIRECTORY_STATIC_PATH +entry[0]}`: `/directory?directoryId=${
                         entry.length != 0 ? entry[0] : '#'
                       }`
                     );
@@ -258,7 +259,7 @@ export default function Web3HomeSlider({ category }: { category?: any }) {
 
                       <div>
                         <h5>{entry[1]?.founderName ?? ''}</h5>
-                        <p>Founder</p>
+                        <p>{t('Founder')}</p>
                       </div>
                     </div>
                   </div>
@@ -270,7 +271,7 @@ export default function Web3HomeSlider({ category }: { category?: any }) {
       ) : (
         <h6 className='text-center'>
          {t('No Related Company found')}{' '}
-          {categoryName ? `on ${categoryName} category` : ''}
+          {categoryName ? `${t('ON')} ${categoryName} ${t('Category')}` : ''}
         </h6>
       )}
     </>

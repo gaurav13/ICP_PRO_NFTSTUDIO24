@@ -15,8 +15,9 @@ import { TopEvent } from '@/types/article';
 import { ARTICLE_FEATURED_IMAGE_ASPECT } from '@/constant/sizes';
 import { Form, Spinner } from 'react-bootstrap';
 import getVariant from '@/components/utils/getEventStatus';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { Event_STATIC_PATH } from '@/constant/routes';
 
 export default function TopEvents({ small }: { small?: boolean }) {
   const { t, changeLocale } = useLocalization(LANG);
@@ -67,7 +68,8 @@ export default function TopEvents({ small }: { small?: boolean }) {
           freeTicket: unEvent?.freeTicket,
           applyTicket: unEvent?.applyTicket,
           lat: unEvent?.lat,
-          lng: unEvent?.lng
+          lng: unEvent?.lng,
+          isStatic: unEvent.isStatic,
         };
         return refinedEvent;
       });
@@ -171,7 +173,11 @@ export default function TopEvents({ small }: { small?: boolean }) {
                       margin: '0 auto',
                       aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
                     }}
-                    href={`/event-details?eventId=${event.id}`}
+                    href={
+                      event.isStatic
+                        ? `${Event_STATIC_PATH + event.id}`
+                        : `/event-details?eventId=${event.id}`
+                    }
                   >
                     <Image src={event.image} fill alt='Post' />
                   </Link>
@@ -180,7 +186,11 @@ export default function TopEvents({ small }: { small?: boolean }) {
                   <span>{event.date}</span>
                   <h6>
                     <Link
-                      href={`/event-details?eventId=${event.id}`}
+                      href={
+                        event.isStatic
+                          ? `${Event_STATIC_PATH + event.id}`
+                          : `/event-details?eventId=${event.id}`
+                      }
                       className='text-primary'
                     >
                       {/* ONE°15 Marina Sentosa... */}

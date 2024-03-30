@@ -1,6 +1,6 @@
 'use client';
 // import * as React from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import News1 from '@/assets/Img/sidebar-icons/news-1.png';
@@ -55,9 +55,11 @@ import authMethods from '@/lib/auth';
 import logger from '@/lib/logger';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { CATEGORY_PATH } from '@/constant/routes';
 
 export default function NewSidebarHome() {
   const { t, changeLocale } = useLocalization(LANG);
+
   const [isThemeActive, setIsThemeActive] = useState(false);
   const [show, setShow] = useState(false);
 
@@ -87,7 +89,7 @@ export default function NewSidebarHome() {
   const handleConnectClose = () => {
     setIsConnectLoading(false);
   };
-
+  const sectionRef = useRef<any>(null);
   const methods = authMethods({
     useConnectPlugWalletStore,
     setIsLoading: setIsConnectLoading,
@@ -232,21 +234,16 @@ export default function NewSidebarHome() {
   const toggleSubMenu = () => {
     setSubMenuVisibility((prevVisibility) => !prevVisibility);
   };
-
-  const handleBodyClick = (event: MouseEvent) => {
-    const excludeClass = 'exclude-from-closing';
-
-    if (
-      isSubMenuVisible &&
-      !(event.target as HTMLElement).closest(`.${excludeClass}`)
-    ) {
-      setSubMenuVisibility(false);
-    }
-  };
   useEffect(() => {
-    document.body.addEventListener('click', handleBodyClick);
+    const handleClickOutside = (event: any) => {
+      if (sectionRef.current && !sectionRef.current.contains(event.target)) {
+        setSubMenuVisibility(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
     return () => {
-      document.body.removeEventListener('click', handleBodyClick);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, []);
 
@@ -285,29 +282,33 @@ export default function NewSidebarHome() {
                 <span></span>
               </div>
             </button>
-            <ul>
+            <ul ref={sectionRef}>
               <li>
                 <Button
                   onClick={connect}
-                  className='connect-btn'
+                  className={`connect-btn ${LANG === 'jp' ? 'width-btn' : ''}`}
                   disabled={isConnectLoading || connected}
                 >
                   <span>
                     <Image src={iconlogo} alt='Logo' />
                   </span>
                   {isConnectLoading ? (
-                    <Spinner size='sm' className='ms-4 text-primary' />
+                    <div className='japnes-btn'>
+                      <Spinner size='sm' className='text-primary ' />
+                    </div>
                   ) : connected ? (
-                    t('Connected')
+                    <div className='japnes-btn'>{t('Connected')}</div>
                   ) : (
-                    t('Connect')
+                    <div className='japnes-btn'>
+                      {LANG === 'en' ? 'Connect' : 'Wallet Connect'}
+                    </div>
                   )}
                 </Button>
               </li>
               <li>
                 <Link
                   className={location === '/allarticlesss' ? 'active' : ''}
-                  href={routes.latest}
+                  href={CATEGORY_PATH.LATEST_NEW}
                 >
                   <div className='img-pnl'>
                     <svg
@@ -369,9 +370,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.web3);
+                    router.push(CATEGORY_PATH.WEB3);
                   }}
-                  href={routes.web3}
+                  href={CATEGORY_PATH.WEB3}
                 >
                   <div className='img-pnl'>
                     <svg
@@ -386,7 +387,7 @@ export default function NewSidebarHome() {
                       />
                     </svg>
                   </div>
-                  Web3
+                  {t('Web3')}
                 </Link>
               </li>
               <li>
@@ -394,9 +395,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.blockchain);
+                    router.push(CATEGORY_PATH.BLOCKCHAIN_NEWS);
                   }}
-                  href={routes.blockchain}
+                  href={CATEGORY_PATH.BLOCKCHAIN_NEWS}
                 >
                   <div className='img-pnl'>
                     <svg
@@ -419,9 +420,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.crypto);
+                    router.push(CATEGORY_PATH.CRYPTO);
                   }}
-                  href={routes.crypto}
+                  href={CATEGORY_PATH.CRYPTO}
                 >
                   <div className='img-pnl'>
                     <Image src={crypto2} alt='Crypto Icon' />
@@ -435,9 +436,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.defi);
+                    router.push(CATEGORY_PATH.DEFI);
                   }}
-                  href={routes.defi}
+                  href={CATEGORY_PATH.DEFI}
                 >
                   <div className='img-pnl'>
                     <svg
@@ -522,9 +523,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.dao);
+                    router.push(CATEGORY_PATH.DAO);
                   }}
-                  href={routes.dao}
+                  href={CATEGORY_PATH.DAO}
                 >
                   <div className='img-pnl'>
                     <svg
@@ -552,9 +553,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.nft);
+                    router.push(CATEGORY_PATH.NFT);
                   }}
-                  href={routes.nft}
+                  href={CATEGORY_PATH.NFT}
                 >
                   <div className='img-pnl'>
                     <svg
@@ -612,9 +613,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.metaverse);
+                    router.push(CATEGORY_PATH.METAVERCE);
                   }}
-                  href={routes.metaverse}
+                  href={CATEGORY_PATH.METAVERCE}
                 >
                   <div className='img-pnl'>
                     <svg
@@ -654,9 +655,9 @@ export default function NewSidebarHome() {
                       onClick={(e: any) => {
                         e.preventDefault();
                         settoggle(false);
-                        router.push(routes.games);
+                        router.push(CATEGORY_PATH.BLOCKCHAIN_GAMES);
                       }}
-                      href={routes.games}
+                      href={CATEGORY_PATH.BLOCKCHAIN_GAMES}
                     >
                       <div className='img-pnl'>
                         <svg
@@ -679,9 +680,9 @@ export default function NewSidebarHome() {
                       onClick={(e: any) => {
                         e.preventDefault();
                         settoggle(false);
-                        router.push(routes.ai);
+                        router.push(CATEGORY_PATH.AI);
                       }}
-                      href={routes.ai}
+                      href={CATEGORY_PATH.AI}
                     >
                       <div className='img-pnl'>
                         <svg

@@ -671,6 +671,7 @@ input[type='checkbox'] {
   }
 }
 
+
 .filter-btn {
   background-color: $white;
   color: $black;
@@ -684,8 +685,8 @@ input[type='checkbox'] {
     max-width: 20px;
   }
 
-  &.show,
-  &:hover {
+  &.show:not(.footerbtn),
+  &:hover:not(.footerbtn) {
     background-color: $color;
     color: $white;
     border-color: $color;
@@ -1948,7 +1949,7 @@ input.form-control.bluewala {
   }
 }
 
-.filter-btn :not(.showbtn) {
+.filter-btn:not(.showbtn){
   display: none;
   @media (max-width: 767px) {
     display: inline-flex;
@@ -1967,7 +1968,7 @@ input.form-control.bluewala {
     background-color: $white;
     padding: 5px;
     z-index: 999;
-    &:hover {
+    &:hover:not(.footerbtn) {
       background-color: $blue;
       color: $white;
     }
@@ -1983,4 +1984,15 @@ input.form-control.bluewala {
       'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif,
       'Font Awesome 6 Brands', 'Font Awesome 6 Free' !important;
   }
+}
+.flexcls{
+  display: flex;
+  justify-content: center;
+}
+
+.footerbtn{
+  background-color: transparent !important;
+  border: none !important;
+  height: 50px !important;
+  width: 50px !important;
 }

@@ -214,7 +214,7 @@ export default function FeaturedSlider() {
                             />
                           </Link>
                         </span>{' '}
-                        Created by{' '}
+                        {t('Created by')}{' '}
                         <b>
                           <Link
                             href={`/profile?userId=${entry[1].user.toString()}`}

@@ -11,6 +11,7 @@ import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import useLocalization from "@/lib/UseLocalization"
 import { LANG } from '@/constant/language';
 import { ARTICLE_STATIC_PATH } from '@/constant/routes';
+import { utcToLocal } from '@/components/utils/utcToLocal';
 
 interface MyComponentProps {
   catagorytype: string[];
@@ -50,19 +51,7 @@ let RelatedPost: React.FC<MyComponentProps> = ({ catagorytype }) => {
       // setEntriesByCategory(filterd);
     }
     if (tempentries.length != 0) {
-      for (let entry = 0; entry < tempentries.length; entry++) {
-        let newUser = null;
-        var authorId = tempentries[entry][1].user.toString();
-        newUser = await userAcotr.get_user_details([authorId]);
-        if (newUser.ok) {
-          tempentries[entry][1].userName = newUser.ok[1].name;
-          // entriesList[entry][1].image = await updateImg(
-          //   entriesList[entry][1].image
-        }
-        setEntriesByCategory(tempentries);
-      }
-
-      logger(tempList, 'Entries List');
+      setEntriesByCategory(tempentries);
       return tempList;
     }
   };
@@ -75,14 +64,15 @@ let RelatedPost: React.FC<MyComponentProps> = ({ catagorytype }) => {
     <>
       {entriesByCategory.length == 0 && (
         <div className=''>
-          <p className='fs-5 text-center'>No {t('Related Posts')}</p>
+          <p className='fs-5 text-center'>{t('No Related Posts')}</p>
         </div>
       )}
       {entriesByCategory &&
         entriesByCategory.map((entry: any, index) => {
           let dateformat = (t: any) => {
-            const date = new Date(Number(t));
-            return date.toDateString();
+            // const date = new Date(Number(t));
+            const date = utcToLocal(t.toString(), 'MMM D, YYYY');
+            return date;
           };
           let image = null;
           if (entry[1].image.length != 0) {
@@ -93,7 +83,7 @@ let RelatedPost: React.FC<MyComponentProps> = ({ catagorytype }) => {
               <div className='related-post-inner'>
                 <div className='img-pnl'>
                   <Link
-                    href={entry[1].isStatic?`${ARTICLE_STATIC_PATH+entry[0]}`:`/article?articleId=${entry[0]}`}
+                    href={entry[1].isStatic ? `${ARTICLE_STATIC_PATH + entry[0]}` : `/article?articleId=${entry[0]}`}
                     className='img-wrapper'
                     style={{ aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT }}
                   >
@@ -109,7 +99,7 @@ let RelatedPost: React.FC<MyComponentProps> = ({ catagorytype }) => {
                 </div>
                 <div className='txt-pnl'>
                   <Link
-                    href={entry[1].isStatic?`${ARTICLE_STATIC_PATH+entry[0]}`:`/article?articleId=${entry[0]}`}
+                    href={entry[1].isStatic ? `${ARTICLE_STATIC_PATH + entry[0]}` : `/article?articleId=${entry[0]}`}
                     className='rmLine'
                   >
                     {entry[1].title}
@@ -120,7 +110,7 @@ let RelatedPost: React.FC<MyComponentProps> = ({ catagorytype }) => {
                         href={`/profile?userId=${entry[1].user.toString()}`}
                         className='rmLine'
                       >
-                        by {entry[1].userName}
+                        {t('By')} {entry[1].userName}
                       </Link>
                     </span>
                     <span>{dateformat(entry[1].creation_time)}</span>

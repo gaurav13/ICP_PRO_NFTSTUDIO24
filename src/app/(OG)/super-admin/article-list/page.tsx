@@ -23,14 +23,6 @@ import SideBarDash from '@/components/SideBarDash/SideBarDash';
 import SearchArticlesList from '@/components/SearchArticlesList';
 import { ConnectPlugWalletSlice } from '@/types/store';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-
 export default function ArticleList() {
   const { auth, userAuth, identity } = useConnectPlugWalletStore((state) => ({
     auth: (state as ConnectPlugWalletSlice).auth,
@@ -51,7 +43,8 @@ export default function ArticleList() {
   }, [userAuth, auth]);
 
   return (
-    userAuth.userPerms?.articleManagement && !userAuth.isAdminBlocked && (
+    userAuth.userPerms?.articleManagement &&
+    !userAuth.isAdminBlocked && (
       <>
         <main id='main' className='dark'>
           <div className='main-inner admin-main'>
@@ -60,10 +53,13 @@ export default function ArticleList() {
                 <Col xl='12' lg='12'>
                   <div className='ms-4'>
                     <Row>
-                      <Col xl='10' lg='8' md='12' >
+                      <Col xl='10' lg='8' md='12'>
                         <h1>
                           Article Management{' '}
-                          <i style={{marginLeft: '5px', marginRight: '5px'}} className='fa fa-arrow-right'></i>{' '}
+                          <i
+                            style={{ marginLeft: '5px', marginRight: '5px' }}
+                            className='fa fa-arrow-right'
+                          ></i>{' '}
                           <span>Articles List</span>
                         </h1>
                       </Col>
@@ -383,7 +379,7 @@ export default function ArticleList() {
                 </Col>
               </Row>
             </div>
-            <SearchArticlesList isAdmin={true}/>
+            <SearchArticlesList isAdmin={true} />
           </div>
         </main>
       </>

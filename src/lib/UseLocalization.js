@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-
 const loadLocaleData = async (locale) => {
   const res = await import(`../transalation/${locale}.json`);
   return res.default || res;
 };
 
 const useLocalization = (initialLocale) => {
+  // initialLocale = 'jp';
   const [locale, setLocale] = useState(initialLocale);
   const [messages, setMessages] = useState({});
 
@@ -14,15 +14,27 @@ const useLocalization = (initialLocale) => {
       const data = await loadLocaleData(locale);
       setMessages(data);
     };
-
-    fetchLocaleData();
+    if (locale) {
+      fetchLocaleData();
+    }
   }, [locale]);
 
   const changeLocale = (newLocale) => {
     setLocale(newLocale);
   };
 
-  const t = (key) => messages[key] || key;
+  const t = (key) => {
+    // console.log( initialLocale1,"initialLocaleinitialLocale")
+    if (initialLocale == 'jp') {
+      if (messages[key]) {
+        return messages[key];
+      } else {
+        return '';
+      }
+    } else {
+      return messages[key] || key;
+    }
+  };
 
   return { t, changeLocale };
 };

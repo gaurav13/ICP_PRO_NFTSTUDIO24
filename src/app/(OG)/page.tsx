@@ -7,14 +7,8 @@ import { useConnectPlugWalletStore, useThemeStore } from '@/store/useStore';
 import Authenticated from '@/components/Authenticated';
 import UnAuthenticated from '@/components/UnAuthenticated';
 import logger from '@/lib/logger';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+import ArticleShimmer from '@/components/Shimmers/ArticleShimmer';
+import AuthHomeShimmer from '@/components/Shimmers/AuthHomeShimmer';
 
 export default function HomePage() {
   const { auth, setAuth, identity, principal, emailConnected } =
@@ -32,7 +26,7 @@ export default function HomePage() {
         <main id='main' className='new-home'>
           <div className='main-inner home'>
             <div className='d-flex justify-content-center'>
-              <Spinner />
+              <AuthHomeShimmer />
             </div>
           </div>
         </main>

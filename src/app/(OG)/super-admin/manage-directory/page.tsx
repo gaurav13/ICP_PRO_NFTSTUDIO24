@@ -62,6 +62,11 @@ export default function PendingList() {
       identity,
     },
   });
+  const userActorDefault = makeUserActor({
+    agentOptions: {
+      identity,
+    },
+  });
 
   let status: {
     verfied?: null;
@@ -94,6 +99,14 @@ export default function PendingList() {
       return [];
     }
     for (let entry = 0; entry < tempEntriesList.length; entry++) {
+      let useremail=await userActorDefault.get_user_email(tempEntriesList[entry][1].user);
+      if(useremail.length !=0){
+        if(useremail[0].email.lenght!=0){
+          tempEntriesList[entry][1].email=useremail[0].email[0]
+        }
+        
+      }
+      // logger(useremail,"useremail")
       let catagoryId = tempEntriesList[entry][1].catagory;
       let resp = await entryActorDefault.get_category(
         tempEntriesList[entry][1].catagory
@@ -137,13 +150,14 @@ export default function PendingList() {
       forcePaginate * itemsPerPage,
       itemsPerPage
     );
-    logger({ resp, status, search }, 'got for this');
     let amount = parseInt(resp.amount);
     setEntriesSize((prev: any) => ({
       ...prev,
       ['all']: amount,
     }));
     const tempList = resp.web3List;
+    logger(tempList, 'safsdafdsfsdf');
+
     setEntriesList(tempList);
     return tempList;
   };

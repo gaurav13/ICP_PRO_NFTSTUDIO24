@@ -80,7 +80,7 @@
 //                 {t('Campaing of')} <b>NFTStudio24</b>
 //               </p>
 //               <Link className='read-more-btn' href='#'>
-//                 Read More
+//                 {t("Read More")}
 //               </Link>
 //             </div>
 //           </div>
@@ -108,7 +108,7 @@
 //               </p>
 
 //               <Link className='read-more-btn' href='#'>
-//                 Read More
+//                 {t("Read More")}
 //               </Link>
 //             </div>
 //           </div>
@@ -131,7 +131,7 @@
 //               </p>
 
 //               <Link className='read-more-btn' href='#'>
-//                 Read More
+//                 {t("Read More")}
 //               </Link>
 //             </div>
 //           </div>
@@ -159,7 +159,7 @@
 //               </p>
 
 //               <Link className='read-more-btn' href='#'>
-//                 Read More
+//                 {t("Read More")}
 //               </Link>
 //             </div>
 //           </div>
@@ -371,7 +371,7 @@ export default function ReleaseSlider({
         <div className='d-flex justify-content-center'>
           <p>
             {t('No Press Release found')}{' '}
-            {categoryName ? `on ${categoryName} category` : ''}
+            {categoryName ? `${t('ON')} ${categoryName} ${t('Category')}` : ''}
           </p>
         </div>
       )}
@@ -397,7 +397,7 @@ export default function ReleaseSlider({
                         aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
                       }}
                     >
-                      <Link href={entry[1].isStatic?`${ARTICLE_STATIC_PATH+entry[0]}`:`/article?articleId=${entry[0]}`}>
+                      <Link href={entry[1].isStatic ? `${ARTICLE_STATIC_PATH + entry[0]}` : `/article?articleId=${entry[0]}`}>
                         <Image
                           src={entry[1].image ? entry[1].image : post1}
                           alt='Post'
@@ -405,12 +405,12 @@ export default function ReleaseSlider({
                           // width={100}
                           fill
                         />
-                        <h2>Press Release</h2>
+                        <h2>{t('Press Release')}</h2>
                       </Link>
                     </div>
                     <div className='txt-pnl'>
                       <span className='mobile-view-display red-span'>
-                        Latest Press Release
+                      {t('Latest')} {t('Press Release')}
                       </span>
                       <h5>
                         {entry[1]?.title.length > 50
@@ -448,10 +448,10 @@ export default function ReleaseSlider({
                       </p>
                       <div className='d-flex justify-content-center'>
                         <Link
-                          href={entry[1].isStatic?`${ARTICLE_STATIC_PATH+entry[0]}`:`/article?articleId=${entry[0]}`}
+                          href={entry[1].isStatic ? `${ARTICLE_STATIC_PATH + entry[0]}` : `/article?articleId=${entry[0]}`}
                           style={{ width: '270px' }}
                         >
-                          Read More
+                          {t("Read More")}
                         </Link>
                       </div>
                     </div>

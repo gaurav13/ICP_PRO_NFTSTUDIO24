@@ -28,13 +28,6 @@ import { Principal } from '@dfinity/principal';
 import { toast } from 'react-toastify';
 import instance from '@/components/axios';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 interface adminDetails {
   name: string;
   address: string;
@@ -66,13 +59,10 @@ export default function MakeAdmin() {
   };
   const loginSchema = object().shape({
     email: string()
-      .required(t('Email is required'))
+      .required('Email is required')
       .trim()
-      .matches(
-        /^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[A-Za-z]+$/,
-        t('Invalid Email')
-      ),
-    password: string().required(t('Password is required')),
+      .matches(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[A-Za-z]+$/, 'Invalid Email'),
+    password: string().required('Password is required'),
   });
 
   const handleShow = () => setShow(true);
@@ -117,6 +107,7 @@ export default function MakeAdmin() {
         toast.success(res?.data?.message);
         logger(res, 'DEEEEEEEE');
         setDeploying(false);
+        actions?.resetForm();
       })
       .catch((err) => {
         toast.error(err?.response?.data?.errors[0]);

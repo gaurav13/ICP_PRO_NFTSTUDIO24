@@ -37,14 +37,6 @@ import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import ConnectModal from '@/components/Modal';
 import { isUserConnected } from '@/components/utils/utcToLocal';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-
 export default function Article() {
   const { t, changeLocale } = useLocalization(LANG);
   const [userImg, setUserImg] = useState<string | null>();
@@ -457,7 +449,7 @@ export default function Article() {
                     </Link>
                   </Breadcrumb.Item>
                   <Breadcrumb.Item active={categoryId ? false : true}>
-                    <Link href={`/web3-directory`}>Web3Directory</Link>
+                    <Link href={`/web3-directory`}>{t('Web3 Directory')}</Link>
                   </Breadcrumb.Item>
                   {categoryId && (
                     <Breadcrumb.Item active={categoryId ? true : false}>
@@ -472,7 +464,8 @@ export default function Article() {
               </Col>
               <Col xl='8' lg='8'>
                 <h2>
-                  <b>{t('Uncover and Explore')}</b>{t('innovation WEB3 Companies and their Leaders')}
+                  <b>{t('Uncover and Explore')}</b>
+                  {t('innovation WEB3 Companies and their Leaders')}
                 </h2>
               </Col>
               <Col xl='4' lg='4' className='text-right'>
@@ -513,7 +506,8 @@ export default function Article() {
 
               <Col xl='12' lg='12'>
                 <h3>
-                  <Image src={arb} alt='Arb' />{t('Trending Companies')}
+                  <Image src={arb} alt='Arb' />
+                  {t('Trending Companies')}
                 </h3>
                 <div className='spacer-30'></div>
               </Col>
@@ -538,7 +532,7 @@ export default function Article() {
                       <ul className='faq-btn-list'>
                         <li>
                           <Link href='#' className='reg-btn faq-btn'>
-                            FAQ
+                            {t('FAQ')}
                           </Link>
                         </li>
                         <li>
@@ -550,7 +544,7 @@ export default function Article() {
                               className='fill'
                               id='dropdown-basic'
                             >
-                              All Company{' '}
+                              {t('All Company')}{' '}
                               {hideMyContent ? (
                                 <i className='fa fa-angle-down'></i>
                               ) : (
@@ -566,8 +560,8 @@ export default function Article() {
                       >
                         <li>
                           <Link className='active' href='#'>
-                            <i className='fa fa-angle-right'></i> Search for
-                            People
+                            <i className='fa fa-angle-right'></i>{' '}
+                            {t('Search for People')}
                           </Link>
                         </li>
                         <li>
@@ -685,7 +679,9 @@ export default function Article() {
                               </div>
                             </div>
                           ) : (
-                            <p className='text-center'>No Company Found</p>
+                            <p className='text-center'>
+                              {t('No Company Found')}
+                            </p>
                           )}
                         </Col>
                         <div className='pagination-container mystyle d-flex justify-content-center mt-3'>

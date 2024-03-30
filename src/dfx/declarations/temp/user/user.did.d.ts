@@ -104,13 +104,14 @@ export type UserId = [] | [string];
 export interface anon_class_22_1 {
   'add_reward' : ActorMethod<[Principal, bigint], boolean>,
   'add_user' : ActorMethod<[], Result_1>,
-  'admin_update_user' : ActorMethod<[Id, InputUser], Result>,
+  'admin_update_user' : ActorMethod<[Id, InputUser, string], Result>,
   'assign_role' : ActorMethod<[Principal, string, Role__1], Result_1>,
   'block_sub_admin' : ActorMethod<[string, string], Result_1>,
   'block_user' : ActorMethod<[string, string], Result_1>,
   'check_user_exists' : ActorMethod<[Principal], boolean>,
   'claim_rewards' : ActorMethod<[string], boolean>,
   'entry_require_permission' : ActorMethod<[Principal, Permission], boolean>,
+  'get_NFT24Coin' : ActorMethod<[], bigint>,
   'get_authorized_users' : ActorMethod<
     [string, bigint, bigint],
     { 'users' : Array<[Id, ListUser]>, 'amount' : bigint }
@@ -120,6 +121,10 @@ export interface anon_class_22_1 {
     { 'users' : Array<[Id, ListAdminUser]>, 'amount' : bigint }
   >,
   'get_user_details' : ActorMethod<[UserId], Result_2>,
+  'get_user_email' : ActorMethod<
+    [Principal],
+    [] | [{ 'email' : [] | [string] }]
+  >,
   'get_user_name' : ActorMethod<
     [Principal],
     [] | [{ 'name' : [] | [string], 'image' : [] | [NewImageObject__1] }]
@@ -133,13 +138,14 @@ export interface anon_class_22_1 {
     [string, bigint, bigint],
     { 'users' : Array<[Id, TopWinnerUserList]>, 'amount' : bigint }
   >,
-  'give_reward' : ActorMethod<[Id, bigint], boolean>,
+  'give_reward' : ActorMethod<[Id, bigint, boolean], boolean>,
   'make_admin' : ActorMethod<[Principal, Role__1], boolean>,
   'request_verification' : ActorMethod<[NewImageObject__1], Result>,
   'unBlock_sub_admin' : ActorMethod<[string, string], Result_1>,
   'unBlock_user' : ActorMethod<[string, string], Result_1>,
   'un_verify_user' : ActorMethod<[string, string], Result>,
-  'update_user' : ActorMethod<[InputUser], Result>,
+  'update_NFT24Coin' : ActorMethod<[bigint], boolean>,
+  'update_user' : ActorMethod<[InputUser, string], Result>,
   'verify_user' : ActorMethod<[string, string], Result>,
 }
 export interface _SERVICE extends anon_class_22_1 {}

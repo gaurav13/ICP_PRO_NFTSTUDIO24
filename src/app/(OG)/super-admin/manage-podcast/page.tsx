@@ -581,7 +581,7 @@ export default function PendingList() {
         }
         const userId = entry[1].user.toString();
 
-        const user = await userActor.get_user_details([userId]);
+        // const user = await userActor.get_user_details([userId]);
         // const user = await auth.actor.get_user_details([userId]);
         // let
         let categoryNames = await Promise.all(
@@ -612,9 +612,9 @@ export default function PendingList() {
           categoryId: entry[1]?.category,
           isStatic:entry[1].isStatic,
         };
-        if (user.ok) {
-          newItem.userName = user.ok[1].name ?? entry[1].userName;
-        }
+        // if (user.ok) {
+        //   newItem.userName = user.ok[1].name ?? entry[1].userName;
+        // }
         return newItem;
       })
     );

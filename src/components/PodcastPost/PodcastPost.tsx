@@ -67,13 +67,14 @@ export default function PodcastPost() {
             <div className='text-pnl'>
               <h2>
                 {/* Podcasting */}
-                {t('PODCASTING')}
+                {t('Podcasting')}
                 <span>{t('SIMPLIFIED')}</span>
               </h2>
               <h5>
                 {/* Welcome to <b>NFTStudio24</b> Podcast! Explore the Web3 and
                 blockchain world through success and failure stories from
                 industry pioneers. Get inspired and informed in just minutes. */}
+
                 {t('Welcome to NFTStudio24 Podcast! Explore the Web3 and blockchain world through success and failure stories from industry pioneers. Get inspired and informed in just minutes.')}
               </h5>
               <Link

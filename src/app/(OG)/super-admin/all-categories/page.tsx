@@ -16,14 +16,6 @@ import { canisterId as commentCanisterId } from '@/dfx/declarations/comment';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-
 function CategoriesList({
   categories,
   defaultEntryActor,
@@ -333,7 +325,7 @@ export default function AllCategories() {
                     <div className='search-post-pnl'>
                       <input
                         type='text'
-                        placeholder="Search Categories"
+                        placeholder='Search Categories'
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onKeyDown={(e) => {

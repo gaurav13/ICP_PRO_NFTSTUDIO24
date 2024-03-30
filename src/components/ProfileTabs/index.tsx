@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import comment from '@/assets/Img/Icons/icon-writer.png';
+import comment_JP from '@/assets/Img/Icons/icon-writer_JP.png';
 import { useConnectPlugWalletStore } from '@/store/useStore';
 import logger from '@/lib/logger';
 import { makeEntryActor } from '@/dfx/service/actor-locator';
@@ -15,13 +16,6 @@ import ExportPodcast from '@/components/ExportPodcast/ExportPodcast';
 import { getImage, iframeimgThumbnail } from '@/components/utils/getImage';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function ProfileTabs({
   userId,
@@ -38,7 +32,7 @@ export default function ProfileTabs({
   const [userEntries, setUserEntries] = useState<any[]>([]);
   const [userPodcast, setUserPodcast] = useState<any[]>([]);
   const { t, changeLocale } = useLocalization(LANG);
-
+  const [activeTab, setActiveTab] = useState<any>("Articles");
   const articleTabName = t('Articles');
   const activityTabName = t('activity');
   const PodcastTabName = t('Podcast');
@@ -85,26 +79,24 @@ export default function ProfileTabs({
       });
       const tempEntries = await entryActor.getUserPodcast(userId);
       // setUserEntries(tempEntries);
-      logger(tempEntries, "getUserPodcast");
-      setUserPodcast(tempEntries)
+      logger(tempEntries, 'getUserPodcast');
+      setUserPodcast(tempEntries);
       if (tempEntries.length != 0) {
         for (let index = 0; index < tempEntries.length; index++) {
-          if (tempEntries[index][1].podcastVideoLink != "") {
-            tempEntries[index][1].image = iframeimgThumbnail(tempEntries[index][1].podcastVideoLink)
-
+          if (tempEntries[index][1].podcastVideoLink != '') {
+            tempEntries[index][1].image = iframeimgThumbnail(
+              tempEntries[index][1].podcastVideoLink
+            );
           } else if (tempEntries[index][1].podcastImg.length != 0) {
-            tempEntries[index][1].image = getImage(tempEntries[index][1].podcastImg[0])
-
+            tempEntries[index][1].image = getImage(
+              tempEntries[index][1].podcastImg[0]
+            );
           } else {
             tempEntries[index][1].image = comment;
-
           }
-
         }
-
       } else {
-        setUserPodcast([])
-
+        setUserPodcast([]);
       }
       // setEntries(tempEntries[0][1]);
       // setEntryId(tempEntries[0][0]);
@@ -121,6 +113,8 @@ export default function ProfileTabs({
     }
   };
   const handleTabChange = (tab: string | null) => {
+    logger(tab, "sdisOwner")
+    setActiveTab(tab)
     if (tab === articleTabName) {
       if (auth.state === 'initialized') {
         getUserEntries();
@@ -191,17 +185,24 @@ export default function ProfileTabs({
   useEffect(() => {
     // if (auth.state === 'initialized') {
     getUserEntries();
-    getUserPodcast()
+    getUserPodcast();
     // }
     // logger(userId);
   }, [auth, userId]);
+  useEffect(() => {
+    logger(isOwner, "sdisOwner")
+    if (isOwner) {
+      setActiveTab(activityTabName)
+    }
+  }, [isOwner])
 
   return (
     <>
       <Tab.Container
         id='left-tabs-example'
-        defaultActiveKey={'Articles'}
+        defaultActiveKey={"Articles"}
         onSelect={handleTabChange}
+        activeKey={activeTab}
       >
         <Row>
           <Col sm={12} className='d-flex'>
@@ -308,28 +309,32 @@ export default function ProfileTabs({
             <Tab.Content>
               {tabs.map((c, i) => {
                 if (c == activityTabName) {
-                  return (
-                    isOwner ? (
-                      <Tab.Pane key={i} eventKey={c}>
-                        <div>
-                          <ActivityTab />
-                        </div>
-                      </Tab.Pane>
-                    ) : null)
-
+                  return isOwner ? (
+                    <Tab.Pane key={i} eventKey={c}>
+                      <div>
+                        <ActivityTab />
+                      </div>
+                    </Tab.Pane>
+                  ) : null;
                 } else if (c == PodcastTabName) {
                   return (
                     <Tab.Pane key={i} eventKey={c}>
                       <div>
                         {c !== PodcastTabName ? (
                           <div className='profile-comment-pnl'>
-                            <Image src={comment} alt='comment' />
+                            {LANG === 'en' ?
+                              <Image src={comment} alt='comment' />
+                              : <Image src={comment_JP} alt={t('comments')} style={{ opacity: 0.4 }} />
+                            }
                           </div>
                         ) : (
                           <div className='profile-articles mt-3'>
                             {userPodcast.length == 0 && (
                               <div className='profile-comment-pnl'>
-                                <Image src={comment} alt='comment' />
+                                {LANG === 'en' ?
+                                  <Image src={comment} alt='comment' />
+                                  : <Image src={comment_JP} alt={t('comments')} style={{ opacity: 0.4 }} />
+                                }
                               </div>
                             )}
                             {userPodcast &&
@@ -353,13 +358,21 @@ export default function ProfileTabs({
                       <div>
                         {c !== articleTabName ? (
                           <div className='profile-comment-pnl'>
-                            <Image src={comment} alt='comment' />
+                            {LANG === 'en' ?
+                              <Image src={comment} alt='comment' />
+                              : <Image src={comment_JP} alt={t('comments')} style={{ opacity: 0.4 }} />
+                            }
                           </div>
                         ) : (
                           <div className='profile-articles mt-3'>
                             {userEntries.length == 0 && (
                               <div className='profile-comment-pnl'>
-                                <Image src={comment} alt='comment' />
+                                {LANG === 'en' ?
+                                  <Image src={comment} alt='comment' />
+                                  : <Image src={comment_JP} alt={t('comments')} style={{ opacity: 0.4 }} />
+
+                                }
+
                               </div>
                             )}
                             {userEntries &&

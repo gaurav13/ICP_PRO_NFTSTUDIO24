@@ -114,7 +114,7 @@ export const idlFactory = ({ IDL }) => {
   const anon_class_22_1 = IDL.Service({
     'add_reward' : IDL.Func([IDL.Principal, IDL.Nat], [IDL.Bool], []),
     'add_user' : IDL.Func([], [Result_1], []),
-    'admin_update_user' : IDL.Func([Id, InputUser], [Result], []),
+    'admin_update_user' : IDL.Func([Id, InputUser, IDL.Text], [Result], []),
     'assign_role' : IDL.Func(
         [IDL.Principal, IDL.Text, Role__1],
         [Result_1],
@@ -129,6 +129,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Bool],
         ['query'],
       ),
+    'get_NFT24Coin' : IDL.Func([], [IDL.Nat], ['query']),
     'get_authorized_users' : IDL.Func(
         [IDL.Text, IDL.Nat, IDL.Nat],
         [
@@ -150,6 +151,11 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'get_user_details' : IDL.Func([UserId], [Result_2], ['query']),
+    'get_user_email' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(IDL.Record({ 'email' : IDL.Opt(IDL.Text) }))],
+        ['query'],
+      ),
     'get_user_name' : IDL.Func(
         [IDL.Principal],
         [
@@ -187,13 +193,14 @@ export const idlFactory = ({ IDL }) => {
         ],
         ['query'],
       ),
-    'give_reward' : IDL.Func([Id, IDL.Nat], [IDL.Bool], []),
+    'give_reward' : IDL.Func([Id, IDL.Nat, IDL.Bool], [IDL.Bool], []),
     'make_admin' : IDL.Func([IDL.Principal, Role__1], [IDL.Bool], []),
     'request_verification' : IDL.Func([NewImageObject__1], [Result], []),
     'unBlock_sub_admin' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
     'unBlock_user' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
     'un_verify_user' : IDL.Func([IDL.Text, IDL.Text], [Result], []),
-    'update_user' : IDL.Func([InputUser], [Result], []),
+    'update_NFT24Coin' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'update_user' : IDL.Func([InputUser, IDL.Text], [Result], []),
     'verify_user' : IDL.Func([IDL.Text, IDL.Text], [Result], []),
   });
   return anon_class_22_1;

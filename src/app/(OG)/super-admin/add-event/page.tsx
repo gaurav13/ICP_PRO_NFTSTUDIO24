@@ -32,6 +32,7 @@ import {
   FormikProps,
   FormikState,
   FormikValues,
+  useFormik,
   useFormikContext,
 } from 'formik';
 import { array, boolean, date, object, string } from 'yup';
@@ -47,7 +48,7 @@ import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 import { Roles } from '@/types/profile';
 import { Principal } from '@dfinity/principal';
 import { toast } from 'react-toastify';
-import { BASE_IMG_URL, isValidFileType } from '@/constant/image';
+import { BASE_IMG_URL, isDescription, isValidFileType } from '@/constant/image';
 import getCroppedImg from '@/components/Cropper/cropImage';
 import resizeImage from '@/components/utils/resizeImage';
 import {
@@ -64,7 +65,6 @@ import Image from 'next/image';
 import { fileToCanisterBinaryStoreFormat } from '@/dfx/utils/image';
 import { fromNullable } from '@dfinity/utils';
 import getChildren from '@/components/utils/getChildren';
-import Texteditor from '@/components/cutomeEditor/editor';
 import { Typeahead, ClearButton } from 'react-bootstrap-typeahead';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import MapSelector from '@/components/testingMap/MapTesting';
@@ -72,15 +72,10 @@ import uploadImage from '@/components/utils/uploadImage';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import MyComponent from '@/components/testingMap/MapTesting';
 import { getIdFromUrl } from '@/constant/DateFormates';
+import Texteditor from '@/components/cutomeEditor/Editor';
 // import { Typeahead } from 'react-bootstrap-typeahead';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+import { countryTranslations } from '@/constant/coutriesTrans';
+import { REGIONS } from '@/constant/regions';
 
 function ScrollToError() {
   const formik = useFormikContext();
@@ -138,10 +133,12 @@ export default function AddEvent() {
   let eventId = searchParams.get('eventId');
   const [tags, setTags] = useState<string[]>([]);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [LatLng, setLatLng] = useState<any>({
-    lat: -34.397,
-    lng: 150.644,
-  });
+  const [latitude, setLatitude] = useState<any>(-34.397);
+  const [longitude, setLongitude] = useState<any>(34.397);
+  const [regions, setRegions] = useState([]);
+  const [formikRefLoaded, setFormikRefLoaded] = useState(false);
+  const [discriptionErr, setDiscriptionErr] = useState(false);
+
   const { auth, userAuth, identity } = useConnectPlugWalletStore((state) => ({
     auth: (state as ConnectPlugWalletSlice).auth,
     userAuth: (state as ConnectPlugWalletSlice).userAuth,
@@ -156,77 +153,89 @@ export default function AddEvent() {
 
   const formikRef2 = useRef<FormikProps<FormikValues>>(null);
 
-  const initialValues={
-    title: event ? event.title : '',
-    organiser: event ? event.organiser : '',
-    shortDescription: event ? event.shortDescription : '',
-    date: event ? new Date(event.date) : new Date(),
-    endDate: event ? new Date(event.endDate) : new Date(),
-    location: event ? event.location : '',
-    country: event ? event.country : '',
-    city: event ? event.city : '',
-    website: event ? event.website : '',
-    category: event ? event?.category[0] : '',
-    linkdin: event ? event.linkdin : '',
-    seoTitle: event ? event.seoTitle : '',
-    seoDescription: event ? event.seoDescription : '',
-    seoExcerpt: event ? event.seoExcerpt : '',
-    seoSlug: event ? event.seoSlug : '',
-    facebook: event ? event.facebook : '',
-    telegram: event ? event.telegram : '',
-    instagram: event ? event.instagram : '',
-    twitter: event ? event.twitter : '',
-    freeTicket: event ? event.freeTicket : '',
-    applyTicket: event ? event.applyTicket : '',
-  }
+  const initialValues: any = {
+    title: '',
+    organiser: '',
+    shortDescription: '',
+    date: new Date(),
+    endDate: new Date(),
+    location: '',
+    country: '',
+    city: '',
+    website: '',
+    category: '',
+    linkdin: '',
+    seoTitle: '',
+    seoDescription: '',
+    seoExcerpt: '',
+    seoSlug: '',
+    facebook: '',
+    telegram: '',
+    instagram: '',
+    twitter: '',
+    freeTicket: '',
+    applyTicket: '',
+    latitude: '',
+    longitude: '',
+    discountTicket: '',
+  };
   let todate = new Date(Number(new Date()) - 86400000);
   const eventSchema = yup.object().shape({
     title: string()
-      .required(t('Title is required'))
-      .max(150, t('Title cannot be more than 150 characters')),
+      .required('Title is required')
+      .max(150, 'Title cannot be more than 150 characters'),
     organiser: string()
-      .required(t('Organiser name is required'))
-      .max(40, t('organiser name cannot be more than 40 characters')),
-    shortDescription: string().required(t('Short description is required')),
+      .required('Organiser name is required')
+      .max(40, 'organiser name cannot be more than 40 characters'),
+    shortDescription: string().required('Short description is required'),
     date: yup
       .date()
-      .required(t('Date is required'))
-      .min(todate, t('Date cannot be in the past')),
+      .required('Date is required')
+      .min(todate, 'Date cannot be in the past'),
     endDate: yup
       .date()
-      .required(t('End Date is required'))
-      .min(yup.ref('date'), t("End Date can't be before Start Date")),
+      .required('End Date is required')
+      .min(yup.ref('date'), "End Date can't be before Start Date"),
     // .max(new Date(), 'Date is not valid'),
     location: string()
-      .required(t('Location is required'))
-      .max(300, t('Location cannot be more than 300 characters')),
+      .required('Location is required')
+      .max(300, 'Location cannot be more than 300 characters'),
     country: string()
-      .required(t('Country is required'))
-      .max(100, t('Country cannot be more than 100 characters')),
+      .required('Country is required')
+      .max(100, 'Country cannot be more than 100 characters'),
     city: string()
-      .required(t('City is required'))
-      .max(100, t('City cannot be more than 100 characters')),
-    website: string().url(t('Website Link must be a valid URL')),
-    linkdin: string().url(t('Linkdin must be a valid URL')),
-    facebook: string().url(t('Facebook must be a valid URL')),
-    telegram: string().url(t('Telegram must be a valid URL')),
-    twitter: string().url(t('Twitter must be a valid URL')),
-    instagram: string().url(t('Instagram must be a valid URL')),
-    freeTicket: string().url(t('Free ticket must be a valid URL')),
-    applyTicket: string().url(t('Apply ticket must be a valid URL')),
-    category: string().required(t('Category is required')),
+      .required('City is required')
+      .max(100, 'City cannot be more than 100 characters'),
+    website: string().url('Website Link must be a valid URL'),
+    linkdin: string().url('Linkdin must be a valid URL'),
+    facebook: string().url('Facebook must be a valid URL'),
+    telegram: string().url('Telegram must be a valid URL'),
+    twitter: string().url('Twitter must be a valid URL'),
+    instagram: string().url('Instagram must be a valid URL'),
+    freeTicket: string().url('Free ticket must be a valid URL'),
+    applyTicket: string().url('Apply ticket must be a valid URL'),
+    discountTicket: string().url('Discount ticket must be a valid URL'),
+    category: string().required('Category is required'),
     seoTitle: string()
-      .required(t('Seo Title is required'))
-      .max(100, t('Seo Title cannot be more than 100 characters')),
+      .required('Seo Title is required')
+      .max(100, 'Seo Title cannot be more than 100 characters'),
     seoDescription: string()
-      .required(t('Meta Description is required'))
-      .max(250, t('Meta Description cannot be more than 250 characters')),
+      .required('Meta Description is required')
+      .max(250, 'Meta Description cannot be more than 250 characters'),
     seoExcerpt: string()
-      .required(t('Seo Excerpt is required'))
-      .max(160, t('Seo Excerpt cannot be more than 160 characters')),
+      .required('Seo Excerpt is required')
+      .max(160, 'Seo Excerpt cannot be more than 160 characters'),
     seoSlug: string()
-      .required(t('Slug is required'))
-      .max(100, t('Slug cannot be more than 100 characters')),
+      .required('Slug is required')
+      .max(100, 'Slug cannot be more than 100 characters'),
+    latitude: yup
+      .number()
+      .required('latitude is required')
+      .max(10000000000000, 'Invalid latitude '),
+    longitude: yup
+      .number()
+      .required('longitude is required')
+      .max(10000000000000, 'Invalid longitude '),
   });
 
   async function getCategories() {
@@ -251,6 +260,22 @@ export default function AddEvent() {
     }
     logger(selectedOptions, 'selectedOptions');
     // const nonEmptyTags = selectedOptions.filter((tag:any) => tag !== '');
+  };
+  const changeCountryHandler = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    let val = event.target.value;
+
+    if (val != '' && REGIONS) {
+      let regions = REGIONS[val];
+      if (regions) {
+        setRegions(regions);
+      }
+    } else {
+      setRegions([]);
+    }
+
+    formikRef2?.current?.setFieldValue('country', val);
   };
   const handleHideCropper = () => {
     setShowCropper(false);
@@ -280,7 +305,7 @@ export default function AddEvent() {
         event.date = Number(event.date);
 
         event.endDate = Number(event.endDate);
-        setLatLng({ lat: event.lat, lng: event.lng });
+        // setLatLng({ lat: event.lat, lng: event.lng });
         setTags(
           event.tags.map((e: any, ind: any) => {
             return { customOption: true, label: e, id: `${ind}` };
@@ -291,11 +316,52 @@ export default function AddEvent() {
         let imageId = getIdFromUrl(event.image);
         setFeaturedId(imageId);
         setEvent(event);
+        updateEventForm(event);
+
+        // updateEventForm(event)
 
         logger(event, 'fdsgdsgsdfgdfg');
       } else {
-        setEvent;
+        setEvent(null);
       }
+    }
+  };
+  let updateEventForm = (event: any) => {
+    let form = formikRef2?.current;
+
+    logger({ event, form }, 'sfsfdsdfsdf');
+
+    form?.setFieldValue('title', event.title);
+    form?.setFieldValue('organiser', event.organiser);
+    form?.setFieldValue('shortDescription', event.shortDescription);
+    form?.setFieldValue('date', new Date(event.date));
+    form?.setFieldValue('endDate', new Date(event.endDate));
+    form?.setFieldValue('location', event.location);
+    form?.setFieldValue('country', event.country);
+    form?.setFieldValue('city', event.city);
+    form?.setFieldValue('website', event.website);
+    form?.setFieldValue('category', event.category[0]);
+    form?.setFieldValue('linkdin', event.linkdin);
+    form?.setFieldValue('seoTitle', event.seoTitle);
+    form?.setFieldValue('seoDescription', event.seoDescription);
+    form?.setFieldValue('seoExcerpt', event.seoExcerpt);
+    form?.setFieldValue('seoSlug', event.seoSlug);
+    form?.setFieldValue('facebook', event.facebook);
+    form?.setFieldValue('telegram', event.telegram);
+    form?.setFieldValue('instagram', event.instagram);
+    form?.setFieldValue('twitter', event.twitter);
+    form?.setFieldValue('freeTicket', event.freeTicket);
+    form?.setFieldValue('applyTicket', event.applyTicket);
+    form?.setFieldValue('latitude', event.lat);
+    form?.setFieldValue('longitude', event.lng);
+    form?.setFieldValue('discountTicket', event.discountTicket);
+    if (event.country != '' && REGIONS) {
+      let regions = REGIONS[event.country];
+      if (regions) {
+        setRegions(regions);
+      }
+    } else {
+      setRegions([]);
     }
   };
   const featureUpload = async (
@@ -322,7 +388,8 @@ export default function AddEvent() {
   async function uploadEvent(values: FormikValues, resetForm: () => void) {
     try {
       let featuredImg = '';
-      if (eventContent?.length <= 0) {
+      let isDec=isDescription(eventContent);
+      if (isDec.length <= 0) {
         return toast.error('You can not create an empty event');
       }
       if (FeaturedFile !== null || featuredId != undefined) {
@@ -370,8 +437,9 @@ export default function AddEvent() {
         twitter: values.twitter,
         freeTicket: values.freeTicket,
         applyTicket: values.applyTicket,
-        lat: LatLng.lat,
-        lng: LatLng.lng,
+        lat: values.latitude,
+        lng: values.longitude,
+        discountTicket: values.discountTicket,
       };
 
       if (eventId) {
@@ -422,6 +490,15 @@ export default function AddEvent() {
       setFormSubmiting(false);
     }
   }
+  let handleSubmitFn=()=>{
+    let isDec=isDescription(eventContent);
+    if (isDec.length <= 0) {
+      setDiscriptionErr(true)
+
+    };
+   formikRef2?.current?.submitForm();
+
+  }
   const handleImageChageCommon = (e: any, imgName: string) => {
     const img = e.target.files[0];
     if (!img) return;
@@ -440,14 +517,14 @@ export default function AddEvent() {
           imgName: img.name,
           aspect: ARTICLE_FEATURED_IMAGE_ASPECT,
           callBack: featureUpload,
+          maxWidth:MAX_ARTICLE_FEATURED_SIZES.width,
+          maxHeight:MAX_ARTICLE_FEATURED_SIZES.height
         });
         break;
 
       default:
-        toast.error(t('Errorr while uploading media'));
-        logger(
-          t('Image name didn not match any of the provided cases please add a case if you want to use this function for more images')
-        );
+        toast.error('Errorr while uploading media');
+      
         break;
     }
     handleShowCropper();
@@ -477,6 +554,17 @@ export default function AddEvent() {
       router.replace('/super-admin');
     }
   }, [userAuth, auth]);
+  useEffect(() => {
+    if (formikRef2.current && event) {
+      updateEventForm(event);
+    }
+  }, [formikRefLoaded, event]);
+
+  useEffect(() => {
+    if (formikRef2.current && !formikRefLoaded) {
+      setFormikRefLoaded(true);
+    }
+  }, [formikRef2.current]);
 
   return (
     userAuth.userPerms?.articleManagement &&
@@ -503,9 +591,11 @@ export default function AddEvent() {
                   <Formik
                     initialValues={initialValues}
                     innerRef={formikRef2}
-                    enableReinitialize
+                    // enableReinitialize={eventId?true:false}
                     validationSchema={eventSchema}
+                
                     onSubmit={async (values, { resetForm, setFieldValue }) => {
+                   
                       uploadEvent(values, resetForm);
                     }}
                   >
@@ -575,25 +665,27 @@ export default function AddEvent() {
                             </div>
                           </Col>
                           <Col xl='7' lg='7' md='12'>
-                          <div className='full-div my-3'>
-                            <Form.Label>Event Description</Form.Label>
-
-                            <Texteditor
-                              initialValue={eventContent}
-                              value={eventContent}
-                              onChangefn={setEventContent}
-                              
-                            />
-                          </div>
+                            <div className='full-div my-3'>
+                              <Form.Label>Event Description</Form.Label>
+                              <Texteditor
+                                initialValue={eventContent}
+                                value={eventContent}
+                                onChangefn={setEventContent}
+                                errorState={setDiscriptionErr}
+                              />
+                               {discriptionErr&& <div className='text-danger mb-2'>
+                            {t('Description is required')}
+                        </div>}
+                            </div>
                           </Col>
                           <Col xl='7' lg='7' md='12'>
                             <Field name='shortDescription'>
                               {({ field, formProps }: any) => (
                                 <Form.Group
                                   className='mb-3'
-                                // controlId='formBasicEmail'
+                                  // controlId='formBasicEmail'
                                 >
-                                  <Form.Label>{t('Short description')}</Form.Label>
+                                  <Form.Label>Short description</Form.Label>
                                   <Form.Control
                                     value={field.value}
                                     onChange={handleChange}
@@ -613,12 +705,73 @@ export default function AddEvent() {
                               />
                             </div>
                           </Col>
+                          <Col
+                            xl='7'
+                            lg='7'
+                            md='12'
+                            className='d-flex justify-content-between'
+                          >
+                            <Col sm='5'>
+                              <Field name='latitude'>
+                                {({ field, formProps }: any) => (
+                                  <Form.Group
+                                    className='mb-3'
+                                    // controlId='formBasicEmail'
+                                  >
+                                    <Form.Label>Latitude</Form.Label>
+                                    <Form.Control
+                                      value={field.value}
+                                      onChange={handleChange}
+                                      onInput={handleBlur}
+                                      type='number'
+                                      name='latitude'
+                                      placeholder='Enter latitude'
+                                    />
+                                  </Form.Group>
+                                )}
+                              </Field>
+                              <div className='text-danger mt-2'>
+                                <ErrorMessage
+                                  className='Mui-err'
+                                  name='latitude'
+                                  component='div'
+                                />
+                              </div>
+                            </Col>
+                            <Col sm='5'>
+                              <Field name='longitude'>
+                                {({ field, formProps }: any) => (
+                                  <Form.Group
+                                    className='mb-3'
+                                    // controlId='formBasicEmail'
+                                  >
+                                    <Form.Label>Longitude</Form.Label>
+                                    <Form.Control
+                                      value={field.value}
+                                      onChange={handleChange}
+                                      onInput={handleBlur}
+                                      type='number'
+                                      name='longitude'
+                                      placeholder='Enter longitude'
+                                    />
+                                  </Form.Group>
+                                )}
+                              </Field>
+                              <div className='text-danger mt-2'>
+                                <ErrorMessage
+                                  className='Mui-err'
+                                  name='longitude'
+                                  component='div'
+                                />
+                              </div>
+                            </Col>
+                          </Col>
                           <Col xl='7' lg='7' md='7'>
                             <Field name='location'>
                               {({ field, formProps }: any) => (
                                 <Form.Group
                                   className='mb-3'
-                                // controlId='formBasicEmail'
+                                  // controlId='formBasicEmail'
                                 >
                                   <Form.Label>Location</Form.Label>
                                   <Form.Control
@@ -647,7 +800,7 @@ export default function AddEvent() {
                               {({ field, formProps }: any) => (
                                 <Form.Group
                                   className='mb-3'
-                                // controlId='formBasicEmail'
+                                  // controlId='formBasicEmail'
                                 >
                                   <Form.Label>Country</Form.Label>
                                   {/* <Form.Control
@@ -668,6 +821,21 @@ export default function AddEvent() {
                                     }}
                                     name='country'
                                   />
+                                  {/* <select
+                                    onChange={changeCountryHandler}
+                                    value={field.value}
+                                  >
+                                    <option value={''}>Select Country</option>
+
+                                    {countryTranslations &&
+                                      countryTranslations.map((e) => {
+                                        return (
+                                          <option value={e.country}>
+                                            {e.country}
+                                          </option>
+                                        );
+                                      })}
+                                  </select>*/}
                                 </Form.Group>
                               )}
                             </Field>
@@ -684,7 +852,7 @@ export default function AddEvent() {
                               {({ field, formProps }: any) => (
                                 <Form.Group
                                   className='mb-3'
-                                // controlId='formBasicEmail'
+                                  // controlId='formBasicEmail'
                                 >
                                   <Form.Label>City</Form.Label>
                                   {/* <Form.Control
@@ -697,7 +865,9 @@ export default function AddEvent() {
                                   /> */}
                                   <RegionDropdown
                                     value={field.value}
-                                    country={formikRef2?.current?.values.country}
+                                    country={
+                                      formikRef2?.current?.values.country
+                                    }
                                     onChange={(e) => {
                                       formikRef2?.current?.setFieldValue(
                                         'city',
@@ -706,6 +876,30 @@ export default function AddEvent() {
                                     }}
                                     name='city'
                                   />
+                                  {/*  <select
+                                    disabled={
+                                      formikRef2?.current?.values.country == ''
+                                        ? true
+                                        : false
+                                    }
+                                    onChange={(e) => {
+                                      formikRef2?.current?.setFieldValue(
+                                        'city',
+                                        e.target.value
+                                      );
+                                    }}
+                                    value={field.value}
+                                  >
+                                    <option value=''>Select City</option>
+                                    {regions &&
+                                      regions.map((e: any) => {
+                                        return (
+                                          <option value={e.name}>
+                                            {e.name}
+                                          </option>
+                                        );
+                                      })}
+                                  </select>*/}
                                 </Form.Group>
                               )}
                             </Field>
@@ -843,7 +1037,7 @@ export default function AddEvent() {
                               {({ field, formProps }: any) => (
                                 <Form.Group
                                   className='mb-3'
-                                // controlId='formBasicEmail'
+                                  // controlId='formBasicEmail'
                                 >
                                   <Form.Label>Website</Form.Label>
                                   <Form.Control
@@ -870,7 +1064,7 @@ export default function AddEvent() {
                               {({ field, formProps }: any) => (
                                 <Form.Group
                                   className='mb-3'
-                                // controlId='formBasicEmail'
+                                  // controlId='formBasicEmail'
                                 >
                                   <Form.Label>Linkdin</Form.Label>
                                   <Form.Control
@@ -900,7 +1094,7 @@ export default function AddEvent() {
                                   <Form.Label>Facebook</Form.Label>
                                   <Form.Control
                                     type='text'
-                                    placeholder={t('Enter Facebook Link here...')}
+                                    placeholder='Enter Facebook Link here...'
                                     value={field.value}
                                     onChange={handleChange}
                                     onInput={handleBlur}
@@ -925,7 +1119,7 @@ export default function AddEvent() {
                                   <Form.Label>Telegram</Form.Label>
                                   <Form.Control
                                     type='text'
-                                    placeholder={t('Enter Telegram Link here...')}
+                                    placeholder='Enter Telegram Link here...'
                                     value={field.value}
                                     onChange={handleChange}
                                     onInput={handleBlur}
@@ -950,7 +1144,7 @@ export default function AddEvent() {
                                   <Form.Label>Twitter</Form.Label>
                                   <Form.Control
                                     type='text'
-                                    placeholder={t('Enter Twitter Link Here...')}
+                                    placeholder='Enter Twitter Link Here...'
                                     value={field.value}
                                     onChange={handleChange}
                                     onInput={handleBlur}
@@ -975,7 +1169,7 @@ export default function AddEvent() {
                                   <Form.Label>Instagram</Form.Label>
                                   <Form.Control
                                     type='text'
-                                    placeholder={t('Enter Instagarm Link Here...')}
+                                    placeholder='Enter Instagarm Link Here...'
                                     value={field.value}
                                     onChange={handleChange}
                                     onInput={handleBlur}
@@ -997,10 +1191,10 @@ export default function AddEvent() {
                             <Field name='freeTicket'>
                               {({ field, formProps }: any) => (
                                 <Form.Group className='mb-2'>
-                                  <Form.Label>{t('Free Ticket')}</Form.Label>
+                                  <Form.Label>Free Ticket</Form.Label>
                                   <Form.Control
                                     type='text'
-                                    placeholder={t('Enter free ticket Link here...')}
+                                    placeholder='Enter free ticket Link here...'
                                     value={field.value}
                                     onChange={handleChange}
                                     onInput={handleBlur}
@@ -1038,6 +1232,31 @@ export default function AddEvent() {
                               <ErrorMessage
                                 className='Mui-err'
                                 name='applyTicket'
+                                component='div'
+                              />
+                            </div>
+                          </Col>{' '}
+                          <Col xl='7' lg='7' md='12'>
+                            {' '}
+                            <Field name='discountTicket'>
+                              {({ field, formProps }: any) => (
+                                <Form.Group className='mb-2'>
+                                  <Form.Label>Discount Ticket</Form.Label>
+                                  <Form.Control
+                                    type='text'
+                                    placeholder='Enter discount ticket Link here...'
+                                    value={field.value}
+                                    onChange={handleChange}
+                                    onInput={handleBlur}
+                                    name='discountTicket'
+                                  />
+                                </Form.Group>
+                              )}
+                            </Field>
+                            <div className='text-danger mt-2'>
+                              <ErrorMessage
+                                className='Mui-err'
+                                name='discountTicket'
                                 component='div'
                               />
                             </div>
@@ -1150,7 +1369,7 @@ export default function AddEvent() {
                               placeholder='Enter tags...'
                               allowNew // Allow users to add new tags
                               newSelectionPrefix='Add new tag: '
-                            // clearButton // Show a clear button
+                              // clearButton // Show a clear button
                             />
                           </div>
                           <Col xl='7' lg='7' md='7'>
@@ -1214,12 +1433,12 @@ export default function AddEvent() {
                           <Col xl='12' lg='12' md='12'>
                             <Form.Group
                               className='mb-3'
-                            // controlId='formBasicPassword'
+                              // controlId='formBasicPassword'
                             >
                               <div className='spacer-30'> </div>
                               <Button
                                 className='reg-btn fill-not ble-brdr'
-                                type='submit'
+                              onClick={()=>handleSubmitFn()}
                                 disabled={
                                   formSubmiting ||
                                   // !(isValid && dirty) ||

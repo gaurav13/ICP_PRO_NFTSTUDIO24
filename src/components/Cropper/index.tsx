@@ -8,7 +8,8 @@ import logger from '@/lib/logger';
 import { CropperProps } from '@/types/cropper';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-
+import { usePathname } from 'next/navigation'
+import { decimalToFraction } from '@/constant/decimalToFraction';
 const dogImg =
   'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg';
 const ImageCropper = ({
@@ -21,7 +22,18 @@ const ImageCropper = ({
   cropperProps: CropperProps;
 }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const { t, changeLocale } = useLocalization(LANG);
+  const location = usePathname();
+  let language;
+
+  const changeLang = () => {
+    if (LANG === 'jp') {
+      language = location.includes('super-admin/') ? 'en' : 'jp';
+    }
+  };
+
+  const funcCalling = changeLang()
+
+  const { t, changeLocale } = useLocalization(language);
   const [rotation, setRotation] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
@@ -32,6 +44,7 @@ const ImageCropper = ({
   const onCropComplete = (croppedArea: any, croppedAreaPixels: any) => {
     setCroppedAreaPixels(croppedAreaPixels);
   };
+
   const handleModalClose = () => {
     setZoom(1);
     setRange(10);
@@ -72,7 +85,7 @@ const ImageCropper = ({
   return (
     <Modal animation={false} show={show} size='lg' onHide={handleModalClose}>
       <Modal.Header closeButton>
-        <p className='h4 m-0'>{t('Edit your Image')}</p>
+        <p className=' m-0 expectedRatioheader'>{t('Expected ratio')} {decimalToFraction(cropperProps.aspect)} <span>{"("}{t("Max width")} {cropperProps.maxWidth}px and {t("Max heigth")} {cropperProps.maxHeight}px {")"}</span></p>
       </Modal.Header>
       <Modal.Body>
         <div>
@@ -102,7 +115,7 @@ const ImageCropper = ({
             />
           </div>
           <div className='cropper-controls mt-3'>
-            <Form.Label className='h5'>Zoom</Form.Label>
+            <Form.Label className='h5'>{t('Zoom')}</Form.Label>
             <Form.Range
               value={range}
               min={10}
@@ -115,7 +128,7 @@ const ImageCropper = ({
             />
           </div>
           <div className='cropper-controls mt-3'>
-            <Form.Label className='h5'>Rotate</Form.Label>
+            <Form.Label className='h5'>{t('Rotate')}</Form.Label>
             <Form.Range
               value={rotation}
               // min={10}
@@ -131,7 +144,7 @@ const ImageCropper = ({
               className='publish-btn big  mt-2 px-3'
               onClick={handleModalClose}
             >
-             {t('Cancel')}
+              {t('Cancel')}
             </Button>
             <Button
               className='publish-btn big mt-2  px-3'

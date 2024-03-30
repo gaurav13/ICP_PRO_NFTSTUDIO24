@@ -12,13 +12,6 @@ import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 import { toast } from 'react-toastify';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 // function CategoriesList({
 //   categories,
@@ -212,22 +205,22 @@ export default function CategoriesList({
   });
 
   let pageCount = Math.ceil(categoriesSize / itemsPerPage);
-function setCategoryName(CateList:any) {
-  if(!(selectedCategory || CateList)) return;
- let tempArry=[];
-  for (let index = 0; index < CateList.length; index++) {
-    logger({tempName:CateList[index][1].name,selectedCategory},"tempNametempName")
-    
-    if( selectedCategory.includes(CateList[index][0])){
-      let tempName=CateList[index][1].name;
-      tempArry.push(tempName)
+  function setCategoryName(CateList: any) {
+    if (!(selectedCategory || CateList)) return;
+    let tempArry = [];
+    for (let index = 0; index < CateList.length; index++) {
+      logger(
+        { tempName: CateList[index][1].name, selectedCategory },
+        'tempNametempName'
+      );
+
+      if (selectedCategory.includes(CateList[index][0])) {
+        let tempName = CateList[index][1].name;
+        tempArry.push(tempName);
+      }
     }
-    
-  };
-  setSelectedCategoriesNames(tempArry)
-
-
-}
+    setSelectedCategoriesNames(tempArry);
+  }
   async function getCategories(reset?: boolean) {
     setIsGetting(true);
     const entryActor = makeEntryActor({
@@ -285,9 +278,7 @@ function setCategoryName(CateList:any) {
     getCategories();
   }, []);
   useEffect(() => {
-
-    setCategoryName(categories)
-    
+    setCategoryName(categories);
   }, [selectedCategory]);
 
   return (
@@ -334,8 +325,8 @@ function setCategoryName(CateList:any) {
               const name = item[1].name;
               return (
                 <p
-                  className={`category ${
-                    selectedCategory.includes(category) ? 'active' : ''
+                  className={`category ps-1 ${
+                    selectedCategory.includes(category) ? 'active selectedBgClr' : ''
                   }`}
                   key={category}
                   onClick={() => {

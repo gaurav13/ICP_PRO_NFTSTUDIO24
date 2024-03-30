@@ -82,7 +82,7 @@ export default function LeadershipPost({ more }: { more?: boolean }) {
           </span>
 
           <h1>
-            <Image src={leadership} alt='Leadership' />
+          {LANG === 'en'  ? <Image src={leadership} alt='leadership' /> :   'リーダーボード'}
           </h1>
           <h6> Additional Weekly NS24 Tracks</h6>
         </div>

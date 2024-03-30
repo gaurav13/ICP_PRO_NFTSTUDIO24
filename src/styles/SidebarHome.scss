@@ -265,6 +265,7 @@
         font-family: $inter;
         z-index: 4;
 
+
         &.connect-btn {
           line-height: 28px;
           text-align: center;
@@ -283,6 +284,20 @@
           align-items: center;
           max-width: 80%;
           border: none;
+          text-align: center !important;
+          ;
+
+
+          &.width-btn {
+            max-width: 100%;
+          }
+
+          .japnes-btn {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            margin-right: 17px;
+          }
 
           &:disabled {
             opacity: 1;
@@ -293,7 +308,7 @@
             background-color: $blue;
             display: inline-flex;
             align-items: center;
-            margin-right: 20px;
+
             padding: 8px 12px 8px 12px;
             @include bd-radius(25px 0 0 25px);
 
@@ -379,11 +394,13 @@
           @include trans1;
           color: $blue;
         }
+
         svg {
           fill: $blue;
           position: relative;
           top: 4px;
         }
+
         .img-pnl {
           width: 24px;
           height: auto;
@@ -429,6 +446,7 @@
         &:hover {
           // opacity: 1;
           color: $white;
+
           svg {
             fill: $white;
           }
@@ -562,12 +580,15 @@
     ul.new {
       width: 240px;
     }
+
     span {
       width: 100%;
       left: 0;
+
       &:before {
         display: none !important;
       }
+
       @media (max-width: 575px) {
         .toggler {
           top: -25px;
@@ -577,6 +598,7 @@
     }
   }
 }
+
 .sidebar-home.dark .sidebar-inner,
 .sidebar-home.dark {
   background-color: $darker;
@@ -818,6 +840,7 @@
 ===================== */
 
 @media (max-height: 900px) and (min-height: 800px) {
+
   .sidebar-home.new ul li a.connect-btn,
   .sidebar-home.new ul li button.connect-btn {
     margin-bottom: 20px;
@@ -834,6 +857,7 @@
 }
 
 @media (max-height: 800px) and (min-height: 700px) {
+
   .sidebar-home.new ul li a.connect-btn,
   .sidebar-home.new ul li button.connect-btn {
     margin-bottom: 10px;
@@ -879,11 +903,13 @@
     // display: none;
   }
 }
+
 .sidebar-home.new ul li a.connect-btn,
 .sidebar-home.new ul li button.connect-btn {
   &:hover {
     color: #000000 !important;
   }
+
   &:before {
     display: none !important;
     color: #000000 !important;

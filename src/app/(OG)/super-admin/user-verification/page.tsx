@@ -9,15 +9,7 @@ import { makeUserActor } from '@/dfx/service/actor-locator';
 import logger from '@/lib/logger';
 import { UsersList } from '@/components/UsersList';
 import { ConnectPlugWalletSlice } from '@/types/store';
-import { t } from 'i18next';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 const statuses = ['verified', 'unverified'];
 export default function UserManagment() {
   const [usersList, setUsersList] = useState<any[]>([]);
@@ -189,7 +181,7 @@ export default function UserManagment() {
                         <ul className='filter-list'>
                           <li>
                             <Form.Select
-                              aria-label={t('all categories')}
+                              aria-label='All Categories'
                               value={selectedStatus}
                               onChange={(e) => setStatus(e.target.value)}
                             >

@@ -50,14 +50,9 @@ import { Date_m_d_y_h_m } from '@/constant/DateFormates';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import { ConnectPlugWalletSlice } from '@/types/store';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+import { DIRECTORY_STATIC_PATH } from '@/constant/routes';
+import ArticleDetailShimmer from '@/components/Shimmers/ArticleDetailShimmer';
+import ArticleHeaderShimmer from '@/components/Shimmers/ArticleHeaderShimmer';
 
 export default function Article({ articleId }: { articleId: string }) {
   const [userImg, setUserImg] = useState<string | null>();
@@ -90,7 +85,7 @@ export default function Article({ articleId }: { articleId: string }) {
       ? new Array(articleHeadingsHierarchy.length).fill(false)
       : []
   );
-
+  const [timeoutId, setTimeoutId] = useState<any>(null);
   const updateImg = async (img: any, name: string) => {
     if (img) {
       const tempImg = img;
@@ -277,11 +272,19 @@ export default function Article({ articleId }: { articleId: string }) {
     if (tempEntry.length == 0 && auth?.state == 'anonymous') {
       return router.push(`/`);
     }
-    // if (tempEntry.length == 0 && auth?.state == 'initialized' && !auth.isLoading) {
 
-    //       return router.push(`/`);
-
-    // }
+    if (auth?.state == 'initialized') {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      const newTimeoutId = setTimeout(() => {
+        // Your logic here
+        if (tempEntry.length == 0) {
+          router.push(`/`);
+        }
+      }, 4000);
+      setTimeoutId(newTimeoutId);
+    }
     if (tempEntry[0] && tempEntry[0].isDraft) {
       return router.push(`/add-article?draftId=${articleId}`);
     }
@@ -382,6 +385,11 @@ export default function Article({ articleId }: { articleId: string }) {
       !auth.isLoading
     )
       getEntry();
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [articleId, auth, promote]);
   useEffect(() => {
     if (userId && auth.actor) {
@@ -485,101 +493,111 @@ export default function Article({ articleId }: { articleId: string }) {
                     </ul>
                   </Col>
                 )}
-              <Col xl='6' lg='12' md='12'>
-                <div className='flex-div align-items-start '>
-                  <div className='user-panel'>
-                    <Image
-                      src={userImg ? userImg : girl}
-                      alt='User'
-                      width={60}
-                      height={60}
-                      style={{ borderRadius: '50%', maxHeight: 60 }}
-                    />
-
-                    <div className='txty-pnl'>
-                      <h6 className='big'>{t('by')}</h6>
-                      <h4
-                        onClick={() => router.push(`/profile?userId=${userId}`)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {user?.name ?? 'User name  '}
-                      </h4>
-                      <p className='m-0'>
-                        {user?.designation?.length !== 0
-                          ? user?.designation
-                          : ''}
-                      </p>
-                      <p>
-                        {entry
-                          ? `Created at: ${utcToLocal(
-                              entry.creation_time.toString(),
-                              Date_m_d_y_h_m
-                            )}`
-                          : 'Oct 19, 2023, 23:35'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className='user-panel'>
-                    <div>
-                      {/* <Image src={iconbnb} alt='BNB' /> */}
+              {isArticleLoading ? (
+                <Col xl='6' lg='12' md='12'>
+                  <ArticleHeaderShimmer />
+                </Col>
+              ) : (
+                <Col xl='6' lg='12' md='12'>
+                  <div className='flex-div align-items-start '>
+                    <div className='user-panel'>
                       <Image
-                        src={
-                          entry
-                            ? entry?.isCompanySelected && entry?.directory
-                              ? entry?.directory[0]?.companyLogo
-                              : entry?.categoryLogo
-                            : iconbnb
-                        }
-                        alt='BNB'
-                        width={50}
-                        height={50}
-                        style={{ borderRadius: '50%' }}
+                        src={userImg ? userImg : girl}
+                        alt='User'
+                        width={60}
+                        height={60}
+                        style={{ borderRadius: '50%', maxHeight: 60 }}
                       />
-                    </div>
-                    <Link
-                      href='#'
-                      className='txty-pnl'
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (entry?.isCompanySelected && entry?.directory) {
-                          router.push(
-                            `/directory?directoryId=${
-                              entry ? entry?.companyId : '#'
-                            }`
-                          );
-                        } else {
-                          router.push(
-                            `/category-details?category=${
-                              entry ? entry?.category[0] : '#'
-                            }`
-                          );
-                        }
-                      }}
-                    >
-                      <h6 className='big'>0n</h6>
-                      <h4 className='mb-0' style={{ lineHeight: 1 }}>
-                        {entry?.isCompanySelected && entry?.directory
-                          ? entry?.directory[0].company
-                          : entry?.categoryName[0]?.categoryName}
-                        {/* {entry?.category ? entry.category[0] : 'category'} */}
-                      </h4>
 
-                      <p>
-                        {' '}
-                        {entry?.isCompanySelected && entry?.directory
-                          ? entry?.directory[0].shortDescription.length > 10
-                            ? `${entry?.directory[0].shortDescription.slice(
-                                0,
-                                10
-                              )}...`
-                            : entry?.directory[0].shortDescription
-                          : ''}
-                      </p>
-                    </Link>
+                      <div className='txty-pnl'>
+                        <h6 className='big'>{t('by')}</h6>
+                        <h4
+                          onClick={() =>
+                            router.push(`/profile?userId=${userId}`)
+                          }
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {user?.name ?? 'User name  '}
+                        </h4>
+                        <p className='m-0'>
+                          {user?.designation?.length !== 0
+                            ? user?.designation
+                            : ''}
+                        </p>
+                        <p>
+                          {entry
+                            ? `${t('Created At')}: ${utcToLocal(
+                                entry.creation_time.toString(),
+                                Date_m_d_y_h_m
+                              )}`
+                            : 'Oct 19, 2023, 23:35'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className='user-panel'>
+                      <div>
+                        {/* <Image src={iconbnb} alt='BNB' /> */}
+                        <Image
+                          src={
+                            entry
+                              ? entry?.isCompanySelected && entry?.directory
+                                ? entry?.directory[0]?.companyLogo
+                                : entry?.categoryLogo
+                              : iconbnb
+                          }
+                          alt='BNB'
+                          width={50}
+                          height={50}
+                          style={{ borderRadius: '50%' }}
+                        />
+                      </div>
+                      <Link
+                        href='#'
+                        className='txty-pnl'
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (entry?.isCompanySelected && entry?.directory) {
+                            router.push(
+                              entry?.directory[0].isStatic
+                                ? `${DIRECTORY_STATIC_PATH + entry?.companyId}`
+                                : `/directory?directoryId=${
+                                    entry ? entry?.companyId : '#'
+                                  }`
+                            );
+                          } else {
+                            router.push(
+                              `/category-details?category=${
+                                entry ? entry?.category[0] : '#'
+                              }`
+                            );
+                          }
+                        }}
+                      >
+                        <h6 className='big'>{t('ON')}</h6>
+                        <h4 className='mb-0' style={{ lineHeight: 1 }}>
+                          {entry?.isCompanySelected && entry?.directory
+                            ? entry?.directory[0].company
+                            : entry?.categoryName[0]?.categoryName}
+                          {/* {entry?.category ? entry.category[0] : 'category'} */}
+                        </h4>
+
+                        <p>
+                          {' '}
+                          {entry?.isCompanySelected && entry?.directory
+                            ? entry?.directory[0].shortDescription.length > 10
+                              ? `${entry?.directory[0].shortDescription.slice(
+                                  0,
+                                  10
+                                )}...`
+                              : entry?.directory[0].shortDescription
+                            : ''}
+                        </p>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-                <div className='article-top-border'></div>
-              </Col>
+                  <div className='article-top-border'></div>
+                </Col>
+              )}
             </Row>
             <Row>
               <Col
@@ -663,7 +681,7 @@ export default function Article({ articleId }: { articleId: string }) {
                   </Col>
                   <Col xxl='12' xl='12' lg='12' className='mobile-view-display'>
                     <Link className='grey-link' href='#'>
-                    {t('View more')} {t('Suggestion')}{' '}
+                      {t('View more')} {t('Suggestion')}{' '}
                       <i className='fa fa-long-arrow-right'></i>
                     </Link>
                   </Col>
@@ -678,9 +696,18 @@ export default function Article({ articleId }: { articleId: string }) {
                 xs={{ span: '12', order: 1 }}
               >
                 {isArticleLoading ? (
-                  <div className='d-flex justify-content-center mt-4'>
-                    <Spinner />
-                  </div>
+                  <Row>
+                    <Col
+                      xxl={{ span: '12', order: 1 }}
+                      xl={{ span: '12', order: 1 }}
+                      lg={{ span: '12', order: 1 }}
+                      md={{ span: '12', order: 1 }}
+                      sm={{ span: '12', order: 1 }}
+                      xs={{ span: '12', order: 1 }}
+                    >
+                      <ArticleDetailShimmer />
+                    </Col>
+                  </Row>
                 ) : (
                   <Row>
                     <Col
@@ -752,7 +779,7 @@ export default function Article({ articleId }: { articleId: string }) {
                       </h4>
                       <div className='spacer-20'></div>
                       {/* <GeneralSlider /> */}
-                      <NewsSlider />
+                      <NewsSlider isdetailpage={true} />
                     </Col>
                     <Col
                       xxl={{ span: '12', order: 3 }}
@@ -764,7 +791,8 @@ export default function Article({ articleId }: { articleId: string }) {
                       className='heding mt-3'
                     >
                       <h4>
-                        <Image src={iconrelated} alt='icon related' /> {t('Related Posts')}
+                        <Image src={iconrelated} alt='icon related' />{' '}
+                        {t('Related Posts')}
                       </h4>
                       <div className='spacer-20'></div>
                       <div className='related-post-container rlf p-0'>
@@ -776,7 +804,8 @@ export default function Article({ articleId }: { articleId: string }) {
                       <div className='disclaimer-pnl'>
                         <h4>
                           <b>
-                            <i className='fa fa-info info-btn'></i> {t('Disclaimer')}
+                            <i className='fa fa-info info-btn'></i>{' '}
+                            {t('Disclaimer')}
                           </b>
                         </h4>
                         <div className='spacer-10'></div>

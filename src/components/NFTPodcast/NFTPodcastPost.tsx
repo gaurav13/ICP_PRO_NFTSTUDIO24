@@ -46,6 +46,7 @@ import {
 } from '@/dfx/service/actor-locator';
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 import {
+  commentTime,
   formatLikesCount,
   isUserConnected,
   utcToLocal,
@@ -70,7 +71,7 @@ import YoutubeIframe from '@/components/youtubeIframe/YoutubeIframe';
 import CommentBox from '@/components/CommentBox/CommentBox';
 import ConnectModal from '@/components/Modal';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
-import { Date_m_d_y_h_m } from '@/constant/DateFormates';
+import { Date_m_d_y_h_m, } from '@/constant/DateFormates';
 import TwitterSVGIcon from '@/components/twitterIconSVG/TwitterSVGIcon';
 import { TAG_CONTENT_ROUTE } from '@/constant/routes';
 import iconmessage from '@/assets/Img/Icons/icon-comment.png';
@@ -241,7 +242,7 @@ function MintButton({
         <Button
           onClick={mintNft}
           disabled={isMinted || isMinting}
-          className='blue-button'
+          className='yellow-button'
         >
           {isMinting ? (
             <Spinner size='sm'></Spinner>
@@ -493,7 +494,7 @@ export default function NFTPodcastPost({
         setIsMinting(false);
 
         toast.error(
-          'Sorry, there was an error while minting please reload the page and try again'
+          t('Sorry, there was an error while minting please reload the page and try again')
         );
       }
     } catch (error) {
@@ -515,13 +516,13 @@ export default function NFTPodcastPost({
     try {
       if (!isUserConnected(auth, handleConnectModal)) return;
       if (isPending) {
-        return toast.error(` You can't add comment on pending ${entrytype}.`);
+        return toast.error(` ${t('You can not add comment on pending')} ${entrytype}.`);
       }
       if (isRejected) {
-        return toast.error(` You can't add comment on rejected ${entrytype}.`);
+        return toast.error(` ${t('You can not add comment on rejected')} ${entrytype}.`);
       }
       if (currentComment.trim().length > 400) {
-        return toast.error("Comment can't be more then 400 characters.");
+        return toast.error(t('Comment can not be more then 400 characters.'));
       }
       setIsCommenting(true);
       const commentsActor = makeCommentActor({
@@ -533,6 +534,7 @@ export default function NFTPodcastPost({
       const addedComment = await commentsActor.addComment(
         currentComment,
         userCanisterId,
+        entryCanisterId,
         articleId,
         entry.title,
         entrytype
@@ -562,11 +564,11 @@ export default function NFTPodcastPost({
         const userId = comment?.user.toString();
         const user = await auth.actor.get_user_details([userId]);
         const creatDate = comment.creation_time.toString();
-
-        const stillUtc = moment.utc(parseInt(creatDate)).toDate();
+   
+        let tempCreation = commentTime(creatDate);
         const newComment = {
           creation_time: utcToLocal(creatDate, Date_m_d_y_h_m),
-          newCreation: moment(stillUtc).local().fromNow(),
+          newCreation: tempCreation,
           user: user.ok[1],
           userId: userId,
           content: comment.content,
@@ -633,7 +635,7 @@ export default function NFTPodcastPost({
       .insertEntry(article, userCanisterId, true, articleId, commentCanisterId)
       .then((res: any) => {
         logger(res, 'draft Published successfully');
-        toast.success('Your article has been promoted successfuly');
+        toast.success(t('Your article has been promoted successfuly'));
         updateBalance({ identity, auth, setBalance });
         setIsArticleSubmitting(false);
         getEntry();
@@ -861,7 +863,7 @@ export default function NFTPodcastPost({
     // const fetched = currentURL[2] + '/';
     // logger(currentURL, 'PEPEPEPEPEP');
     let location = window.navigator.clipboard.writeText(window.location.href);
-    toast.success('URL copied to clipboard');
+    toast.success(t('URL copied to clipboard'));
   };
   useEffect(() => {
     if (entry?.likedUsers && identity && entry?.minters) {
@@ -890,12 +892,12 @@ export default function NFTPodcastPost({
   }, [entry, identity, auth]);
   useEffect(() => {
     if (entry) {
-      let entrytype = 'article';
+      let entrytype = t('article');
       if (entry?.isPodcast) {
-        entrytype = 'podcast';
+        entrytype = t('podcast');
       }
       if (entry?.pressRelease) {
-        entrytype = 'pressRelease';
+        entrytype = t('pressRelease');
       }
       setEntrytype(entrytype);
     }
@@ -1206,9 +1208,9 @@ export default function NFTPodcastPost({
                             <div>
                               <p className='m-0'>
                                 {isPending &&
-                                  'Your Article will be reviewed soon'}
+                                  t('Your Article will be reviewed soon')}
                                 {isRejected &&
-                                  'Your Article Review has been rejected'}
+                                  t('Your Article Review has been rejected')}
                               </p>
                             </div>
                           }
@@ -1256,7 +1258,7 @@ export default function NFTPodcastPost({
                           className='fill'
                           id='dropdown-basic'
                         >
-                          All Content{' '}
+                              {t('All Content')}{' '}
                           {showContent ? (
                             <i className='fa fa-angle-down'></i>
                           ) : (
@@ -1463,7 +1465,7 @@ export default function NFTPodcastPost({
                     </>
                   )}
                 </div>
-                <div className='footer-comment-pnl'>
+                {!(isPending || isRejected) &&   <div className='footer-comment-pnl'>
                   <ul>
                     <VoteButton
                       isLiked={isLiked}
@@ -1487,7 +1489,7 @@ export default function NFTPodcastPost({
                       </Link>
                     </li>
                   </ul>
-                </div>
+                </div>}
               </>
             ) : (
               <div className='d-flex justify-content-center my-4'>

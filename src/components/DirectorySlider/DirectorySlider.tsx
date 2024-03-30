@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
 import useLocalization from "@/lib/UseLocalization"
 import { LANG } from '@/constant/language';
+import { DIRECTORY_STATIC_PATH } from '@/constant/routes';
 export default React.memo(function DirectorySlider({
   relatedDirectory,
   trendingDirectriesIds,
@@ -136,7 +137,7 @@ export default React.memo(function DirectorySlider({
                     e.preventDefault();
 
                     openArticleLink(
-                      `/directory?directoryId=${entry.length != 0 ? entry[0] : '#'
+                      entry[1].isStatic? `${DIRECTORY_STATIC_PATH +entry[0]}`:`/directory?directoryId=${entry.length != 0 ? entry[0] : '#'
                       }`
                     );
                   }}
@@ -225,7 +226,7 @@ export default React.memo(function DirectorySlider({
 
                       <div>
                         <h5>{entry[1]?.founderName ?? ''}</h5>
-                        <p>Founder</p>
+                        <p>{t('Founder')}</p>
                       </div>
                     </div>
                   </div>

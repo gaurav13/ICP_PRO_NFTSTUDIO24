@@ -86,6 +86,53 @@ module EntryType {
     podcastVideoLink : Text;
 
   };
+  public type EventMetadata = {
+    title : Text;
+    shortDescription : Text;
+    date : Int;
+    endDate : Int;
+    location : Text;
+    country : Text;
+    city : Text;
+    website : Text;
+    category : [Text];
+    tags : [Text];
+    organiser : Text;
+    image : NewImageObject;
+    creation_time : Int;
+    month : Nat;
+    user : UserId;
+    seoTitle : Text;
+    seoSlug : Text;
+    seoDescription : Text;
+    seoExcerpt : Text;
+    description : Text;
+    freeTicket : Text;
+    applyTicket : Text;
+
+  };
+  public type Web3MetaData = {
+    company : Text;
+    shortDescription : Text;
+    companyUrl : ?Text;
+    facebook : ?Text;
+    instagram : ?Text;
+    linkedin : ?Text;
+    discord : ?Text;
+    telegram : ?Text;
+    twitter : ?Text;
+    founderName : Text;
+    companyBanner : NewImageObject;
+    catagory : Text;
+    founderDetail : Text;
+    founderImage : NewImageObject;
+    companyDetail : Text;
+    creation_time : Int;
+    user : UserId;
+    status : Web3Status;
+    companyLogo : NewImageObject;
+
+  };
   public type InputEntry = {
     title : Text;
     description : Text;
@@ -205,7 +252,8 @@ module EntryType {
     podcastCount : Int;
     pressReleaseCount : Int;
     totalCount : Int;
-
+    isStatic : Bool;
+    founderEmail : Text;
   };
   public type Web3List = {
     company : Text;
@@ -216,6 +264,8 @@ module EntryType {
     podcastCount : Int;
     pressReleaseCount : Int;
     totalCount : Int;
+    isStatic : Bool;
+    founderEmail : Text;
 
   };
   public type Web3DashboardList = {
@@ -228,6 +278,8 @@ module EntryType {
     user : UserId;
     creation_time : Int;
     views : Nat;
+    isStatic : Bool;
+    founderEmail : Text;
 
   };
   public type InputWeb3 = {
@@ -247,6 +299,7 @@ module EntryType {
     twitter : Text;
     companyDetail : Text;
     companyLogo : NewImageObject;
+    founderEmail : Text;
 
   };
   public type CategoryId = Text;
@@ -349,6 +402,8 @@ module EntryType {
     applyTicket : Text;
     lat : Float;
     lng : Float;
+    isStatic : Bool;
+    discountTicket : Text;
   };
   public type Events = [(EventId, Event)];
   public type InputEvent = {
@@ -379,6 +434,7 @@ module EntryType {
     applyTicket : Text;
     lat : Float;
     lng : Float;
+    discountTicket : Text;
   };
   public type EventStatus = {
     #all;

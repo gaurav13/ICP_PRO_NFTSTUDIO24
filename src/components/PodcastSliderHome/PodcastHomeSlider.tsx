@@ -29,7 +29,7 @@ import {
 import { toast } from 'react-toastify';
 import ConnectModal from '@/components/Modal';
 import { fromNullable } from '@dfinity/utils';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import { Podcast_STATIC_PATH } from '@/constant/routes';
 
@@ -113,7 +113,11 @@ function NewsItem({ entry }: any) {
               width: '100%',
               aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
             }}
-            href={entry?.isStatic?`${Podcast_STATIC_PATH+entry.entryId}`:`/podcast?podcastId=${entry.entryId}`}
+            href={
+              entry?.isStatic
+                ? `${Podcast_STATIC_PATH + entry.entryId}`
+                : `/podcast?podcastId=${entry.entryId}`
+            }
           >
             <div>
               <Image
@@ -125,14 +129,20 @@ function NewsItem({ entry }: any) {
             </div>
           </Link>
           <div className='txt-pnl'>
-            <Link href={entry?.isStatic?`${Podcast_STATIC_PATH+entry.entryId}`:`/podcast?podcastId=${entry[0]}`}>
+            <Link
+              href={
+                entry?.isStatic
+                  ? `${Podcast_STATIC_PATH + entry.entryId}`
+                  : `/podcast?podcastId=${entry[0]}`
+              }
+            >
               <h6>
                 {entry?.title.length > 50
                   ? `${entry?.title.slice(0, 50)}...`
                   : entry?.title}
               </h6>
             </Link>
-            <p style={{ maxHeight: "48px", overflowY: 'hidden' }}>
+            <p style={{ maxHeight: '48px', overflowY: 'hidden' }}>
               {entry ? entry.seoExcerpt : ''}
             </p>
             <ul className='thumb-list flex'>
@@ -142,12 +152,15 @@ function NewsItem({ entry }: any) {
                 className='mr-0'
               >
                 <a
-                  href={`${entry
-                    ? entry.entryId
-                      ? entry?.isStatic?`${Podcast_STATIC_PATH+entry.entryId}`:`/podcast?podcastId=${entry.entryId}`
-                      : '#'
-                    : `#`
-                    }`}
+                  href={`${
+                    entry
+                      ? entry.entryId
+                        ? entry?.isStatic
+                          ? `${Podcast_STATIC_PATH + entry.entryId}`
+                          : `/podcast?podcastId=${entry.entryId}`
+                        : '#'
+                      : `#`
+                  }`}
                   className='mr-3'
                   style={{ pointerEvents: 'none' }}
                 >
@@ -177,17 +190,26 @@ function NewsItem({ entry }: any) {
               </a> */}
 
                 <a
-                  href={`${entry
-                    ? entry.entryId
-                      ? entry?.isStatic?`${Podcast_STATIC_PATH+entry.entryId}?route=comments`:`/podcast?podcastId=${entry.entryId}&route=comments`
-                      : '#'
-                    : `#`
-                    }`}
+                  href={`${
+                    entry
+                      ? entry.entryId
+                        ? entry?.isStatic
+                          ? `${
+                              Podcast_STATIC_PATH + entry.entryId
+                            }?route=comments`
+                          : `/podcast?podcastId=${entry.entryId}&route=comments`
+                        : '#'
+                      : `#`
+                  }`}
                 >
                   <Image src={iconmessage} alt='Icon Comment' /> {t('Comments')}
                 </a>
                 <Link
-                  href={entry?.isStatic?`${Podcast_STATIC_PATH+entry.entryId}`:`/podcast?podcastId=${entry.entryId}`}
+                  href={
+                    entry?.isStatic
+                      ? `${Podcast_STATIC_PATH + entry.entryId}`
+                      : `/podcast?podcastId=${entry.entryId}`
+                  }
                   className='ms-1'
                 >
                   <div className='viewbox'>
@@ -284,7 +306,12 @@ export default function PodcastHomeSlider({ catagory }: { catagory?: string }) {
         identity,
       },
     });
-    const resp = await entryActor.getPodcastList(catagory, false, '', 0, 6);
+    //  dataType for below function 
+// 1 =pressRelease
+// 2 =podcast
+// 3 =article
+
+    const resp = await entryActor.getUniqueDataList(catagory, false, '', 0, 6,2);
 
     const tempList = resp.entries;
     return tempList;
@@ -311,8 +338,8 @@ export default function PodcastHomeSlider({ catagory }: { catagory?: string }) {
 
         const userId = entry[1].user.toString();
 
-        const user = await userActor.get_user_details([userId]);
-        let date = utcToLocal(entry[1].creation_time.toString(), 'MMM d, YYYY');
+        // const user = await userActor.get_user_details([userId]);
+        let date = utcToLocal(entry[1].creation_time.toString(), 'MMM D, YYYY');
 
         let newItem = {
           title: entry[1].title,
@@ -334,11 +361,11 @@ export default function PodcastHomeSlider({ catagory }: { catagory?: string }) {
           podcastVideoLink: entry[1].podcastVideoLink,
           seoExcerpt: entry[1].seoExcerpt,
           likedUsers: entry[1].likedUsers,
-          isStatic:entry[1].isStatic, 
+          isStatic: entry[1].isStatic,
         };
-        if (user.ok) {
-          newItem.userName = user.ok[1].name ?? entry[1].userName;
-        }
+        // if (user.ok) {
+        //   newItem.userName = user.ok[1].name ?? entry[1].userName;
+        // }
         return newItem;
       })
     );
@@ -390,7 +417,8 @@ export default function PodcastHomeSlider({ catagory }: { catagory?: string }) {
         </Slider>
       ) : (
         <p>
-         {t('No Podcast Found')}{categoryName ? `on ${categoryName} category` : ''}
+          {t('No Podcast Found')}
+          {categoryName ? `${t('ON')} ${categoryName} ${t('Category')}` : ''}
         </p>
       )}
     </>

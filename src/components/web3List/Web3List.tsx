@@ -7,6 +7,7 @@ import logger from '@/lib/logger';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
 import useLocalization from "@/lib/UseLocalization"
 import { LANG } from '@/constant/language';
+import { DIRECTORY_STATIC_PATH } from '@/constant/routes';
 
 export default function Web3ListbyCategoryId({
   relatedDirectory,
@@ -40,7 +41,7 @@ export default function Web3ListbyCategoryId({
                 e.preventDefault();
 
                 openArticleLink(
-                  `/directory?directoryId=${entry.length != 0 ? entry[0] : '#'}`
+                  entry[1].isStatic? `${DIRECTORY_STATIC_PATH +entry[0]}`:`/directory?directoryId=${entry.length != 0 ? entry[0] : '#'}`
                 );
               }}
               className='Product-post direc '
@@ -124,7 +125,7 @@ export default function Web3ListbyCategoryId({
 
                   <div>
                     <h5>{entry[1]?.founderName ?? ''}</h5>
-                    <p>Founder</p>
+                    <p>{t('Founder')}</p>
                   </div>
                 </div>
               </div>

@@ -13,6 +13,7 @@ import { utcToLocal } from '@/components/utils/utcToLocal';
 import { Date_m_d_y_h_m } from '@/constant/DateFormates';
 import { GET_ENTRY_URL, LANG } from '@/constant/language';
 import { ARTICLE_STATIC_PATH } from '@/constant/routes';
+import { DEFUALT_IMG } from '@/constant/image';
 
 const entryActor = makeEntryActor();
 interface ArticleType {
@@ -27,9 +28,6 @@ interface ArticleType {
   userName: string;
   seoTitle: string;
 }
-const DEFUALT_IMG =
-  'https://7uioq-vyaaa-aaaal-ac6ea-cai.icp0.io/images/placeholder-img.jpg';
-
 export async function generateStaticParams() {
   const response = await axios.get(
     `${process.env.BASE_URL}entries/getAllEntryIds/article/${LANG}`
@@ -147,7 +145,7 @@ export default async function Page({ params }: any) {
   // logger(params, 'params');
   let entry;
   const response = await axios.get(
-    `${process.env.BASE_URL}entries/getEntry/${slug}`
+    `${process.env.BASE_URL}entries/${GET_ENTRY_URL}/${slug}`
   );
 
   const _entry = response.data;

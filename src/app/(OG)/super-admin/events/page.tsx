@@ -19,11 +19,12 @@ import { canisterId as commentCanisterId } from '@/dfx/declarations/comment';
 import { toast } from 'react-toastify';
 import { fromNullable } from '@dfinity/utils';
 import getVariant from '@/components/utils/getEventStatus';
-import { utcToLocal } from '@/components/utils/utcToLocal';
+import { utcToLocal, utcToLocalAdmin } from '@/components/utils/utcToLocal';
 import { ListEvent } from '@/types/article';
 import { openLink } from '@/components/utils/localStorage';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { Event_STATIC_PATH } from '@/constant/routes';
 
 function Article({
   article,
@@ -197,7 +198,11 @@ function Article({
 
               <Button
                 onClick={() => {
-                  openLink(`/event-details?eventId=${article[0]}`);
+                  openLink(
+                    article[1].isStatic
+                      ? `${Event_STATIC_PATH + article[0]}`
+                      : `/event-details?eventId=${article[0]}`
+                  );
                 }}
                 className='ps-2 text-primary ps-0'
               >
@@ -325,7 +330,7 @@ function Items({
   );
 }
 
-const EVENTS_LEGNTH = 3;
+const EVENTS_LEGNTH = 8;
 export default function PendingList() {
   const { auth, userAuth, identity } = useConnectPlugWalletStore((state) => ({
     auth: (state as ConnectPlugWalletSlice).auth,
@@ -390,6 +395,7 @@ export default function PendingList() {
     const unEvents = resp.entries;
     const amount = resp.amount;
     let entriessize = parseInt(amount);
+
     setEventSize(entriessize);
 
     if (unEvents.length > 0) {
@@ -397,7 +403,7 @@ export default function PendingList() {
         const unEvent = unEvents[event][1];
         let categoryId = unEvent?.category[0];
         const image = getImage(unEvent.image);
-        const date = utcToLocal(unEvent.date.toString(), 'MMM D, YYYY');
+        const date = utcToLocalAdmin(unEvent.date.toString(), 'MMM D, YYYY');
         unEvent.date = date;
         unEvent.image = image;
         let resp = await entryActor.get_category(categoryId);
@@ -427,7 +433,8 @@ export default function PendingList() {
 
     let list: any = [];
     const newOffset = (event.selected * itemsPerPage) % eventSize;
-    getEvents();
+    setStartIndex(newOffset);
+    // getEvents();
     setIsLoading(false);
   };
 
@@ -459,7 +466,7 @@ export default function PendingList() {
   }
   useEffect(() => {
     getEvents();
-  }, [status, ccVals, filters]);
+  }, [status, ccVals, filters, startIndex]);
 
   useEffect(() => {
     async function getEntry() {
@@ -604,7 +611,7 @@ export default function PendingList() {
                         />
                       ) : (
                         <div className='d-flex justify-content-center w-ful'>
-                          <h3>{t('No Events Found')}</h3>
+                          <h3>No Events Found</h3>
                         </div>
                       )}
                     </Row>

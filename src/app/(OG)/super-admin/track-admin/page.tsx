@@ -25,22 +25,20 @@ import {
   RefinedActivity,
   RefinedAdminActivity,
 } from '@/types/profile';
-import { utcToLocal } from '@/components/utils/utcToLocal';
+import { utcToLocal, utcToLocalAdmin } from '@/components/utils/utcToLocal';
 import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { canisterId as commentCanisterId } from '@/dfx/declarations/comment';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import { openLink } from '@/components/utils/localStorage';
-import { ARTICLE_STATIC_PATH, Podcast_STATIC_PATH } from '@/constant/routes';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+import {
+  ARTICLE_STATIC_PATH,
+  DIRECTORY_STATIC_PATH,
+  Event_STATIC_PATH,
+  Podcast_STATIC_PATH,
+} from '@/constant/routes';
 
 interface TrackingUser {
   name: string;
@@ -137,10 +135,9 @@ export default function TrackAdmin() {
         target: activity.target,
         name: '',
         isPromoted: false,
-      shoudRoute:false,
-      creationType:"Content",
-      isStatic:false
-
+        shoudRoute: false,
+        creationType: 'Content',
+        isStatic: false,
       };
     }
     const refinedActivity: RefinedAdminActivity = {
@@ -150,8 +147,8 @@ export default function TrackAdmin() {
       target: '',
       name: '',
       isPromoted: false,
-      shoudRoute:false,
-      isStatic:false
+      shoudRoute: false,
+      isStatic: false,
     };
     if (activity.activity_type.hasOwnProperty('block')) {
       refinedActivity.message = `${trackUser.name} blocked a User`;
@@ -164,164 +161,171 @@ export default function TrackAdmin() {
     } else if (activity.activity_type.hasOwnProperty('approve')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = activity.isPromoted;
-      
-     
-      if(activity.creationType=="Podcast"){
+
+      if (activity.creationType == 'Podcast') {
         refinedActivity.message = `${trackUser.name} approved a ${activity.creationType}`;
-        refinedActivity.target =  activity.isStatic?`${Podcast_STATIC_PATH+activity.target}`:`${window.location.origin}/podcast?podcastId=${activity.target}`;
-      }else if(activity.creationType=="Press Release"){
+        refinedActivity.target = activity.isStatic
+          ? `${Podcast_STATIC_PATH + activity.target}`
+          : `${window.location.origin}/podcast?podcastId=${activity.target}`;
+      } else if (activity.creationType == 'Press Release') {
         refinedActivity.message = `${trackUser.name} approved a ${activity.creationType}`;
-        refinedActivity.target = activity.isStatic?`${ARTICLE_STATIC_PATH+activity.target}`:`${window.location.origin}/article?articleId=${activity.target}`;
-      }else{
+        refinedActivity.target = activity.isStatic
+          ? `${ARTICLE_STATIC_PATH + activity.target}`
+          : `${window.location.origin}/article?articleId=${activity.target}`;
+      } else {
         refinedActivity.message = `${trackUser.name} approved an ${activity.creationType}`;
-        refinedActivity.target = activity.isStatic?`${ARTICLE_STATIC_PATH+activity.target}`:`${window.location.origin}/article?articleId=${activity.target}`;
+        refinedActivity.target = activity.isStatic
+          ? `${ARTICLE_STATIC_PATH + activity.target}`
+          : `${window.location.origin}/article?articleId=${activity.target}`;
       }
     } else if (activity.activity_type.hasOwnProperty('reject')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = activity.isPromoted;
-      if(activity.creationType=="Podcast"){
+      if (activity.creationType == 'Podcast') {
         refinedActivity.message = `${trackUser.name} rejected a ${activity.creationType}`;
-        refinedActivity.target = activity.isStatic?`${Podcast_STATIC_PATH+activity.target}`: `${window.location.origin}/podcast?podcastId=${activity.target}`;
-      }else if(activity.creationType=="Press Release"){
+        refinedActivity.target = activity.isStatic
+          ? `${Podcast_STATIC_PATH + activity.target}`
+          : `${window.location.origin}/podcast?podcastId=${activity.target}`;
+      } else if (activity.creationType == 'Press Release') {
         refinedActivity.message = `${trackUser.name} rejected a ${activity.creationType}`;
-        refinedActivity.target =  activity.isStatic?`${ARTICLE_STATIC_PATH+activity.target}`:`${window.location.origin}/article?articleId=${activity.target}`;
-      }else{
+        refinedActivity.target = activity.isStatic
+          ? `${ARTICLE_STATIC_PATH + activity.target}`
+          : `${window.location.origin}/article?articleId=${activity.target}`;
+      } else {
         refinedActivity.message = `${trackUser.name} rejected an ${activity.creationType}`;
-        refinedActivity.target =  activity.isStatic?`${ARTICLE_STATIC_PATH+activity.target}`:`${window.location.origin}/article?articleId=${activity.target}`;
+        refinedActivity.target = activity.isStatic
+          ? `${ARTICLE_STATIC_PATH + activity.target}`
+          : `${window.location.origin}/article?articleId=${activity.target}`;
       }
     } else if (activity.activity_type.hasOwnProperty('editViews')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = activity.isPromoted;
-      if(activity.creationType=="Podcast"){
+      if (activity.creationType == 'Podcast') {
         refinedActivity.message = `${trackUser.name}  edited views of a ${activity.creationType}`;
-        refinedActivity.target =  activity.isStatic?`${Podcast_STATIC_PATH+activity.target}`:`${window.location.origin}/podcast?podcastId=${activity.target}`;
-      }else if(activity.creationType=="Press Release"){
+        refinedActivity.target = activity.isStatic
+          ? `${Podcast_STATIC_PATH + activity.target}`
+          : `${window.location.origin}/podcast?podcastId=${activity.target}`;
+      } else if (activity.creationType == 'Press Release') {
         refinedActivity.message = `${trackUser.name}  edited views of a ${activity.creationType}`;
-        refinedActivity.target =  activity.isStatic?`${ARTICLE_STATIC_PATH+activity.target}`:`${window.location.origin}/article?articleId=${activity.target}`;
-      }else{
+        refinedActivity.target = activity.isStatic
+          ? `${ARTICLE_STATIC_PATH + activity.target}`
+          : `${window.location.origin}/article?articleId=${activity.target}`;
+      } else {
         refinedActivity.message = `${trackUser.name} edited views of an ${activity.creationType}`;
-        refinedActivity.target =  activity.isStatic?`${ARTICLE_STATIC_PATH+activity.target}`:`${window.location.origin}/article?articleId=${activity.target}`;
+        refinedActivity.target = activity.isStatic
+          ? `${ARTICLE_STATIC_PATH + activity.target}`
+          : `${window.location.origin}/article?articleId=${activity.target}`;
       }
-     
-    } else if (
-      activity.activity_type.hasOwnProperty('edit_web3')
-    ) {
+    } else if (activity.activity_type.hasOwnProperty('edit_web3')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = false;
       refinedActivity.message = `${trackUser.name} edited a web3 directory`;
-      refinedActivity.target = `${window.location.origin}/directory?directoryId=${activity.target}`;
-    } else if (
-      activity.activity_type.hasOwnProperty('verify_web3')
-    ) {
+      refinedActivity.target = activity.isStatic
+        ? `${DIRECTORY_STATIC_PATH + activity.target}`
+        : `${window.location.origin}/directory?directoryId=${activity.target}`;
+    } else if (activity.activity_type.hasOwnProperty('verify_web3')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = false;
       refinedActivity.message = `${trackUser.name} verified a web3 directory`;
-      refinedActivity.target = `${window.location.origin}/directory?directoryId=${activity.target}`;
-    } else if (
-      activity.activity_type.hasOwnProperty('delete_web3')
-    ) {
+      refinedActivity.target = activity.isStatic
+        ? `${DIRECTORY_STATIC_PATH + activity.target}`
+        : `${window.location.origin}/directory?directoryId=${activity.target}`;
+    } else if (activity.activity_type.hasOwnProperty('delete_web3')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = false;
       refinedActivity.message = `${trackUser.name} deleted a web3 directory`;
-      refinedActivity.target = `${window.location.origin}/directory?directoryId=${activity.target}`;
-    }
-    else if (
-      activity.activity_type.hasOwnProperty('editWeb3Views')
-    ) {
+      refinedActivity.target = activity.isStatic
+        ? `${DIRECTORY_STATIC_PATH + activity.target}`
+        : `${window.location.origin}/directory?directoryId=${activity.target}`;
+    } else if (activity.activity_type.hasOwnProperty('editWeb3Views')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = false;
       refinedActivity.message = `${trackUser.name} edited views of a web3 directory`;
-      refinedActivity.target = `${window.location.origin}/directory?directoryId=${activity.target}`;
-    } else if (
-      activity.activity_type.hasOwnProperty('delete_category')
-    ) {
+      refinedActivity.target = activity.isStatic
+        ? `${DIRECTORY_STATIC_PATH + activity.target}`
+        : `${window.location.origin}/directory?directoryId=${activity.target}`;
+    } else if (activity.activity_type.hasOwnProperty('delete_category')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = false;
       refinedActivity.message = `${trackUser.name} deleted a category`;
       refinedActivity.target = `${window.location.origin}/category-details?category=${activity.target}`;
-    } else if (
-      activity.activity_type.hasOwnProperty('add_category')
-    ) {
+    } else if (activity.activity_type.hasOwnProperty('add_category')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = false;
       refinedActivity.message = `${trackUser.name} added a category`;
       refinedActivity.target = `${window.location.origin}/category-details?category=${activity.target}`;
-    } else if (
-      activity.activity_type.hasOwnProperty('edit_category')
-    ) {
+    } else if (activity.activity_type.hasOwnProperty('edit_category')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = false;
       refinedActivity.message = `${trackUser.name} edited a category`;
       refinedActivity.target = `${window.location.origin}/category-details?category=${activity.target}`;
-    } else if (
-      activity.activity_type.hasOwnProperty('add_event')
-    ) {
+    } else if (activity.activity_type.hasOwnProperty('add_event')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = false;
       refinedActivity.message = `${trackUser.name} added an Event`;
-      refinedActivity.target = `${window.location.origin}/event-details?eventId=${activity.target}`;
-    } else if (
-      activity.activity_type.hasOwnProperty('delete_article') 
-    ) {
+      refinedActivity.target = activity.isStatic
+        ? `${Event_STATIC_PATH + activity.target}`
+        : `${window.location.origin}/event-details?eventId=${activity.target}`;
+    } else if (activity.activity_type.hasOwnProperty('delete_article')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = activity.isPromoted;
       refinedActivity.message = `${trackUser.name} deleted an article`;
-      refinedActivity.target =  activity.isStatic?`${ARTICLE_STATIC_PATH+activity.target}`:`${window.location.origin}/article?articleId=${activity.target}`;
-    } else if (
-      activity.activity_type.hasOwnProperty('delete_pressRelease') 
-    ) {
+      refinedActivity.target = activity.isStatic
+        ? `${ARTICLE_STATIC_PATH + activity.target}`
+        : `${window.location.origin}/article?articleId=${activity.target}`;
+    } else if (activity.activity_type.hasOwnProperty('delete_pressRelease')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = activity.isPromoted;
       refinedActivity.message = `${trackUser.name} deleted a Press Release`;
-      refinedActivity.target =  activity.isStatic?`${ARTICLE_STATIC_PATH+activity.target}`:`${window.location.origin}/article?articleId=${activity.target}`;
-    } else if (
-      activity.activity_type.hasOwnProperty('delete_podcats') 
-    ) {
+      refinedActivity.target = activity.isStatic
+        ? `${ARTICLE_STATIC_PATH + activity.target}`
+        : `${window.location.origin}/article?articleId=${activity.target}`;
+    } else if (activity.activity_type.hasOwnProperty('delete_podcats')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = activity.isPromoted;
       refinedActivity.message = `${trackUser.name} deleted a Podcast`;
-      refinedActivity.target =  activity.isStatic?`${Podcast_STATIC_PATH+activity.target}`:`${window.location.origin}/podcast?podcastId=${activity.target}`;
-    }else if (
-      activity.activity_type.hasOwnProperty('edit_event') 
-    ) {
+      refinedActivity.target = activity.isStatic
+        ? `${Podcast_STATIC_PATH + activity.target}`
+        : `${window.location.origin}/podcast?podcastId=${activity.target}`;
+    } else if (activity.activity_type.hasOwnProperty('edit_event')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = false;
       refinedActivity.message = `${trackUser.name} edited an Event`;
-      refinedActivity.target = `${window.location.origin}/event-details?eventId=${activity.target}`;
-    }else if (
-      activity.activity_type.hasOwnProperty('delete_event') 
-    ) {
+      refinedActivity.target = activity.isStatic
+        ? `${Event_STATIC_PATH + activity.target}`
+        : `${window.location.origin}/event-details?eventId=${activity.target}`;
+    } else if (activity.activity_type.hasOwnProperty('delete_event')) {
       refinedActivity.name = activity.name;
       refinedActivity.isPromoted = false;
       refinedActivity.message = `${trackUser.name} deleted an Event`;
-      refinedActivity.target = `${window.location.origin}/event-details?eventId=${activity.target}`;
+      refinedActivity.target = activity.isStatic
+        ? `${Event_STATIC_PATH + activity.target}`
+        : `${window.location.origin}/event-details?eventId=${activity.target}`;
     }
-    refinedActivity.time = utcToLocal(activity.time.toString(), 'hh:mm A');
-    refinedActivity.date = utcToLocal(activity.time.toString(), 'DD-MM-yyyy');
-    
-    refinedActivity.shoudRoute=activity.shoudRoute;
+    refinedActivity.time = utcToLocalAdmin(activity.time.toString(), 'hh:mm A');
+    refinedActivity.date = utcToLocalAdmin(activity.time.toString(), 'DD-MM-yyyy');
+
+    refinedActivity.shoudRoute = activity.shoudRoute;
     return refinedActivity;
   };
   const handleActivityPageClick = async (event: any) => {
     setIsGettingActivity(true);
 
-  let startIndex = event.selected * activitiesPerPage;
-  if(tempActivities.length<startIndex+10){
-    let sliced=tempActivities.slice(startIndex)
+    let startIndex = event.selected * activitiesPerPage;
+    if (tempActivities.length < startIndex + 10) {
+      let sliced = tempActivities.slice(startIndex);
 
-    let refinedActivity=await paginatedEntriesRefine(sliced)
-    setUserActivity(refinedActivity);
-    setIsGettingActivity(false);
-  }else{
-    let sliced=tempActivities.slice(startIndex,startIndex+10)
-    let refinedActivity=await paginatedEntriesRefine(sliced)
-    setUserActivity(refinedActivity);
-    setIsGettingActivity(false);
-  }
-  
+      let refinedActivity = await paginatedEntriesRefine(sliced);
+      setUserActivity(refinedActivity);
+      setIsGettingActivity(false);
+    } else {
+      let sliced = tempActivities.slice(startIndex, startIndex + 10);
+      let refinedActivity = await paginatedEntriesRefine(sliced);
+      setUserActivity(refinedActivity);
+      setIsGettingActivity(false);
+    }
 
     // setActivityForcePaginate(event.selected);
-
   };
   const endOffset = itemOffset + itemsPerPage;
   // const currentItems = usersList.slice(itemOffset, endOffset);
@@ -375,11 +379,8 @@ export default function TrackAdmin() {
     await getUsersList();
     setIsGetting(false);
   };
-  let paginatedEntriesRefine=async (activities:any)=>{
-   
+  let paginatedEntriesRefine = async (activities: any) => {
     for (let activit = 0; activit < activities.length; activit++) {
-      
-      
       if (
         activities[activit].activity_type.hasOwnProperty('block') ||
         activities[activit].activity_type.hasOwnProperty('unBlock')
@@ -390,34 +391,29 @@ export default function TrackAdmin() {
         if (user.ok) activities[activit].name = user.ok[1].name[0];
       }
       if (activities[activit].activity_type.hasOwnProperty('editViews')) {
-        const tempEntry = await entryActor.getEntry(
-          activities[activit].target
-        );
-        let creationType="Content";
-        if(tempEntry[0]?.pressRelease){
-          creationType="Press Release"
-        }else if(tempEntry[0]?.isPodcast){
-          creationType="Podcast"
-        }else{
-          creationType="Article"
-
+        const tempEntry = await entryActor.getEntry(activities[activit].target);
+        let creationType = 'Content';
+        if (tempEntry[0]?.pressRelease) {
+          creationType = 'Press Release';
+        } else if (tempEntry[0]?.isPodcast) {
+          creationType = 'Podcast';
+        } else {
+          creationType = 'Article';
         }
-       
+
         if (tempEntry && tempEntry.length != 0) {
-          activities[activit].creationType=creationType;
+          activities[activit].creationType = creationType;
           activities[activit].name = tempEntry[0].title;
           activities[activit].isPromoted = tempEntry[0].isPromoted;
-          activities[activit].shoudRoute=true; 
-          activities[activit].isStatic=tempEntry[0].isStatic; 
-
+          activities[activit].shoudRoute = true;
+          activities[activit].isStatic = tempEntry[0].isStatic;
         } else {
-          activities[activit].creationType=creationType;
-          activities[activit].shoudRoute=false; 
+          activities[activit].creationType = creationType;
+          activities[activit].shoudRoute = false;
           activities[activit].name = activities[activit].title;
           activities[activit].isPromoted = false;
-          activities[activit].isStatic=false;
+          activities[activit].isStatic = false;
         }
-
       }
 
       if (
@@ -427,127 +423,117 @@ export default function TrackAdmin() {
         const tempEntry = await entryActor.getEntry_admin(
           activities[activit].target
         );
-        logger(tempEntry,"asdfdsafdsafsd")
+        logger(tempEntry, 'asdfdsafdsafsd');
 
-        let creationType="Content";
+        let creationType = 'Content';
         if (tempEntry && tempEntry.length != 0) {
-         
-          if(tempEntry[0]?.pressRelease){
-            creationType="Press Release"
-          }else if(tempEntry[0]?.isPodcast){
-            creationType="Podcast"
-          }else{
-            creationType="Article"
-
+          if (tempEntry[0]?.pressRelease) {
+            creationType = 'Press Release';
+          } else if (tempEntry[0]?.isPodcast) {
+            creationType = 'Podcast';
+          } else {
+            creationType = 'Article';
           }
-          activities[activit].creationType=creationType;
+          activities[activit].creationType = creationType;
           activities[activit].name = tempEntry[0].title;
           activities[activit].isPromoted = tempEntry[0].isPromoted;
-          activities[activit].shoudRoute=true; 
-          activities[activit].isStatic=tempEntry[0].isStatic; 
+          activities[activit].shoudRoute = true;
+          activities[activit].isStatic = tempEntry[0].isStatic;
         } else {
-          activities[activit].shoudRoute=false; 
+          activities[activit].shoudRoute = false;
           activities[activit].name = activities[activit].title;
           activities[activit].isPromoted = false;
-          activities[activit].creationType=creationType;
-          activities[activit].isStatic=false; 
+          activities[activit].creationType = creationType;
+          activities[activit].isStatic = false;
         }
-
-      };
+      }
       if (
         activities[activit].activity_type.hasOwnProperty('edit_web3') ||
         activities[activit].activity_type.hasOwnProperty('delete_web3') ||
         activities[activit].activity_type.hasOwnProperty('editWeb3Views') ||
         activities[activit].activity_type.hasOwnProperty('verify_web3')
       ) {
-
         let tempEntry = await entryActor.getWeb3_for_admin(
           activities[activit].target,
           userCanisterId
         );
         if (tempEntry && tempEntry.length != 0) {
+          // logger(tempEntry,"tempEntrysdfsdfasdf")
           activities[activit].name = tempEntry[0].company;
           activities[activit].isPromoted = false;
-          activities[activit].shoudRoute=true; 
+          activities[activit].shoudRoute = true;
+          activities[activit].isStatic = tempEntry[0].isStatic;
         } else {
           activities[activit].name = activities[activit].title;
           activities[activit].isPromoted = false;
-          activities[activit].shoudRoute=false; 
+          activities[activit].shoudRoute = false;
         }
-
-      };
+      }
       if (
         activities[activit].activity_type.hasOwnProperty('delete_category') ||
         activities[activit].activity_type.hasOwnProperty('add_category') ||
         activities[activit].activity_type.hasOwnProperty('edit_category')
       ) {
-
         let tempEntry = await entryActor.get_category(
           activities[activit].target
         );
         if (tempEntry && tempEntry.length != 0) {
           activities[activit].name = tempEntry[0].name;
           activities[activit].isPromoted = false;
-          activities[activit].shoudRoute=true; 
+          activities[activit].shoudRoute = true;
         } else {
           activities[activit].name = activities[activit].title;
           activities[activit].isPromoted = false;
-          activities[activit].shoudRoute=false; 
+          activities[activit].shoudRoute = false;
         }
-
-      };
+      }
       if (
         activities[activit].activity_type.hasOwnProperty('add_event') ||
         activities[activit].activity_type.hasOwnProperty('edit_event') ||
-        activities[activit].activity_type.hasOwnProperty('delete_event') 
+        activities[activit].activity_type.hasOwnProperty('delete_event')
       ) {
-
-        let tempEntry = await entryActor.get_event(
-          activities[activit].target
-        );
+        let tempEntry = await entryActor.get_event(activities[activit].target);
         if (tempEntry && tempEntry.length != 0) {
+          // logger(tempEntry,"tempEntrysdfsdfasdf")
+
           activities[activit].name = tempEntry[0].title;
           activities[activit].isPromoted = false;
-          activities[activit].shoudRoute=true; 
+          activities[activit].shoudRoute = true;
+          activities[activit].isStatic = tempEntry[0].isStatic;
         } else {
           activities[activit].name = activities[activit].title;
           activities[activit].isPromoted = false;
-          activities[activit].shoudRoute=false; 
+          activities[activit].shoudRoute = false;
         }
-        logger(tempEntry, "sfdhgfgh")
-
+        logger(tempEntry, 'sfdhgfgh');
       }
       if (
         activities[activit].activity_type.hasOwnProperty('delete_article') ||
         activities[activit].activity_type.hasOwnProperty('delete_podcats') ||
-        activities[activit].activity_type.hasOwnProperty('delete_pressRelease') 
+        activities[activit].activity_type.hasOwnProperty('delete_pressRelease')
       ) {
-        
-        const tempEntry = await entryActor.getEntry(
-          activities[activit].target
-        );
-        if(tempEntry && tempEntry.length !=0){
+        const tempEntry = await entryActor.getEntry(activities[activit].target);
+        if (tempEntry && tempEntry.length != 0) {
           activities[activit].name = tempEntry[0].title;
           activities[activit].isPromoted = tempEntry[0].isPromoted;
-          activities[activit].shoudRoute=true; 
-          activities[activit].isStatic=tempEntry[0].isStatic; 
-        }else{
+          activities[activit].shoudRoute = true;
+          activities[activit].isStatic = tempEntry[0].isStatic;
+        } else {
           activities[activit].name = activities[activit].title;
           activities[activit].isPromoted = false;
-          activities[activit].shoudRoute=false; 
-          activities[activit].isStatic=false; 
+          activities[activit].shoudRoute = false;
+          activities[activit].isStatic = false;
         }
-        logger(tempEntry,"sfdhgfgh")
-        
+        logger(tempEntry, 'sfdhgfgh');
       }
-    };
+    }
     let refinedActivity: [RefinedAdminActivity] = activities.map(
       (activity: AdminActivity) => {
         return refineActivity(activity);
       }
     );
     return refinedActivity;
-  }
+  };
   const getAdminActivity = async () => {
     setIsGettingActivity(true);
     if (trackUser) {
@@ -557,24 +543,22 @@ export default function TrackAdmin() {
         userCanisterId
       );
       if (activity.ok) {
-        let activities = activity.ok[0];    
-        if(activities.length>10){
+        let activities = activity.ok[0];
+        if (activities.length > 10) {
           setActivitiesSize(activities.length);
-          setTempActivities(activities)
-          let sliced=activities.slice(0,10)
-          let refinedActivity=await paginatedEntriesRefine(sliced)
+          setTempActivities(activities);
+          let sliced = activities.slice(0, 10);
+          let refinedActivity = await paginatedEntriesRefine(sliced);
           setUserActivity(refinedActivity);
-
-        }else{
-          setActivitiesSize(activities.length)
-          setTempActivities(activities)
-          let refinedActivity=await paginatedEntriesRefine(activities)
+        } else {
+          setActivitiesSize(activities.length);
+          setTempActivities(activities);
+          let refinedActivity = await paginatedEntriesRefine(activities);
           setUserActivity(refinedActivity);
-
         }
       } else {
-        setActivitiesSize(0)
-        setTempActivities([])
+        setActivitiesSize(0);
+        setTempActivities([]);
         setUserActivity([]);
       }
       logger({ activity, trackUser }, 'activeee');
@@ -765,8 +749,8 @@ export default function TrackAdmin() {
                                               {perms[0] + ' '}{' '}
                                               {perms.length > 1 &&
                                                 '+' +
-                                                (perms.length - 1) +
-                                                ' more'}
+                                                  (perms.length - 1) +
+                                                  ' more'}
                                             </p>
                                           </Tippy>
                                         </td>
@@ -820,10 +804,11 @@ export default function TrackAdmin() {
                                               });
                                               setTraceBtnActive(user.name);
                                             }}
-                                            className={`reg-btn fill bg-fix trackbtn ms-1${tracebtnactive == user.name
-                                              ? 'active'
-                                              : ''
-                                              }`}
+                                            className={`reg-btn fill bg-fix trackbtn ms-1${
+                                              tracebtnactive == user.name
+                                                ? 'active'
+                                                : ''
+                                            }`}
                                           >
                                             Track
                                           </Button>
@@ -973,21 +958,24 @@ export default function TrackAdmin() {
                                               </Tippy>
                                             )}
                                             <Link
-                                            onClick={(e)=>{
-                                              e.preventDefault();
-                                              if(activity.shoudRoute){
-                                                openLink(activity.target);
-                                              }
-
-                                            }}
-                                             href="#"
-                                             style={{cursor:activity.shoudRoute?"pointer":"not-allowed"}}
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                if (activity.shoudRoute) {
+                                                  openLink(activity.target);
+                                                }
+                                              }}
+                                              href='#'
+                                              style={{
+                                                cursor: activity.shoudRoute
+                                                  ? 'pointer'
+                                                  : 'not-allowed',
+                                              }}
                                             >
                                               {activity.name.length > 20
                                                 ? `${activity.name.slice(
-                                                  0,
-                                                  20
-                                                )}...`
+                                                    0,
+                                                    20
+                                                  )}...`
                                                 : activity.name}
                                             </Link>
                                           </td>

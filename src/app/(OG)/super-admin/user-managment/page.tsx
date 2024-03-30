@@ -10,14 +10,6 @@ import logger from '@/lib/logger';
 import { UsersList } from '@/components/UsersList';
 import { ConnectPlugWalletSlice } from '@/types/store';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-
 export default function UserManagment() {
   const [usersList, setUsersList] = useState<any[]>([]);
   const [isGetting, setIsGetting] = useState(true);

@@ -26,12 +26,12 @@ export default function DirectoryItems({
                 <tr>
                   <th>
                     <p>
-                      Company <Image className='arw' src={arrows} alt='arrow' />
+                     {t('Company')}<Image className='arw' src={arrows} alt='arrow' />
                     </p>
                   </th>
-                  <th>Founder</th>
-                  <th>Categories</th>
-                  <th className='d-flex align-items-center'>Action</th>
+                  <th>{t('Founder')}</th>
+                  <th>{t('categories')}</th>
+                  <th className='d-flex align-items-center'>{t('Action')}</th>
                 </tr>
               </thead>
               <tbody>

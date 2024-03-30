@@ -43,13 +43,6 @@ import ConnectModal from '@/components/Modal';
 import Tippy from '@tippyjs/react';
 import { ARTICLE_STATIC_PATH } from '@/constant/routes';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 const MAX_ENTRIES = 12;
 
 function EntryItem({ entry, entryActor }: { entry: any; entryActor: any }) {
@@ -163,8 +156,9 @@ function EntryItem({ entry, entryActor }: { entry: any; entryActor: any }) {
                   href='#'
                 >
                   <Image
-                    src={`${isliked ? '/images/liked.svg' : '/images/like.svg'
-                      }`}
+                    src={`${
+                      isliked ? '/images/liked.svg' : '/images/like.svg'
+                    }`}
                     width={25}
                     height={25}
                     alt='Icon Thumb'
@@ -402,7 +396,7 @@ export default function CategoryDetails() {
                     <input
                       type='text'
                       className='form-control'
-                      placeholder='Search News'
+                      placeholder={t('Search News')}
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       onKeyDown={handleSearch}
@@ -453,8 +447,7 @@ export default function CategoryDetails() {
                 <h4>
                   <Image src={iconhorn} alt='Horn' />{' '}
                   {category &&
-                    `Latest ${category?.name} 
-                  News`}
+                    `${category?.name}`}
                 </h4>
                 <div className='spacer-20'></div>
               </Col>
@@ -472,10 +465,10 @@ export default function CategoryDetails() {
                         ))
                       ) : (
                         <p className='d-flex justify-content-center w-full'>
-                          No news found{' '}
+                          {t('No news found')}{' '}
                           {category &&
-                            `on ${category?.name} 
-                        category`}{' '}
+                            `${t('ON')} ${category?.name} 
+                        ${t('Category')}`}{' '}
                         </p>
                       )}
                       {/* <Col xl='6' lg='6' md='6' sm='6'>

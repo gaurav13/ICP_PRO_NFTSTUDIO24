@@ -60,13 +60,13 @@ export default function ResetPassword() {
         resetPasswordToken: token,
         newPassword: values.newPassword,
       });
-      toast.success('Password reset successfully');
+      toast.success(t('Password reset successfully'));
       router.replace('/');
       // setIsResetSuccessful(true);
       actions.resetForm();
-      logger(response, 'Reset Password response');
+      logger(response, t('Reset Password response'));
     } catch (error: any) {
-      toast.error(error.response?.data?.errors[0] || 'An error occurred');
+      toast.error(t(error.response?.data?.errors[0]) || t('An error occurred'));
       logger(error);
     }
     setIsResetting(false);
@@ -177,7 +177,7 @@ export default function ResetPassword() {
                       disabled={isResetting}
                       type='submit'
                     >
-                      {isResetting ? <Spinner size='sm' /> : 'Reset Password'}
+                      {isResetting ? <Spinner size='sm' /> : t('Reset Password')}
                     </Button>
                   </div>
                 </FormikForm>

@@ -53,14 +53,8 @@ import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import { ConnectPlugWalletSlice } from '@/types/store';
 import { Principal } from '@dfinity/principal';
 import { getIdFromLink, getIdFromUrl } from '@/constant/DateFormates';
+import { canisterId as entryCanisterId } from '@/dfx/declarations/entry';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 function ScrollToError() {
   const formik = useFormikContext();
   const submitting = formik?.isSubmitting;
@@ -101,7 +95,7 @@ export default function ProfileDetails() {
   const router = useRouter();
   const formRef = useRef<FormikProps<FormikValues>>(null);
   // const bannerRef = useRef();
-  const handleClose = () => {};
+  const handleClose = () => { };
 
   const { auth, setAuth, setIdentity, userAuth } = useConnectPlugWalletStore(
     (state) => ({
@@ -140,21 +134,53 @@ export default function ProfileDetails() {
     // name: string()
     //   .required('Name is required')
     //   .max(MAX_NAME_CHARACTERS, 'Name can not be more than 40 characters'),
-    name: string()
-      .required('Name is required')
-      .matches(/^[a-zA-Z\s]+$/, 'Only alphabets are allowed')
-      .max(MAX_NAME_CHARACTERS, 'Name can not be more than 40 characters')
-      .min(MIN_NAME_CHARACTERS, 'Name can not be less than 3 characters'),
-    designation: string()
-      .matches(/^[a-zA-Z0-9\s]+$/, 'Only AlphaNumeric characters are allowed')
-      .max(
-        MAX_DESIGNATION_CHARACTERS,
-        'Designation can not be more than 100 characters'
-      )
-      .min(
-        MIN_NAME_CHARACTERS,
-        'Designation can not be less than 3 characters'
-      ),
+    name:
+      LANG == 'en'
+        ? string()
+          .required(t('Name is required'))
+          .matches(/^[a-zA-Z\s]+$/, t('Only alphabets are allowed'))
+          .max(
+            MAX_NAME_CHARACTERS,
+            t('Name can not be more than 40 characters')
+          )
+          .min(
+            MIN_NAME_CHARACTERS,
+            t('Name can not be less than 3 characters')
+          )
+        : string()
+          .required(t('Name is required'))
+          .max(
+            MAX_NAME_CHARACTERS,
+            t('Name can not be more than 40 characters')
+          )
+          .min(
+            MIN_NAME_CHARACTERS,
+            t('Name can not be less than 3 characters')
+          ),
+    designation:
+      LANG == 'en'
+        ? string()
+          .matches(
+            /^[a-zA-Z0-9\s]+$/,
+            t('Only AlphaNumeric characters are allowed')
+          )
+          .max(
+            MAX_DESIGNATION_CHARACTERS,
+            t('Designation can not be more than 100 characters')
+          )
+          .min(
+            MIN_NAME_CHARACTERS,
+            t('Designation can not be less than 3 characters')
+          )
+        : string()
+          .max(
+            MAX_DESIGNATION_CHARACTERS,
+            t('Designation can not be more than 100 characters')
+          )
+          .min(
+            MIN_NAME_CHARACTERS,
+            t('Designation can not be less than 3 characters')
+          ),
     // email: string().email('Invalid Email').required('Email is required'),
     email: string()
       .required(t('Email is required'))
@@ -163,24 +189,30 @@ export default function ProfileDetails() {
         /^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[A-Za-z]+$/,
         t('Invalid Email')
       ),
-    website: string().url('Website Link must be a valid URL'),
-    dob: date().max(new Date(), 'Date is not valid'),
+    website: string().url(t('Website Link must be a valid URL')),
+    dob: date().max(new Date(), t('Date is not valid')),
     // gender: string().required('Gender is required'),
-    facebook: string().url('Facebook Link must be a valid URL'),
-    twitter: string().url('Twitter Link must be a valid URL'),
-    instagram: string().url('Instagram Link must be a valid URL'),
-    linkedin: string().url('Linkedin Link must be a valid URL'),
+    facebook: string().url(t('Facebook Link must be a valid URL')),
+    twitter: string().url(t('Twitter Link must be a valid URL')),
+    instagram: string().url(t('Instagram Link must be a valid URL')),
+    linkedin: string().url(t('Linkedin Link must be a valid URL')),
     authorInfo: string().max(
       MAX_AUTHOR_INFO_CHARACTERS,
-      `Author Info can not be more than ${MAX_AUTHOR_INFO_CHARACTERS} characters`
+      `${t(
+        'Author Info can not be more than'
+      )} ${MAX_AUTHOR_INFO_CHARACTERS} ${t('characters')}`
     ),
     authorTitle: string().max(
       MAX_AUTHOR_TITLE_CHARACTERS,
-      `Author Title can not be more than ${MAX_AUTHOR_TITLE_CHARACTERS} characters`
+      `${t(
+        'Author Title can not be more than '
+      )} ${MAX_AUTHOR_TITLE_CHARACTERS} ${t('characters')}`
     ),
     authorDescription: string().max(
       MAX_AUTHOR_META_DESC_CHARACTERS,
-      `Author Description can not be more than ${MAX_AUTHOR_META_DESC_CHARACTERS} characters`
+      `${t(
+        'Author Description can not be more than'
+      )}  ${MAX_AUTHOR_META_DESC_CHARACTERS} ${t('characters')}`
     ),
     // bio: string()
     //   // .min(20, 'Bio Should be at least 20 characters long')
@@ -258,6 +290,8 @@ export default function ProfileDetails() {
         imgName: img.name,
         aspect: profileAspect,
         callBack: profileUpload,
+        maxWidth:MAX_PROFILE_SIZES.width,
+        maxHeight:MAX_PROFILE_SIZES.height
       });
       handleShowCropper();
     } else if (e.target.name === 'bannerImg') {
@@ -267,6 +301,9 @@ export default function ProfileDetails() {
         imgName: img.name,
         aspect: bannerAspect,
         callBack: bannerUpload,
+        maxWidth:MAX_BANNER_SIZES.width,
+        maxHeight:MAX_BANNER_SIZES.height
+      
       });
       handleShowCropper();
     }
@@ -440,9 +477,9 @@ export default function ProfileDetails() {
                                   {/* <Image src={pic} alt='Pic' /> */}
                                   <div
                                     className='img-catch'
-                                    // style={{
-                                    //   aspectRatio: bannerAspect,
-                                    // }}
+                                  // style={{
+                                  //   aspectRatio: bannerAspect,
+                                  // }}
                                   >
                                     {bannerFile ? (
                                       <Image
@@ -573,10 +610,14 @@ export default function ProfileDetails() {
                           let userPrincipal = Principal.fromText(userId);
                           newUser = await auth.actor.admin_update_user(
                             userPrincipal,
-                            tempuser
+                            tempuser,
+                            entryCanisterId
                           );
                         } else {
-                          newUser = await auth.actor.update_user(tempuser);
+                          newUser = await auth.actor.update_user(
+                            tempuser,
+                            entryCanisterId
+                          );
                           logger('userupdate', 'update');
                         }
                         logger(newUser);
@@ -586,7 +627,7 @@ export default function ProfileDetails() {
                           updateImg(newUser.ok[1].bannerImg[0], 'banner');
                           // handleClose();
                           resetForm();
-                          toast.success('Profile Updated Successfully');
+                          toast.success(t('Profile Updated Successfully'));
                           // setSubmitting(false);
                           setIsFormSubmitting(false);
 
@@ -719,7 +760,7 @@ export default function ProfileDetails() {
                                       onInput={handleBlur}
                                       type='text'
                                       name='name'
-                                      placeholder='Name'
+                                      placeholder={t('name')}
                                     />
                                   </Form.Group>
                                 )}
@@ -820,8 +861,8 @@ export default function ProfileDetails() {
                                       onInput={handleBlur}
                                       type='date'
                                       name='dob'
-                                      // max={new Date()}
-                                      // max={new Date().toJSON().slice(0, 10)}
+                                    // max={new Date()}
+                                    // max={new Date().toJSON().slice(0, 10)}
                                     />
                                   </Form.Group>
                                 )}
@@ -834,15 +875,14 @@ export default function ProfileDetails() {
                                 />
                               </div>
                             </div>
-                            <Form.Label>Gender</Form.Label>
+                            <Form.Label>{t('Gender')}</Form.Label>
                             <Row>
                               <Col xxl='12' xl='12' lg='12' md='12' sm='12'>
                                 <ul className='btn-list gender'>
                                   <li>
                                     <Button
-                                      className={`gender-btn ${
-                                        currentGender === 'Male' ? 'active' : ''
-                                      }`}
+                                      className={`gender-btn ${currentGender === 'Male' ? 'active' : ''
+                                        }`}
                                       onClick={() => setCurrentGender('Male')}
                                     >
                                       {t('male')}
@@ -850,11 +890,10 @@ export default function ProfileDetails() {
                                   </li>
                                   <li>
                                     <Button
-                                      className={`gender-btn ${
-                                        currentGender === 'Female'
+                                      className={`gender-btn ${currentGender === 'Female'
                                           ? 'active'
                                           : ''
-                                      }`}
+                                        }`}
                                       onClick={() => setCurrentGender('Female')}
                                     >
                                       {t('female')}
@@ -862,11 +901,10 @@ export default function ProfileDetails() {
                                   </li>
                                   <li>
                                     <Button
-                                      className={`gender-btn ${
-                                        currentGender === 'Non-binary'
+                                      className={`gender-btn ${currentGender === 'Non-binary'
                                           ? 'active'
                                           : ''
-                                      }`}
+                                        }`}
                                       onClick={() =>
                                         setCurrentGender('Non-binary')
                                       }
@@ -1023,7 +1061,7 @@ export default function ProfileDetails() {
                                       name='authorInfo'
                                       as='textarea'
                                       rows={3}
-                                      placeholder='Author,s Info'
+                                      placeholder={t('Author,s Info')}
                                     />
                                   </Form.Group>
                                 )}
@@ -1052,7 +1090,7 @@ export default function ProfileDetails() {
                                       onInput={handleBlur}
                                       name='authorTitle'
                                       type='text'
-                                      placeholder='Title'
+                                      placeholder={t('Title')}
                                     />
                                   </Form.Group>
                                 )}

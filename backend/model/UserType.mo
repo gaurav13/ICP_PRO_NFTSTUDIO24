@@ -67,7 +67,7 @@ module UserType {
     joinedFrom : Int;
     isBlocked : Bool;
     isAdminBlocked : Bool;
-        isVerified : Bool;
+    isVerified : Bool;
     isVerificationRequested : Bool;
     identificationImage : ?NewImageObject;
   };
@@ -183,7 +183,7 @@ module UserType {
     #GenericError : { error_code : Nat; message : Text };
   };
 
-  public let MASTER_WALLET = "og5g4-dvvdy-behql-zqoz5-f2qjs-x4nke-k5spr-q7ngf-7ia7a-h4jaj-yae";
-  public let PLATFORM_WALLET = "4o3sf-5uho3-wjwrb-4psji-hucud-jzdi5-mrbzs-ooom5-5cyep-fkr4m-fqe";
-  public let ADMIN_WALLET = "wxk6k-c7r5a-sqg2h-zf4hv-cuwsv-eecys-rhuvf-ihde5-lgadl-sfakr-nae";
+  public let MASTER_WALLET = "2r6rd-n6xpv-wfiro-ywtls-3ibbp-igmc4-z3a4z-skfas-on6b5-miuv7-dqe";
+  public let PLATFORM_WALLET = "dyit4-wohf2-4sn5i-xxblj-3wrwx-ezij4-3lhdg-gur4r-br4ro-eqyvc-wae";
+  public let ADMIN_WALLET = "bq5nc-mj5dn-hth7s-yxioz-eeaav-mbafa-lfv4p-27ccr-y7qfm-wslcl-fae";
 };

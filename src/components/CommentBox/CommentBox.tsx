@@ -11,13 +11,14 @@ import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import { toast } from 'react-toastify';
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
-import { isUserConnected, utcToLocal } from '@/components/utils/utcToLocal';
+import { commentTime, isUserConnected, utcToLocal } from '@/components/utils/utcToLocal';
 import logger from '@/lib/logger';
 import moment from 'moment';
 import { getImage } from '@/components/utils/getImage';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import ConnectModal from '@/components/Modal';
-import { Date_m_d_y_h_m } from '@/constant/DateFormates';
+import { Date_m_d_y_h_m, dateTranslate } from '@/constant/DateFormates';
+import { canisterId as entryCanisterId } from '@/dfx/declarations/entry';
 
 export default function CommentBox({
   isArticle,
@@ -76,18 +77,18 @@ export default function CommentBox({
     setIsCommenting(false);
     setCurrentComment('');
   };
-  let onfoucs = () => {};
+  let onfoucs = () => { };
   const addComment = async () => {
     try {
       if (!isUserConnected(auth, handleConnectModal)) return;
       if (isPending) {
-        return toast.error(` You can't add comment on pending ${entryType}.`);
+        return toast.error(` ${t('You can not add comment on pending')} ${entryType}.`);
       }
       if (isRejected) {
-        return toast.error(` You can't add comment on rejected ${entryType}.`);
+        return toast.error(` ${t('You can not add comment on rejected ')} ${entryType}.`);
       }
       if (currentComment.trim().length > 400) {
-        return toast.error("Comment can't be more then 400 characters.");
+        return toast.error(t('Comment can not be more then 400 characters.'));
       }
       setIsCommenting(true);
       const commentsActor = makeCommentActor({
@@ -99,6 +100,7 @@ export default function CommentBox({
       const addedComment = await commentsActor.addComment(
         currentComment,
         userCanisterId,
+        entryCanisterId,
         articleId,
         entryTitle,
         entryType
@@ -133,14 +135,16 @@ export default function CommentBox({
         const user = await auth.actor.get_user_details([userId]);
         const creatDate = comment.creation_time.toString();
 
-        const stillUtc = moment.utc(parseInt(creatDate)).toDate();
+        let tempCreation = commentTime(creatDate);
+        // logger({ tempCreation, stillUtc }, 'asdfsdfsdsfsad');
         const newComment = {
           creation_time: utcToLocal(creatDate, Date_m_d_y_h_m),
-          newCreation: moment(stillUtc).local().fromNow(),
+          newCreation: tempCreation,
           user: user.ok[1],
           userId: userId,
           content: comment.content,
         };
+
         return newComment;
       })
     );
@@ -264,7 +268,7 @@ export default function CommentBox({
                 className='cancel-btn'
                 onClick={() => setShowCommentBox(false)}
               >
-                {t('Cancel')}
+                <i className="fa fa-commenting-o" aria-hidden="true"></i>
               </Button>
             )}
             <Button
@@ -272,7 +276,7 @@ export default function CommentBox({
               onClick={addComment}
             >
               {' '}
-              {isCommenting ? <Spinner animation='border' size='sm' /> : 'Add'}
+              {isCommenting ? <Spinner animation='border' size='sm' /> : <i className="fa fa-plus-square-o" aria-hidden="true"></i>}
             </Button>
           </div>
         </div>

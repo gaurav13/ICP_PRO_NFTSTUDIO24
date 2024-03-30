@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import {
   Row,
@@ -17,13 +17,6 @@ import Link from 'next/link';
 import map from '@/assets/Img/Icons/icon-map.png';
 import iconmail from '@/assets/Img/Icons/icon-attach.png';
 import iconcall from '@/assets/Img/Icons/icon-call.png';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function Careers() {
   const { t, changeLocale } = useLocalization(LANG);
@@ -121,8 +114,7 @@ export default function Careers() {
                                 activeSection === 'join' ? 'active' : ''
                               }
                             >
-                              <i className='fa fa-angle-right'></i> Join Our
-                              Team
+                              <i className='fa fa-angle-right'></i> {t('Join Our Team')}
                             </Link>
                           </li>
                           <li>
@@ -153,7 +145,9 @@ export default function Careers() {
                           {/* Are You Seeking Limitless Opportunities, Dynamic,
                           <br></br>
                           Vibrant And Flexible Work Environment? */}
-                          {t('Are You Seeking Limitless Opportunities, Dynamic, Vibrant And Flexible Work Environment')}
+                          {t(
+                            'Are You Seeking Limitless Opportunities, Dynamic, Vibrant And Flexible Work Environment'
+                          )}
                         </p>
                         <ul className='contact-info-list'>
                           <li>

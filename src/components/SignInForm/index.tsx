@@ -99,7 +99,7 @@ export default function SignInForm({
 
   const otpSchema = object().shape({
     otp: number()
-      .required('OTP is required')
+      .required(t('OTP is required'))
       .test(
         'non-negative',
         'OTP must be a non-negative number',
@@ -116,19 +116,22 @@ export default function SignInForm({
   ) => {
     setIsRegistering(true);
     try {
+      let tempPath = window.location.origin;
+
       const response = await instance.post('auth/register', {
         email: values.email,
         password: values.password,
         passwordConfirm: values.confirm,
+        baseUrl: tempPath,
       });
       // toast.success('Sign up Successful, pleasde login');
       setOtpEmail(values.email);
       setVerify(true);
-      toast.success('OTP sent to email');
+      toast.success(t('OTP sent to email'));
       actions.resetForm();
       logger(response, 'signup rep');
     } catch (error: any) {
-      toast.error(error.response.data.errorMessage);
+      toast.error(t(error.response.data.errorMessage));
       logger(error);
     }
     setIsRegistering(false);
@@ -137,8 +140,11 @@ export default function SignInForm({
   const resendOtp = async () => {
     setIsSendingOtp(true);
     try {
+      let tempPath = window.location.origin;
+
       const response = await instance.post('auth/resend-otp', {
         email: otpEmail,
+        baseUrl: tempPath,
       });
       // toast.success('Sign up Successful, pleasde login');
       // setVerify(true);
@@ -147,10 +153,10 @@ export default function SignInForm({
       setRemainingTime(30); // Reset the remaining time
       localStorage.setItem('isTimerActive', 'true');
       localStorage.setItem('remainingTime', '30');
-      toast.success('OTP sent successfully');
+      toast.success(t('OTP sent successfully'));
       // logger(response, 'signup rep');
     } catch (error) {
-      toast.error('Error while authenticating');
+      toast.error(t('Error while authenticating'));
       logger(error);
     }
     setIsSendingOtp(false);
@@ -162,11 +168,12 @@ export default function SignInForm({
   ) => {
     setIsVerifying(true);
     try {
+      let tempotp = values.otp.toString();
       const response = await instance.post('auth/verify-otp', {
         email: otpEmail,
-        otp: values.otp,
+        otp: tempotp,
       });
-      toast.success('OTP verification successful');
+      toast.success(t('OTP verification successful'));
       setVerify(false);
       actions.resetForm();
       const token = response.data.data;
@@ -219,7 +226,7 @@ export default function SignInForm({
         >
           {({ errors, touched, handleChange, handleBlur, isValid, dirty }) => (
             <FormikForm className='flex w-full flex-col items-center justify-center'>
-              <p>OTP has been sent to {otpEmail ?? ''} Please verify.</p>
+              <p>{t('OTP has been sent to')} {otpEmail ?? ''} {t('Please verify.')}</p>
               <Field name='otp'>
                 {({ field, formProps }: any) => (
                   <Form.Group
@@ -280,7 +287,7 @@ export default function SignInForm({
           {({ errors, touched, handleChange, handleBlur, isValid, dirty }) => (
             <FormikForm
               className='flex w-full flex-col items-center justify-center'
-              // onChange={(e) => handleImageChange(e)}
+            // onChange={(e) => handleImageChange(e)}
             >
               <Field name='email'>
                 {({ field, formProps }: any) => (
@@ -294,7 +301,7 @@ export default function SignInForm({
 
                     <Form.Control
                       type='email'
-                      placeholder='Email'
+                      placeholder={t('Email')}
                       value={field.value}
                       onBlur={handleBlur}
                       onChange={handleChange}

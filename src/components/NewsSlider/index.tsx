@@ -36,8 +36,10 @@ import { toast } from 'react-toastify';
 import ConnectModal from '@/components/Modal';
 import { fromNullable } from '@dfinity/utils';
 import { ARTICLE_STATIC_PATH } from '@/constant/routes';
+import { SocialShimmer } from 'react-content-shimmer';
+import CustomeShimmerSlider from '@/components/Shimmers/CustomeShimmer';
 
-function NewsItem({ entry }: any) {
+function NewsItem({ entry ,isdetailpage}: {entry:any,isdetailpage?:boolean}) {
   let [likeCount, setLikeCount] = useState(0 ?? Number(entry[1].likes));
   const [showConnectModal, setShowConnectModal] = useState(false);
   let [isliked, setIsLiked] = useState(false);
@@ -118,7 +120,7 @@ function NewsItem({ entry }: any) {
   }, [identity]);
   return (
     <>
-      <div className='Post-padding'>
+      <div className={`Post-padding ${isdetailpage?"flexcls":""}`}>
         <div className='general-post slider'>
           <Link
             className='position-relative'
@@ -230,7 +232,10 @@ function NewsItem({ entry }: any) {
                 </a>
               </li>
               <li>
-                <Link href={`article?articleId=${entry[0]}`} className='ms-1'>
+                <Link href={entry[1].isStatic
+                          ? `${ARTICLE_STATIC_PATH + entry[0]}`
+                          : `/article?articleId=${entry[0]}`
+                        } className='ms-1'>
                   <div className='viewbox'>
                     <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
                     {t('Views')} <span className='mx-1'>|</span>
@@ -268,7 +273,7 @@ function NewsItem({ entry }: any) {
   );
 }
 
-export default function NewsSlider({ catagory }: { catagory?: string }) {
+export default function NewsSlider({ catagory,isdetailpage }: { catagory?: string,isdetailpage?:boolean }) {
   let [promotedArticle, setPromotedArticle] = useState([]);
   let [isloaded, setIsloaded] = useState(true);
   let [categoryName, setCategoryName] = useState<any>(null);
@@ -323,10 +328,18 @@ export default function NewsSlider({ catagory }: { catagory?: string }) {
         },
       },
       {
-        breakpoint: 1400,
+        breakpoint: 1500,
         settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
+          slidesToShow: isdetailpage?1:2,
+          slidesToScroll:  isdetailpage?1:2,
+          infinite: false,
+        },
+      },
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: isdetailpage?1:2,
+          slidesToScroll:  isdetailpage?1:2,
           infinite: false,
         },
       },
@@ -447,13 +460,13 @@ export default function NewsSlider({ catagory }: { catagory?: string }) {
     <>
       {isloaded && (
         <div className='d-flex justify-content-center mb-4'>
-          <Spinner animation='border' />
+              <CustomeShimmerSlider  />
         </div>
       )}
       {promotedArticle.length == 0 && !isloaded && (
         <div className='d-flex justify-content-center'>
           <p>
-           {t('No Atricle found')}{categoryName ? `on ${categoryName} category` : ''}
+           {t('No Atricle found')}{categoryName ? `${t('On')} ${categoryName} ${t('Category')}` : ''}
           </p>
         </div>
       )}
@@ -465,7 +478,7 @@ export default function NewsSlider({ catagory }: { catagory?: string }) {
           className={`${isloaded ? 'd-none' : ''}`}
         >
           {promotedArticle.map((entry: any, index) => {
-            return <NewsItem entry={entry} key={entry[0]} />;
+            return <NewsItem entry={entry} isdetailpage={isdetailpage} key={entry[0]} />;
           })}
           {/* <div className='Post-padding'>
           <div className='Featured-Post'>

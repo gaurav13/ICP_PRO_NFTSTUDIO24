@@ -5,7 +5,7 @@ import { Row, Col } from 'react-bootstrap';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import Link from 'next/link';
 import hot from '@/assets/Img/Icons/icon-flame-1.png';
@@ -25,13 +25,6 @@ import StoriesPost from '@/components/StoriesPost/StoriesPost';
 import LeadershipPost from '@/components/LeadershipPost/LeadershipPost';
 import { useThemeStore } from '@/store/useStore';
 import Articles from '@/components/Articles';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function HomePage() {
   const { t, changeLocale } = useLocalization(LANG);
@@ -137,11 +130,12 @@ export default function HomePage() {
                       <div className='bdrd-pnl'>
                         <div className='d-flex-sm'>
                           <h4>
-                            <Image src={iconcompass} alt='Hot' /> 
+                            <Image src={iconcompass} alt='Hot' />
                             {t('Discover Product communities')}
                           </h4>
                           <Link href='#' className='discover-btn'>
-                            {t('Discover More')} <i className='fa fa-angle-right'></i>
+                            {t('Discover More')}{' '}
+                            <i className='fa fa-angle-right'></i>
                           </Link>
                         </div>
                         <div className='spacer-20'></div>

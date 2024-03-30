@@ -20,7 +20,7 @@ import meeting7 from '@/assets/Img/Profile/hinza-7.jpg';
 import meeting8 from '@/assets/Img/Profile/hinza-8.jpg';
 import meeting9 from '@/assets/Img/Profile/hinza-9.jpg';
 import Logo from '@/assets/Img/Logo/Logo.png';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import client1 from '@/assets/Img/Logo/client-logo-1.jpg';
 import client2 from '@/assets/Img/Logo/client-logo-2.jpg';
@@ -35,13 +35,6 @@ import Hinzatext from '@/assets/Img/Icons/hinza.png';
 import Hinza from '@/assets/Img/hinza.jpg';
 import Image from 'next/image';
 import Link from 'next/link';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function HinzaAsif() {
   const { t, changeLocale } = useLocalization(LANG);
@@ -153,7 +146,7 @@ export default function HinzaAsif() {
                               href='#Experienced-Media-Business-Growth-Partnership'
                               className={
                                 activeSection ===
-                                  'Experienced-Media-Business-Growth-Partnership'
+                                'Experienced-Media-Business-Growth-Partnership'
                                   ? 'active'
                                   : ''
                               }
@@ -182,7 +175,7 @@ export default function HinzaAsif() {
                               href='#People-Often-Ask-Me-Common-Questions'
                               className={
                                 activeSection ===
-                                  'People-Often-Ask-Me-Common-Questions'
+                                'People-Often-Ask-Me-Common-Questions'
                                   ? 'active'
                                   : ''
                               }
@@ -196,12 +189,12 @@ export default function HinzaAsif() {
                               href='#Pleasure-of-Meeting-Some-Web3-individuals'
                               className={
                                 activeSection ===
-                                  'Pleasure-of-Meeting-Some-Web3-individuals'
+                                'Pleasure-of-Meeting-Some-Web3-individuals'
                                   ? 'active'
                                   : ''
                               }
                             >
-                              <i className='fa fa-angle-right'></i> 
+                              <i className='fa fa-angle-right'></i>
                               {t('Pleasure of Meeting Some Web3 individuals')}
                             </Link>
                           </li>

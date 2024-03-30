@@ -6,7 +6,7 @@ import loader from '@/assets/Img/Icons/icon-loader.png';
 import arrows from '@/assets/Img/Icons/icon-arrows.png';
 import post1 from '@/assets/Img/Posts/small-post-10.png';
 import promotedIcon from '@/assets/Img/promoted-icon.png';
-import { utcToLocal } from '@/components/utils/utcToLocal';
+import { utcToLocal, utcToLocalAdmin } from '@/components/utils/utcToLocal';
 import Tippy from '@tippyjs/react';
 import logger from '@/lib/logger';
 import { usePathname, useRouter } from 'next/navigation';
@@ -22,7 +22,7 @@ import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import { handleAdminDeleteEntry } from '@/components/utils/admindeleteEntry';
 import { openLink } from '@/components/utils/localStorage';
-import { ARTICLE_STATIC_PATH, Podcast_STATIC_PATH } from '@/constant/routes';
+import { ARTICLE_STATIC_PATH, DIRECTORY_STATIC_PATH, Podcast_STATIC_PATH } from '@/constant/routes';
 
 function ViewsInput({
   views,
@@ -60,6 +60,7 @@ function ViewsInput({
     );
     return resp;
   };
+  const { t, changeLocale } = useLocalization(LANG);
   const hanldeViewChange = async () => {
     setIsLoading(true);
     let resp = null;
@@ -70,9 +71,9 @@ function ViewsInput({
     }
 
     if (resp) {
-      toast.success('Views Updated Successfully');
+      toast.success(t('Views Updated Successfully'));
     } else {
-      toast.error('Error while updating views');
+      toast.error(t('Error while updating views'));
     }
 
     setIsLoading(false);
@@ -118,7 +119,19 @@ export function ArticlesList({
   const location = usePathname();
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const { t, changeLocale } = useLocalization(LANG);
+
+  let language;
+
+  const changeLang = () => {
+    if (LANG === 'jp') {
+      language = location.includes('super-admin/') ? 'en' : 'jp';
+    }
+    else{
+      language = "en"
+    }
+  };
+  const funcCalling = changeLang()
+  const { t, changeLocale } = useLocalization(language);
   const [categoryItem, setCategoryItem] = useState({
     id: '',
     name: '',
@@ -159,7 +172,7 @@ export function ArticlesList({
   const handleDelete = async () => {
     if (auth.state !== 'initialized') {
       return toast.error(
-        'To perform this action, kindly connect to Internet Identity.'
+        t('To perform this action, kindly connect to Internet Identity.')
       );
     }
     const defaultEntryActor = makeEntryActor({
@@ -173,7 +186,7 @@ export function ArticlesList({
       commentCanisterId
     );
     if (deletedCategory?.ok) {
-      toast.success('Draft Deleted Successfully');
+      toast.success(t('Draft Deleted Successfully'));
       handleTabChange('Draft');
       // categories = categories.filter((category: any) => {
       //   return category[0] !== categoryItem.id;
@@ -190,11 +203,11 @@ export function ArticlesList({
   const handleAdminDelete = async () => {
     if (auth.state !== 'initialized') {
       return toast.error(
-        'To perform this action, kindly connect to Internet Identity.'
+        t('To perform this action, kindly connect to Internet Identity.')
       );
     }
     if (!userAuth.userPerms?.articleManagement) {
-      return toast.error('Not Allowed');
+      return toast.error(t('Not Allowed'));
     }
     const defaultEntryActor = makeEntryActor({
       agentOptions: {
@@ -241,7 +254,7 @@ export function ArticlesList({
                     <th className='text-center'>
                       {views ? (
                         <div className='d-flex align-items-center justify-content-center'>
-                          Views
+                          {t('Views')}
                         </div>
                       ) : (
                         <div className='d-flex align-items-center justify-content-center'>
@@ -254,7 +267,7 @@ export function ArticlesList({
                 <tbody>
                   {currentItems.map((article) => {
                     let status = article.isDraft
-                      ? 'draft'
+                      ? t('draft')
                       : Object.keys(article.status)[0];
                     return (
                       <tr key={article.entryId}>
@@ -262,7 +275,7 @@ export function ArticlesList({
                           {status != 'approved' && !views ? (
                             <div
                               className='removeUl  category-item'
-                              // style={{pointerEvents:"none"}}
+                            // style={{pointerEvents:"none"}}
                             >
                               <div
                                 className='d-flex align-items-start '
@@ -274,11 +287,11 @@ export function ArticlesList({
                                       );
                                     } else if (article.isPodcast) {
                                       router.push(
-                                        article.isStatic?`${Podcast_STATIC_PATH+article.entryId}`: `/podcast?podcastId=${article.entryId}`
+                                        article.isStatic ? `${Podcast_STATIC_PATH + article.entryId}` : `/podcast?podcastId=${article.entryId}`
                                       );
                                     } else {
                                       router.push(
-                                        article.isStatic?`${ARTICLE_STATIC_PATH+article.entryId}`: `/article?articleId=${article.entryId}`
+                                        article.isStatic ? `${ARTICLE_STATIC_PATH + article.entryId}` : `/article?articleId=${article.entryId}`
                                       );
                                     }
                                   }
@@ -363,7 +376,7 @@ export function ArticlesList({
                                     {article.title.length > 75 && '...'}{' '}
                                   </p>
 
-                                  {article.isDraft && <span>| Draft </span>}
+                                  {article.isDraft && <span>| {t('draft')}</span>}
                                 </p>
                               </div>
                               <div className='item-menu mt-1'>
@@ -372,17 +385,16 @@ export function ArticlesList({
                                     article.isDraft
                                       ? `/add-article?draftId=${article.entryId}`
                                       : article.isPodcast
-                                      ? article.isStatic?`${Podcast_STATIC_PATH+article.entryId}`: `/podcast?podcastId=${article.entryId}`
-                                      : isCompany
-                                      ? `/directory?directoryId=${article.entryId}`
-                                      : article.isStatic?`${ARTICLE_STATIC_PATH+article.entryId}`:`/article?articleId=${article.entryId}`
+                                        ? article.isStatic ? `${Podcast_STATIC_PATH + article.entryId}` : `/podcast?podcastId=${article.entryId}`
+                                        : isCompany
+                                          ? article.isStatic ? `${DIRECTORY_STATIC_PATH + article.entryId}` : `/directory?directoryId=${article.entryId}`
+                                          : article.isStatic ? `${ARTICLE_STATIC_PATH + article.entryId}` : `/article?articleId=${article.entryId}`
                                   }
-                                  target={`${
-                                    location == '/articles' ? '_self' : '_blank'
-                                  }`}
+                                  target={`${location == '/articles' ? '_self' : '_blank'
+                                    }`}
                                   className='removeUl'
                                 >
-                                  {article.isDraft ? 'Edit' : 'View'}
+                                  {article.isDraft ? t('Edit') : t('View')}
                                 </Link>
                                 <span>|</span>
                                 <Button
@@ -396,7 +408,7 @@ export function ArticlesList({
                                   }}
                                   className='removeUl text-danger'
                                 >
-                                  Delete
+                                  {t('Delete')}
                                 </Button>
                               </div>
                             </div>
@@ -409,15 +421,15 @@ export function ArticlesList({
                                   if (!isAdmin) {
                                     if (article?.isPodcast) {
                                       router.push(
-                                        article.isStatic?`${Podcast_STATIC_PATH+article.entryId}`: `/podcast?podcastId=${article.entryId}`
+                                        article.isStatic ? `${Podcast_STATIC_PATH + article.entryId}` : `/podcast?podcastId=${article.entryId}`
                                       );
                                     } else if (isCompany) {
                                       router.push(
-                                        `/directory?directoryId=${article.entryId}`
+                                        article.isStatic ? `${DIRECTORY_STATIC_PATH + article.entryId}` : `/directory?directoryId=${article.entryId}`
                                       );
                                     } else {
                                       router.push(
-                                        article.isStatic?`${ARTICLE_STATIC_PATH+article.entryId}`:`/article?articleId=${article.entryId}`
+                                        article.isStatic ? `${ARTICLE_STATIC_PATH + article.entryId}` : `/article?articleId=${article.entryId}`
                                       );
                                     }
                                   }
@@ -501,7 +513,7 @@ export function ArticlesList({
                                   )}
                                   {article.title.slice(0, 75)}
                                   {article.title.length > 75 && '...'}{' '}
-                                  {article.isDraft && <span>| Draft </span>}
+                                  {article.isDraft && <span>| {t('draft')} </span>}
                                 </p>
                               </div>
                               {userAuth.userPerms?.articleManagement &&
@@ -511,15 +523,15 @@ export function ArticlesList({
                                       onClick={() => {
                                         if (article?.isPodcast) {
                                           openLink(
-                                            article.isStatic?`${Podcast_STATIC_PATH+article.entryId}`:  `/podcast?podcastId=${article.entryId}`
+                                            article.isStatic ? `${Podcast_STATIC_PATH + article.entryId}` : `/podcast?podcastId=${article.entryId}`
                                           );
                                         } else if (isCompany) {
                                           openLink(
-                                            `/directory?directoryId=${article.entryId}`
+                                            article.isStatic ? `${DIRECTORY_STATIC_PATH + article.entryId}` : `/directory?directoryId=${article.entryId}`
                                           );
                                         } else {
                                           openLink(
-                                            article.isStatic?`${ARTICLE_STATIC_PATH+article.entryId}`: `/article?articleId=${article.entryId}`
+                                            article.isStatic ? `${ARTICLE_STATIC_PATH + article.entryId}` : `/article?articleId=${article.entryId}`
                                           );
                                         }
                                       }}
@@ -539,7 +551,7 @@ export function ArticlesList({
                                       }}
                                       className='removeUl text-danger'
                                     >
-                                      Delete
+                                     {t('Delete')}
                                     </Button>
                                   </div>
                                 )}
@@ -550,12 +562,11 @@ export function ArticlesList({
                           <Link
                             href={
                               article.isPodcast
-                                ? article.isStatic?`${Podcast_STATIC_PATH+article.entryId}`: `/podcast?podcastId=${article.entryId}`
+                                ? article.isStatic ? `${Podcast_STATIC_PATH + article.entryId}` : `/podcast?podcastId=${article.entryId}`
                                 : `/profile?userId=${article.userId}`
                             }
-                            target={`${
-                              location == '/articles' ? '_self' : '_blank'
-                            }`}
+                            target={`${location == '/articles' ? '_self' : '_blank'
+                              }`}
                             className='removeUl'
                           >
                             <p>{article?.userName}</p>
@@ -600,10 +611,11 @@ export function ArticlesList({
                           </Tippy>
                         </td>
                         <td>
-                          <span className='w-100'>Created At</span>
+                          <span className='w-100'>{t('Created At')}</span>
                           {/* 2023/11/08 at 06:52 pm */}
                           <span>
-                            {utcToLocal(
+                            {isAdmin || views?utcToLocalAdmin( article.creation_time,
+                              'YYYY/MM/DD  hh:mm a'):utcToLocal(
                               article.creation_time,
                               'YYYY/MM/DD  hh:mm a'
                             )}
@@ -611,15 +623,15 @@ export function ArticlesList({
                         </td>
                         {(currentTab === 'Minted' ||
                           currentTab === 'MyMinted') && (
-                          <td className='text-center'>
-                            {/* 2023/11/08 at 06:52 pm */}
-                            <span>
-                              {article?.minters?.length >= 0
-                                ? article?.minters?.length + 1
-                                : '0'}
-                            </span>
-                          </td>
-                        )}
+                            <td className='text-center'>
+                              {/* 2023/11/08 at 06:52 pm */}
+                              <span>
+                                {article?.minters?.length >= 0
+                                  ? article?.minters?.length + 1
+                                  : '0'}
+                              </span>
+                            </td>
+                          )}
 
                         <td className='text-center'>
                           {views ? (
@@ -638,7 +650,7 @@ export function ArticlesList({
                               ></span>
                               <p className={`status-text ${status}`}>
                                 {' '}
-                                {status.replace('approved', 'minted')}
+                                {status.replace(t('approved'), t('minted'))}
                               </p>
                             </div>
                           )}
@@ -686,12 +698,11 @@ export function ArticlesList({
         <Modal.Header closeButton>
           <h3 className='text-center'>
             {/* Delete <i>{categoryItem.name}</i> */}
-            Delete Exploring Web3 Investments: An Exclusive Interview with Yat
-            Siu on Animoca Brands, Mocaverse, and Digital Property Rights
+            {categoryItem.name}
           </h3>
         </Modal.Header>
         <Modal.Body>
-          <p>Are you sure you want to delete this Entry?</p>
+          <p>{t('Are you sure you want to delete this entry?')}</p>
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -707,7 +718,7 @@ export function ArticlesList({
               }
             }}
           >
-            {deleting ? <Spinner size='sm' /> : 'Delete'}
+            {deleting ? <Spinner size='sm' /> : t('Delete')}
           </Button>
           <Button
             disabled={deleting}

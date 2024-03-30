@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { useConnectPlugWalletStore } from '@/store/useStore';
 import { usePathname, useRouter } from 'next/navigation';
 import logger from '@/lib/logger';
-import { utcToLocal } from '@/components/utils/utcToLocal';
+import { formatLikesCount, utcToLocal } from '@/components/utils/utcToLocal';
 import { makeEntryActor, makeUserActor } from '@/dfx/service/actor-locator';
 import { canisterId as entryCanisterId } from '@/dfx/declarations/entry';
 import {
@@ -27,13 +27,8 @@ import updateBalance from '@/components/utils/updateBalance';
 import updateReward from '@/components/utils/updateReward';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+import { exponentialToDecimal } from '@/components/utils/NOExponentional';
+
 export default function Reward() {
   const [rewards, setRewards] = useState<any>();
   const [likeReward, setLikeReward] = useState<number>();
@@ -45,6 +40,8 @@ export default function Reward() {
   const [claimableICP, setClaimableICP] = useState(0);
   const { t, changeLocale } = useLocalization(LANG);
   const [totallRewardFont, setTotallRewardFont] = useState(2.5);
+  const [oneCoinVal, setCoinVal] = useState(0);
+
   const [totallClaimedFont, setTotallClaimedFont] = useState(2.5);
   const [totallUnclaimedRewardFont, setTotallUnclaimedRewardFont] =
     useState(2.5);
@@ -85,11 +82,13 @@ export default function Reward() {
 
   const handleShow = () => {
     if (!userVerification)
-      return toast.error('You have to verify your profile to claim rewards');
+      return toast.error(t('You have to verify your profile to claim rewards'));
 
     if (claimableICP < MIN_REWARD_CLAIM_ICP) {
       return toast.error(
-        `You need to have atleast ${MIN_REWARD_CLAIM_ICP} unclaimed rewards in ICP to claim them, Current Amount: ${claimableICP}`
+        `${t('You need to have atleast')} ${MIN_REWARD_CLAIM_ICP} ${t(
+          'unclaimed rewards in ICP to claim them, Current Amount:'
+        )} ${exponentialToDecimal(claimableICP)}`
       );
     }
     setShowModal(true);
@@ -118,7 +117,7 @@ export default function Reward() {
       let unClaimedAmount = 0;
       for (let i = 0; i < tempRewards.length; i++) {
         const reward = tempRewards[i];
-        const amount = parseInt(reward.amount) / E8S;
+        const amount = Number(reward.amount);
         allAmount += amount;
         if (reward.isClaimed) {
           claimedArray.push(reward);
@@ -129,11 +128,16 @@ export default function Reward() {
         }
       }
       setRewardAmount({
-        all: tempRewards.length,
-        claimed: claimedArray.length,
-        unclaimed: unClaimedArray.length,
+        all: allAmount,
+        claimed: claimedAmount,
+        unclaimed: unClaimedAmount,
       });
-      setClaimableICP(unClaimedAmount);
+      let reward =await getNFTCoinVal();
+      if(reward){
+        logger(unClaimedAmount *reward,"sadsaasdasdasunClaimedAmount")
+        setClaimableICP(unClaimedAmount *reward);
+      }
+     
       // const claimedRewards = tempRewards.filter((reward: any) => {
       //   return reward.isClaimed;
       // });
@@ -146,6 +150,24 @@ export default function Reward() {
 
       // updateImg(tempUser.ok[1].profileImg[0]);
     }
+  };
+  const userActor = makeUserActor({
+    agentOptions: {
+      identity,
+    },
+  });
+  const getNFTCoinVal = async () => {
+    if (!identity || auth.state !== 'initialized') return;
+
+    const temponeCoinValue = await userActor.get_NFT24Coin();
+
+    let amount = Number(temponeCoinValue)/E8S;
+    const expandedForm = Number(amount.toExponential()).toFixed(20);
+    // scientificNotation.toFixed(20)
+    logger({expandedForm},"dsfsfasdfsfa");
+
+setCoinVal(amount);
+return amount;
   };
   // chart conig
   let ifNoVal = {
@@ -182,14 +204,17 @@ export default function Reward() {
     if (auth.state !== 'initialized' || !identity) return;
     if (claimableICP < MIN_REWARD_CLAIM_ICP) {
       return toast.error(
-        `You need to have atleast ${MIN_REWARD_CLAIM_ICP} unclaimed rewards in ICP to claim them, Current Amount: ${claimableICP}`
+        `${t('You need to have atleast')} ${MIN_REWARD_CLAIM_ICP} ${t(
+          'unclaimed rewards in ICP to claim them, Current Amount:'
+        )} ${claimableICP}`
       );
     }
     try {
       setIsClaiming(true);
       const claim = await auth.actor.claim_rewards(entryCanisterId);
       getUser();
-      toast.success('You have successfully claimed your rewards');
+      logger(claim,"claimclaim")
+      toast.success(t('You have successfully claimed your rewards'));
       updateBalance({ identity, setBalance, auth });
       updateReward({ identity, setReward, auth });
       setIsClaiming(false);
@@ -208,6 +233,8 @@ export default function Reward() {
     } else if (auth.state !== 'initialized') {
     } else {
       getUser();
+    getNFTCoinVal()
+      
     }
   }, [auth, pathname]);
 
@@ -219,6 +246,7 @@ export default function Reward() {
     };
     if (identity && auth.state === 'initialized') {
       getLikeR();
+
     }
   }, [auth, identity, pathname]);
   useEffect(() => {
@@ -304,7 +332,7 @@ export default function Reward() {
                           disabled={isClaiming}
                           className='blue-button sm'
                         >
-                          Claim Rewards ({claimableReward}
+                          {t('Claim Rewards')} ({formatLikesCount(claimableReward)}
                           <Image
                             src={inifinity}
                             alt='inifinity'
@@ -313,8 +341,9 @@ export default function Reward() {
                           )
                         </Button>
                         <p className='text-secondary mt-2'>
-                          * The minimum requirement for claiming is{' '}
-                          {MIN_REWARD_CLAIM_ICP} ICP worth of unclaimed rewards
+                          {t('* The minimum requirement for claiming is')}{' '}
+                          {MIN_REWARD_CLAIM_ICP}{' '}
+                          {t('ICP worth of unclaimed rewards')}
                         </p>
                         <div className='spacer-20'></div>
                       </div>
@@ -325,7 +354,7 @@ export default function Reward() {
                       className='total-reward-panel'
                       style={{ backgroundColor: '#348BFB' }}
                     >
-                      <h3>Total Rewards</h3>
+                      <h3>{t('Total Rewards')}</h3>
                       <div className='flex-div-xs align-items-center'>
                         <Image src={inifinity} alt='inifinity' />
                         <p
@@ -333,7 +362,7 @@ export default function Reward() {
                           style={{ fontSize: `${totallRewardFont}rem ` }}
                         >
                           {/* {rewards && rewards.length ? rewards.length : '0'} */}
-                          {rewardAmount.all ?? 0}
+                          {formatLikesCount(rewardAmount.all ?? 0)}
                         </p>
                       </div>
                       <div className='text-right'>
@@ -353,7 +382,7 @@ export default function Reward() {
                       className='total-reward-panel'
                       style={{ backgroundColor: '#FFE544' }}
                     >
-                      <h3>Total Claimed</h3>
+                      <h3>{t('Total Claimed')}</h3>
                       <div className='flex-div-xs align-items-center'>
                         <Image src={inifinity} alt='inifinity' />
                         <p
@@ -361,7 +390,7 @@ export default function Reward() {
                           style={{ fontSize: `${totallClaimedFont}rem ` }}
                         >
                           {/* {claimedRewards ? claimedRewards.length : 0} */}
-                          {rewardAmount?.claimed ?? 0}
+                          {formatLikesCount(rewardAmount?.claimed ?? 0)}
                         </p>
                       </div>
                       <div className='text-right'>
@@ -374,7 +403,7 @@ export default function Reward() {
                       className='total-reward-panel'
                       style={{ backgroundColor: '#FFAA7A' }}
                     >
-                      <h3>Total Unclaimed</h3>
+                      <h3>{t('Total Unclaimed')}</h3>
                       <div className='flex-div-xs align-items-center'>
                         <Image src={inifinity} alt='inifinity' />
                         <p
@@ -384,7 +413,7 @@ export default function Reward() {
                           }}
                         >
                           {/* 0 */}
-                          {rewardAmount.unclaimed ?? 0}
+                          {formatLikesCount(rewardAmount.unclaimed ?? 0)}
                         </p>
                       </div>
                       <div className='text-right'>
@@ -409,15 +438,15 @@ export default function Reward() {
                       <ul className='total-toal-list '>
                         <li>
                           <span style={{ backgroundColor: '#348BFB' }}></span>{' '}
-                          Total Rewards
+                          {t('Total Rewards')}
                         </li>
                         <li>
                           <span style={{ backgroundColor: '#FFE544' }}></span>{' '}
-                          Total Claimed
+                          {t('Total Claimed')}
                         </li>
                         <li>
                           <span style={{ backgroundColor: '#FFAA7A' }}></span>{' '}
-                          Total Unclaimed
+                          {t('Total Unclaimed')}
                         </li>
                       </ul>
                     </div>
@@ -450,10 +479,23 @@ export default function Reward() {
                                       {reward.creation_time.toString()}
                                     </Col>
                                     <Col xs='2'>
-                                      {reward.amount
-                                        ? parseInt(reward.amount) / E8S
-                                        : 0}{' '}
-                                      ICP
+                                    
+                                             <Tippy
+                          content={
+                            <div>
+                              <p className='m-0'>
+                              {exponentialToDecimal(Number(reward.amount)* oneCoinVal)} ICP
+                              </p>
+                            </div>
+                          }
+                        >
+                          <p className='m-0'>
+                          {reward.amount
+                                        ? exponentialToDecimal(Number(reward.amount)* oneCoinVal).length>5?`${exponentialToDecimal(Number(reward.amount)* oneCoinVal).toString().slice(0,4)}...${exponentialToDecimal(Number(reward.amount)* oneCoinVal).toString().slice(-1)}`:exponentialToDecimal(Number(reward.amount)* oneCoinVal)
+                                        : 0}{' '} ICP
+                          </p>
+                        </Tippy>
+                                     
                                     </Col>
                                     <Col xs='2'>
                                       {/* 20-05-2023{' '} */}
@@ -483,17 +525,17 @@ export default function Reward() {
                                             </div>
                                           }
                                         >
-                                          <span>Claimed</span>
+                                          <span>{t('Claimed')}</span>
                                         </Tippy>
                                       ) : (
-                                        'UnClaimed'
+                                        t('UnClaimed')
                                       )}
                                     </Col>
                                   </Row>
                                 ))
                               ) : (
                                 <p className='mt-3 text-center'>
-                                  No Rewards found
+                                  {t('No Rewards found')}
                                 </p>
                               )}
 
@@ -542,7 +584,7 @@ export default function Reward() {
             <div className='flex-div connect-heading-pnl mb-3'>
               {/* <i className='fa fa-question-circle-o'></i> */}
               <p></p>
-              <p className='text-bold h5 fw-bold m-0'>Claim Rewards</p>
+              <p className='text-bold h5 fw-bold m-0'>{t('Claim Rewards')}</p>
               {/* <i onClick={handleModalClose} className='fa fa-close'></i> */}
               <i
                 style={{
@@ -557,7 +599,8 @@ export default function Reward() {
             </div>
             <div>
               <p className='text-center'>
-                Are you sure you want to claim {claimableReward} rewards ?
+                {t('Are you sure you want to claim')} {claimableReward}{' '}
+                {t('rewards ?')}
               </p>
 
               <p className='text-secondary mb-1'>
@@ -566,7 +609,7 @@ export default function Reward() {
                     border: '2px',
                   }}
                 >
-                  Reward: {claimableReward}
+                  {t('Reward:')} {claimableReward}
                 </span>
               </p>
               <p className='text-secondary mb-1'>
@@ -575,7 +618,7 @@ export default function Reward() {
                     border: '2px',
                   }}
                 >
-                  Amount in ICP: {claimableICP} ICP
+                  {t('Amount in ICP:')} {claimableICP} ICP
                 </span>
               </p>
               <p className='text-secondary mb-0'>
@@ -589,7 +632,8 @@ export default function Reward() {
                 }}
               ></div>
               <p className='text-secondary mt-1 mb-0'>
-                {t('Total:')}{(claimableICP - gasFee).toFixed(8)} ICP
+                {t('Total:')}
+                {(claimableICP - gasFee).toFixed(8)} ICP
               </p>
             </div>
             <div className='d-flex justify-content-center'>
@@ -599,7 +643,7 @@ export default function Reward() {
                 onClick={handleClaim}
                 // type='submit'
               >
-                {isClaiming ? <Spinner size='sm' /> : 'Confirm'}
+                {isClaiming ? <Spinner size='sm' /> : t('Confirm')}
               </Button>
             </div>
           </>

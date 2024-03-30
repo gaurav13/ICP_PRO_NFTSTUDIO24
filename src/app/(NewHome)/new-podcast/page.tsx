@@ -18,13 +18,6 @@ import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import TrendingArticleSide from '@/components/TrendingArticleSide/TrendingArticleSide';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 export default function NewPodcast() {
   const { t, changeLocale } = useLocalization(LANG);
   const [HideTrendinpost, setHideTrendinpost] = useState<any>(true);
@@ -313,7 +306,7 @@ export default function NewPodcast() {
                       </Col>
                       <Col xxl='12' xl='12' lg='12' md='12' className='heding'>
                         <h4 style={{ textTransform: 'unset' }}>
-                          <Image src={iconevents} alt='Hot' /> Events
+                          <Image src={iconevents} alt='Hot' />{t('Events')}
                         </h4>
                         <div className='spacer-20'></div>
                         <div className='flex-div-xs'>
@@ -458,7 +451,11 @@ export default function NewPodcast() {
                           </div>
                         </div>
                       </Col> */}
-                      <span className={HideTrendinpost ? 'content show' : 'content hide'}>
+                      <span
+                        className={
+                          HideTrendinpost ? 'content show' : 'content hide'
+                        }
+                      >
                         <TrendingArticleSide isArticle={true} />
                       </span>
                     </Row>

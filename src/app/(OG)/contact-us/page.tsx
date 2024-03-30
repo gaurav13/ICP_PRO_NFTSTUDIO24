@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import {
   Row,
@@ -18,13 +18,6 @@ import map from '@/assets/Img/Icons/icon-map.png';
 import icondelivery from '@/assets/Img/Icons/icon-delivery.png';
 import iconmail from '@/assets/Img/Icons/icon-attach.png';
 import iconcall from '@/assets/Img/Icons/icon-call.png';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function ContactUs() {
   const { t, changeLocale } = useLocalization(LANG);
@@ -79,7 +72,8 @@ export default function ContactUs() {
                         <div className='spacer-20'></div>
                         <h2>
                           {' '}
-                         {t('Call Us, Write Us,')}<br></br>
+                          {t('Call Us, Write Us,')}
+                          <br></br>
                           {t('Or Knock On Our Door')}
                         </h2>
                         <div className='spacer-10'></div>
@@ -172,13 +166,19 @@ export default function ContactUs() {
                             className='mb-3'
                             controlId='exampleForm.ControlInput1'
                           >
-                            <Form.Control type='text' placeholder={t('Name*')} />
+                            <Form.Control
+                              type='text'
+                              placeholder={t('Name*')}
+                            />
                           </Form.Group>
                           <Form.Group
                             className='mb-3'
                             controlId='exampleForm.ControlInput1'
                           >
-                            <Form.Control type='email' placeholder={t('Email*')} />
+                            <Form.Control
+                              type='email'
+                              placeholder={t('Email*')}
+                            />
                           </Form.Group>
                           <Form.Group
                             className='mb-4'

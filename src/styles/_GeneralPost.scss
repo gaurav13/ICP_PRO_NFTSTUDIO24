@@ -88,6 +88,9 @@
             font-size: 12px;
           }
           @media (max-width: 1400px) {
+            font-size: 12px;
+          }
+          @media (max-width: 1200px) {
             font-size: 13px;
           }
           @media (max-width: 767px) {
@@ -105,6 +108,9 @@
               max-width: 20px;
             }
             @media (max-width: 1400px) {
+              max-width: 18px;
+            }
+            @media (max-width: 1200px) {
               max-width: 24px;
             }
             @media (max-width: 767px) {
@@ -180,7 +186,7 @@
             li {
               .viewbox {
                 min-width: 100px;
-                max-width: 120px;
+                // max-width: 120px;
               }
             }
           }
@@ -781,7 +787,7 @@
     @media (max-width: 575px) {
       .txt-pnl {
         padding-left: 10px;
-        width: calc(100% - 130px);
+        width: calc(100% - 180px);
       }
     }
     .img-pnl {
@@ -792,7 +798,7 @@
         margin-bottom: 10px;
       }
       @media (max-width: 575px) {
-        width: 130px;
+        width: 180px;
       }
     }
   }

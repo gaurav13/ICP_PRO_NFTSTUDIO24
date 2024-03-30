@@ -10,7 +10,7 @@ import logger from '@/lib/logger';
 import { UsersList } from '@/components/UsersList';
 import { ConnectPlugWalletSlice } from '@/types/store';
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import {
   ErrorMessage,
@@ -26,14 +26,6 @@ import Tippy from '@tippyjs/react';
 import { Principal } from '@dfinity/principal';
 import { E8S } from '@/constant/config';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-
 export default function UserManagment() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -44,28 +36,27 @@ export default function UserManagment() {
     identity: (state as ConnectPlugWalletSlice).identity,
   }));
 
-
   const formikRef = useRef<FormikProps<FormikValues>>(null);
   const pathname = usePathname();
   const feeValues = {
-    userId: "",
-    amount:""
+    userId: '',
+    amount: '',
   };
   const feeSchema = object().shape({
     userId: string()
-    .required('Wallet Address is required')
-    .test('min', 'Not a valid userId', (value) => {
-      try {
-        Principal.fromText(value as string);
-        return true;
-      } catch {
-        return false;
-      }
-    }),
+      .required('Wallet Address is required')
+      .test('min', 'Not a valid userId', (value) => {
+        try {
+          Principal.fromText(value as string);
+          return true;
+        } catch {
+          return false;
+        }
+      }),
     amount: number()
       .min(1, 'Reward is required')
       .required('Reward is required')
-      .max(10000000, 'Reward value cannot be greater than 10000000')
+      .max(10000000000, 'Reward value cannot be greater than 10000000000')
       .integer('Number must be a whole value'),
 
     // Add a custom test to check the sum
@@ -75,42 +66,34 @@ export default function UserManagment() {
       identity,
     },
   });
-;
+  const sendReward = async (val: any) => {
+    logger(val, 'sendReward');
 
-const sendReward = async (val:any) => {
-  logger(val,"sendReward");
+    if (!identity || auth.state !== 'initialized') return;
 
-  if (!identity || auth.state !== 'initialized') return;
- 
+    try {
+      setIsLoading(true);
 
-  try {
-    setIsLoading(true);
+      let newReward = val.amount;
+      // const principal = Principal.fromText(address);
+      let userid = Principal.fromText(val.userId);
+// third perameter will be false if reward is artificial and if menual then it will be true
+      let updated = await userActor.give_reward(userid, newReward,false);
+      // if (updated)
+      logger(updated, 'UPPPPPPppp');
+      toast.success('Reward send to user successfully');
 
-    let newReward = val.amount*E8S;
-    // const principal = Principal.fromText(address);
-    let userid =Principal.fromText(val.userId);
-
-    let updated = await userActor.give_reward(
-      userid,
-      newReward
-    );
-    // if (updated)
-    logger(updated, 'UPPPPPPppp');
-    toast.success('Reward send to user successfully');
-   
-    formikRef?.current?.resetForm();
-    setIsLoading(false);
-  } catch (error) {
-    logger(error);
-    setIsLoading(false);
-  }
-};
-
+      formikRef?.current?.resetForm();
+      setIsLoading(false);
+    } catch (error) {
+      logger(error);
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (auth.state === 'initialized') {
       if (userAuth.userPerms?.adminManagement && !userAuth.isAdminBlocked) {
-       
       } else {
         router.replace('/super-admin');
       }
@@ -120,7 +103,7 @@ const sendReward = async (val:any) => {
   }, [userAuth, auth, pathname]);
   const { t, changeLocale } = useLocalization(LANG);
 
-  return (userAuth.userPerms?.adminManagement && !userAuth.isAdminBlocked) ? (
+  return userAuth.userPerms?.adminManagement && !userAuth.isAdminBlocked ? (
     <>
       <main id='main' className='dark'>
         <div className='main-inner admin-main'>
@@ -172,7 +155,7 @@ const sendReward = async (val:any) => {
                                         content={
                                           <div>
                                             <p className='mb-0'>
-                                             Enter User ID
+                                              Enter User ID
                                             </p>
                                           </div>
                                         }
@@ -204,7 +187,7 @@ const sendReward = async (val:any) => {
                                 />
                               </div>
                             </Col>
-                           
+
                             <Col xl='3' lg='6' md='6'>
                               <Field name='amount'>
                                 {({ field, formProps }: any) => (
@@ -218,7 +201,8 @@ const sendReward = async (val:any) => {
                                         content={
                                           <div>
                                             <p className='mb-0'>
-                                              {t('Percentage of icp that will go to the reward amount.')}
+                                            Number of NFTStudio24 coins that you want to send user and user can't claim these coins.
+                                        
                                             </p>
                                           </div>
                                         }
@@ -234,7 +218,7 @@ const sendReward = async (val:any) => {
                                       onInput={handleBlur}
                                       type='number'
                                       name='amount'
-                                      placeholder='Enter ICP amount'
+                                      placeholder='NFTStudio24 coins amount'
                                     />
                                   </Form.Group>
                                 )}
@@ -250,17 +234,16 @@ const sendReward = async (val:any) => {
                                 />
                               </div>
                             </Col>
-                            <Row >
-                            <Col xs='4'>
-                              <Button
-                                disabled={isLoading}
-                                className='publish-btn'
-                                type='submit'
-                              >
-                                {isLoading ? <Spinner size='sm' /> : 'Apply'}
-                              </Button>
-                            </Col>
-                            
+                            <Row>
+                              <Col xs='4'>
+                                <Button
+                                  disabled={isLoading}
+                                  className='publish-btn'
+                                  type='submit'
+                                >
+                                  {isLoading ? <Spinner size='sm' /> : 'Apply'}
+                                </Button>
+                              </Col>
                             </Row>
                           </Row>
                         </FormikForm>
@@ -269,12 +252,10 @@ const sendReward = async (val:any) => {
                   </div>
                 </div>
               </Col>
-           
             </Row>
           </div>
         </div>
       </main>
-      
     </>
   ) : (
     <></>

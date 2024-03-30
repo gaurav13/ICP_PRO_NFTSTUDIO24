@@ -18,13 +18,6 @@ import { utcToLocal } from '@/components/utils/utcToLocal';
 // import { usePopper } from 'react-popper';
 import Tippy from '@tippyjs/react';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 let itemsPerPage = 11;
 
 function Items({
@@ -391,7 +384,7 @@ export default function AllArticles() {
                           <div className='search-post-pnl'>
                             <input
                               type='text'
-                              placeholder='Search Users'
+                              placeholder={t('Search Users')}
                               value={search}
                               onChange={(e) => setSearch(e.target.value)}
                               onKeyDown={handleSearch}
@@ -417,11 +410,11 @@ export default function AllArticles() {
                       <div className='full-div'>
                         <ul className='filter-list'>
                           <li>
-                            <Form.Select aria-label='All Dates'>
-                              <option>All Dates</option>
-                              <option value='1'>All Dates</option>
-                              <option value='2'>All Dates</option>
-                              <option value='3'>All Dates</option>
+                            <Form.Select aria-label={t('All Dates')}>
+                              <option>{t('All Dates')}</option>
+                              <option value='1'>{t('All Dates')}</option>
+                              <option value='2'>{t('All Dates')}</option>
+                              <option value='3'>{t('All Dates')}</option>
                             </Form.Select>
                           </li>
                           {/* <li>
@@ -473,7 +466,7 @@ export default function AllArticles() {
                         currentItems={refinedSubscribersList}
                       />
                     ) : (
-                      <p className='text-center'>No Subscribers Found</p>
+                      <p className='text-center'>{t('No Subscribers Found')}</p>
                     )}
                   </Row>
                 </div>

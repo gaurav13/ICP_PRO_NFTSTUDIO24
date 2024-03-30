@@ -10,6 +10,7 @@ import { ARTICLE_FEATURED_IMAGE_ASPECT, profileAspect } from '@/constant/sizes';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { DIRECTORY_STATIC_PATH } from '@/constant/routes';
 export default function ProductSlider({
   trendingDirectries,
 }: {
@@ -90,7 +91,7 @@ export default function ProductSlider({
             return (
               <div className='Post-padding' key={item[0]}>
                 <Link
-                  href={`/directory?directoryId=${item[0]}`}
+                  href={item[1].isStatic? `${DIRECTORY_STATIC_PATH +item[0]}`:`/directory?directoryId=${item[0]}`}
                   className='Product-post'
                 >
                   <div className='Product-post-inner'>
