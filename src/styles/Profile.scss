@@ -320,9 +320,13 @@
   }
   td {
     padding-inline: 15px;
-
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+  
     color: $darkgrey;
   }
+ 
 }
 
 .welcome-create-post {
@@ -351,3 +355,66 @@
     }
   }
 }
+.mycontainer {
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.balance {
+  display: flex;
+  align-items: center;
+}
+
+.referButton {
+  background-color: #000;
+  color: #fff;
+  padding: 5px 10px;
+  margin-left: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.profileCompletion {
+  background-color: #fff;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 10px;
+}
+
+.progressBar {
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress {
+
+  background-color: #ffcc00;
+  height: 10px;
+}
+
+.completeProfileButton {
+  background-color: #000;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  display: block;
+  margin-top: 10px;
+}
+
+.whyImportant {
+  color: #0070f3;
+  text-decoration: none;
+  margin-top: 10px;
+  display: inline-block;
+}
+
+
+

@@ -13,6 +13,9 @@ import logger from '@/lib/logger';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
+import LanguageBtn from '@/components/LanguageBtn/LanguageBtn';
+import { EVENTS, PRESSRELEASE } from '@/constant/routes';
+
 export default function NavBarNew() {
   // Dark Theme
   const { t, changeLocale } = useLocalization(LANG);
@@ -57,24 +60,24 @@ export default function NavBarNew() {
     hackathon: string;
     campaign: string;
   } = {
-    pressRelease: '#pressRelease',
+    pressRelease: PRESSRELEASE,
     podcast: '/podcasts',
     web3: '/web3-directory',
     expert: 'https://nftstudio24.com/experts-alliance/',
     investor: 'https://nftstudio24.com/experts-alliance/',
-    event: '/events',
+    event: EVENTS,
     hackathon: 'https://nftstudio24.com/hackathon/',
     campaign: '#campaign',
   };
   if (path == '/') {
     if (auth.state === 'initialized') {
       routes = {
-        pressRelease: '#pressRelease',
+        pressRelease: PRESSRELEASE,
         podcast: '/podcasts',
         web3: '/web3-directory',
         expert: 'https://nftstudio24.com/experts-alliance/',
         investor: 'https://nftstudio24.com/experts-alliance/',
-        event: '/events',
+        event: EVENTS,
         hackathon: 'https://nftstudio24.com/hackathon/',
         campaign: '#campaign',
       };
@@ -82,23 +85,23 @@ export default function NavBarNew() {
   } else {
     if (auth.state === 'initialized') {
       routes = {
-        pressRelease: '/?route=pressRelease',
+        pressRelease: PRESSRELEASE,
         podcast: '/podcasts',
         web3: '/web3-directory',
         expert: 'https://nftstudio24.com/experts-alliance/',
         investor: 'https://nftstudio24.com/experts-alliance/',
-        event: '/events',
+        event: EVENTS,
         hackathon: 'https://nftstudio24.com/hackathon/',
         campaign: '/?route=campaign',
       };
     } else {
       routes = {
-        pressRelease: '/?route=pressRelease',
+        pressRelease: PRESSRELEASE,
         podcast: '/podcasts',
         web3: '/web3-directory',
         expert: 'https://nftstudio24.com/experts-alliance/',
         investor: 'https://nftstudio24.com/experts-alliance/',
-        event: '/events',
+        event: EVENTS,
         hackathon: 'https://nftstudio24.com/hackathon/',
         campaign: '/?route=campaign',
       };
@@ -131,6 +134,7 @@ export default function NavBarNew() {
       toggleNavbar();
     }
   };
+
   useEffect(() => {
     if (toggle) {
       document.addEventListener('click', closeNavbar);
@@ -142,28 +146,6 @@ export default function NavBarNew() {
       document.removeEventListener('click', closeNavbar);
     };
   }, [toggle]);
-  const googleTranslateElementInit = () => {
-    new window.google.translate.TranslateElement(
-      {
-        pageLanguage: 'en',
-        layout: window.google.translate.TranslateElement.FloatPosition.TOP_LEFT,
-      },
-      'google_translate_element'
-    );
-  };
-  let once = false;
-  useEffect(() => {
-    if (!once) {
-      once = true;
-      var addScript = document.createElement('script');
-      addScript.setAttribute(
-        'src',
-        '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'
-      );
-      document.body.appendChild(addScript);
-      window.googleTranslateElementInit = googleTranslateElementInit;
-    }
-  }, []);
   let makeActiveItem = (e: any) => {
     setActiveItem(e);
   };
@@ -207,20 +189,24 @@ export default function NavBarNew() {
           }
         }}
       /> */}
+
           <Navbar
             expand='lg'
             expanded={toggle}
             id='him'
             className='bg-body-tertiary my-nav new'
             ref={navbarRef}
-          // style={{ zIndex: 1 }}
+            // style={{ zIndex: 1 }}
           >
             <div className='navbar-inner'>
               {/* <Container fluid> */}
               <Navbar.Brand>
+                <span className='d-none d-lg-block lngcontainer'>
+                  <LanguageBtn id="navbarLngBtn"/>
+                </span>
                 <Link href='/'>
-                  <Image src={logo} alt='Logo' />
-                  <Image src={logo2} alt='Logo' />
+                  <Image src={logo} alt='NFTスタジオ24' />
+                  <Image src={logo2} alt='NFTスタジオ24' />
                 </Link>
               </Navbar.Brand>
               <div className='d-flex-mobee'>
@@ -234,8 +220,9 @@ export default function NavBarNew() {
                   <Nav.Link
                     as={Link}
                     href='/'
-                    className={`${activeItem == 'Home' ? 'active' : ''
-                      } nav-link`}
+                    className={`${
+                      activeItem == 'Home' ? 'active' : ''
+                    } nav-link`}
                     onClick={() => {
                       toggleNavbar();
                       makeActiveItem('Home');
@@ -251,8 +238,9 @@ export default function NavBarNew() {
                     as={Link}
                     href={routes.pressRelease}
                     // ref={pressReleasediv}
-                    className={`${activeItem == 'pressRelease' ? 'active' : ''
-                      } no-color`}
+                    className={`${
+                      activeItem == 'pressRelease' ? 'active' : ''
+                    } no-color`}
                     onClick={() => {
                       toggleNavbar();
                       makeActiveItem('');
@@ -279,15 +267,16 @@ export default function NavBarNew() {
                       toggleNavbar();
                       makeActiveItem('Directory');
                     }}
-                    className={`${activeItem == 'web3-directory' ? 'active' : ''
-                      }`}
+                    className={`${
+                      activeItem == 'web3-directory' ? 'active' : ''
+                    }`}
                   >
                     {/* <div className='img'>
                     <Image src={cup1} alt='Diamond' />
                     <Image src={cup2} alt='Diamond' />
                   </div> */}
-                    {t('Directory')}
-                    <span className='batch'>{t('Web3')}</span>
+                    {t('webDirectory')}
+                    <span className='batch'>{t('Web3 ')}</span>
                   </Nav.Link>
                   <Nav.Link as={Link} href={routes.expert}>
                     {t('Experts')} <span className='blue'>{t('Alliance')}</span>
@@ -319,7 +308,7 @@ export default function NavBarNew() {
                   {/* <SocialList /> */}
                 </Nav>
 
-                {/* <div id='google_translate_element' className='width-80'></div> */}
+                {/* <div id='google_translate_element' className='width-80'/> */}
 
                 <div className='d-flex'>
                   <Button
@@ -329,8 +318,8 @@ export default function NavBarNew() {
                       handleButtonClick(); // Call your handleButtonClick function here
                     }}
                   >
-                    <i className='fa fa-sun-o'></i>
-                    <i className='fa fa-moon-o'></i>
+                    <i className='fa fa-sun-o' />
+                    <i className='fa fa-moon-o' />
                   </Button>
                   {/* <Nav.Link href='#;' className='link-btn empty'>
                 My Reward
@@ -394,7 +383,7 @@ export default function NavBarNew() {
                   </Link>
                   <NavDropdown.Divider />
                   <NavDropdown.Item className='disconnect-btn'>
-                    <i className='fa fa-sign-out'></i> Logout
+                    <i className='fa fa-sign-out'/> Logout
                   </NavDropdown.Item>
                 </NavDropdown>
               </div>

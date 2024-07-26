@@ -6,9 +6,8 @@ import loader from '@/assets/Img/Icons/icon-loader.png';
 import arrows from '@/assets/Img/Icons/icon-arrows.png';
 import post1 from '@/assets/Img/Posts/small-post-10.png';
 import promotedIcon from '@/assets/Img/promoted-icon.png';
-import { utcToLocal } from '@/components/utils/utcToLocal';
+import { utcToLocal, utcToLocalAdmin } from '@/components/utils/utcToLocal';
 import Tippy from '@tippyjs/react';
-import logger from '@/lib/logger';
 import { usePathname, useRouter } from 'next/navigation';
 import pressicon from '@/assets/Img/Icons/icon-press-release.png';
 import { makeEntryActor } from '@/dfx/service/actor-locator';
@@ -22,7 +21,22 @@ import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import { handleAdminDeleteEntry } from '@/components/utils/admindeleteEntry';
 import { openLink } from '@/components/utils/localStorage';
-import { ARTICLE_STATIC_PATH, Podcast_STATIC_PATH } from '@/constant/routes';
+import {
+  ADD_QUIZ_ROUTE_ADMIN,
+  ADD_QUIZ_ROUTE_USER,
+  ADD_SURVEY_ROUTE_ADMIN,
+  ADD_SURVEY_ROUTE_USER,
+  ALL_ARTICLES,
+  ALL_QUIZ_ROUTE_USER,
+  ARTICLE_DINAMIC_PATH,
+  ARTICLE_STATIC_PATH,
+  DIRECTORY_DINAMIC_PATH,
+  DIRECTORY_STATIC_PATH,
+  Podcast_DINAMIC_PATH,
+  Podcast_STATIC_PATH,
+} from '@/constant/routes';
+import { replace } from 'formik';
+import logger from '@/lib/logger';
 
 function ViewsInput({
   views,
@@ -60,6 +74,7 @@ function ViewsInput({
     );
     return resp;
   };
+  const { t, changeLocale } = useLocalization(LANG);
   const hanldeViewChange = async () => {
     setIsLoading(true);
     let resp = null;
@@ -70,9 +85,9 @@ function ViewsInput({
     }
 
     if (resp) {
-      toast.success('Views Updated Successfully');
+      toast.success(t('Views Updated Successfully'));
     } else {
-      toast.error('Error while updating views');
+      toast.error(t('Error while updating views'));
     }
 
     setIsLoading(false);
@@ -118,20 +133,30 @@ export function ArticlesList({
   const location = usePathname();
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const { t, changeLocale } = useLocalization(LANG);
+  let language;
+
+  const changeLang = () => {
+    if (LANG === 'jp') {
+      language = location?.includes('super-admin/') ? 'en' : 'jp';
+    } else {
+      language = 'en';
+    }
+  };
+  const funcCalling = changeLang();
+  const { t, changeLocale } = useLocalization(language);
   const [categoryItem, setCategoryItem] = useState({
     id: '',
     name: '',
     isAdmin: false,
   });
-  const { auth, userAuth, setAuth, identity } = useConnectPlugWalletStore(
-    (state) => ({
+  const { auth, userAuth, setAuth, identity, principal } =
+    useConnectPlugWalletStore((state) => ({
       auth: state.auth,
       userAuth: state.userAuth,
       setAuth: state.setAuth,
       identity: state.identity,
-    })
-  );
+      principal: state.principal,
+    }));
   const router = useRouter();
   const entryActor = makeEntryActor({
     agentOptions: {
@@ -150,7 +175,7 @@ export function ArticlesList({
     setShowModal(false);
   };
   let OpenCategory = (id: string) => {
-    if (location == '/articles') {
+    if (location == ALL_ARTICLES) {
       router.push(`/category-details?category=${id}`);
     } else {
       window.open(`/category-details?category=${id}`);
@@ -159,7 +184,7 @@ export function ArticlesList({
   const handleDelete = async () => {
     if (auth.state !== 'initialized') {
       return toast.error(
-        'To perform this action, kindly connect to Internet Identity.'
+        t('To perform this action, kindly connect to Internet Identity.')
       );
     }
     const defaultEntryActor = makeEntryActor({
@@ -173,14 +198,8 @@ export function ArticlesList({
       commentCanisterId
     );
     if (deletedCategory?.ok) {
-      toast.success('Draft Deleted Successfully');
+      toast.success(t('Draft Deleted Successfully'));
       handleTabChange('Draft');
-      // categories = categories.filter((category: any) => {
-      //   return category[0] !== categoryItem.id;
-      // });
-      // setmyCategories(categories);
-      // logger({ categories }, 'filtered');
-      // setCategoriesSize((prev) => prev--);
       handleClose();
     } else {
       toast.error(deletedCategory?.err);
@@ -190,11 +209,11 @@ export function ArticlesList({
   const handleAdminDelete = async () => {
     if (auth.state !== 'initialized') {
       return toast.error(
-        'To perform this action, kindly connect to Internet Identity.'
+        t('To perform this action, kindly connect to Internet Identity.')
       );
     }
     if (!userAuth.userPerms?.articleManagement) {
-      return toast.error('Not Allowed');
+      return toast.error(t('Not Allowed'));
     }
     const defaultEntryActor = makeEntryActor({
       agentOptions: {
@@ -241,7 +260,7 @@ export function ArticlesList({
                     <th className='text-center'>
                       {views ? (
                         <div className='d-flex align-items-center justify-content-center'>
-                          Views
+                          {t('Views')}
                         </div>
                       ) : (
                         <div className='d-flex align-items-center justify-content-center'>
@@ -254,8 +273,13 @@ export function ArticlesList({
                 <tbody>
                   {currentItems.map((article) => {
                     let status = article.isDraft
-                      ? 'draft'
+                      ? t('draft')
                       : Object.keys(article.status)[0];
+                    let articleCreator = article?.userId?.toString();
+                    let isAuther = false;
+                    if (articleCreator == principal) {
+                      isAuther = true;
+                    }
                     return (
                       <tr key={article.entryId}>
                         <td>
@@ -274,11 +298,27 @@ export function ArticlesList({
                                       );
                                     } else if (article.isPodcast) {
                                       router.push(
-                                        article.isStatic?`${Podcast_STATIC_PATH+article.entryId}`: `/podcast?podcastId=${article.entryId}`
+                                        article.isStatic
+                                          ? `${
+                                              Podcast_STATIC_PATH +
+                                              article.entryId
+                                            }`
+                                          : `${
+                                              Podcast_DINAMIC_PATH +
+                                              article.entryId
+                                            }`
                                       );
                                     } else {
                                       router.push(
-                                        article.isStatic?`${ARTICLE_STATIC_PATH+article.entryId}`: `/article?articleId=${article.entryId}`
+                                        article.isStatic
+                                          ? `${
+                                              ARTICLE_STATIC_PATH +
+                                              article.entryId
+                                            }`
+                                          : `${
+                                              ARTICLE_DINAMIC_PATH +
+                                              article.entryId
+                                            }`
                                       );
                                     }
                                   }
@@ -307,7 +347,9 @@ export function ArticlesList({
                                   {article.isPromoted && (
                                     <Tippy
                                       content={
-                                        <p className='mb-0'>{t("Promoted Article")}</p>
+                                        <p className='mb-0'>
+                                          {t('Promoted Article')}
+                                        </p>
                                       }
                                     >
                                       <Image
@@ -363,28 +405,75 @@ export function ArticlesList({
                                     {article.title.length > 75 && '...'}{' '}
                                   </p>
 
-                                  {article.isDraft && <span>| Draft </span>}
+                                  {article.isDraft && (
+                                    <span>| {t('draft')}</span>
+                                  )}
                                 </p>
                               </div>
                               <div className='item-menu mt-1'>
-                                <Link
-                                  href={
-                                    article.isDraft
-                                      ? `/add-article?draftId=${article.entryId}`
-                                      : article.isPodcast
-                                      ? article.isStatic?`${Podcast_STATIC_PATH+article.entryId}`: `/podcast?podcastId=${article.entryId}`
-                                      : isCompany
-                                      ? `/directory?directoryId=${article.entryId}`
-                                      : article.isStatic?`${ARTICLE_STATIC_PATH+article.entryId}`:`/article?articleId=${article.entryId}`
-                                  }
-                                  target={`${
-                                    location == '/articles' ? '_self' : '_blank'
-                                  }`}
-                                  className='removeUl'
-                                >
-                                  {article.isDraft ? 'Edit' : 'View'}
-                                </Link>
-                                <span>|</span>
+                                {status != 'rejected' && (
+                                  <>
+                                    <Link
+                                      href={`/add-article?draftId=${article.entryId}`}
+                                      target={`${
+                                        location == ALL_ARTICLES
+                                          ? '_self'
+                                          : '_blank'
+                                      }`}
+                                      className='removeUl'
+                                    >
+                                      {t('Edit')}
+                                    </Link>
+                                    <span>|</span>
+                                  </>
+                                )}
+                                {!article.isDraft && (
+                                  <>
+                                    <Link
+                                      href={
+                                        article.isPodcast
+                                          ? article.isStatic
+                                            ? `${
+                                                Podcast_STATIC_PATH +
+                                                article.entryId
+                                              }`
+                                            : `${
+                                                Podcast_DINAMIC_PATH +
+                                                article.entryId
+                                              }`
+                                          : isCompany
+                                          ? article.isStatic
+                                            ? `${
+                                                DIRECTORY_STATIC_PATH +
+                                                article.entryId
+                                              }`
+                                            : `${
+                                                DIRECTORY_DINAMIC_PATH +
+                                                article.entryId
+                                              }`
+                                          : article.isStatic
+                                          ? `${
+                                              ARTICLE_STATIC_PATH +
+                                              article.entryId
+                                            }`
+                                          : `${
+                                              ARTICLE_DINAMIC_PATH +
+                                              article.entryId
+                                            }`
+                                      }
+                                      target={`${
+                                        location == ALL_ARTICLES
+                                          ? '_self'
+                                          : '_blank'
+                                      }`}
+                                      className='removeUl'
+                                    >
+                                      {t('View')}
+                                    </Link>
+                                    <span>|</span>
+                                  </>
+                                )}
+
                                 <Button
                                   onClick={() => {
                                     handleShow();
@@ -396,8 +485,84 @@ export function ArticlesList({
                                   }}
                                   className='removeUl text-danger'
                                 >
-                                  Delete
+                                  {t('Delete')}
                                 </Button>
+                                {/* {(status == 'approved' ||
+                                  status == 'pending') && (
+                                  <>
+                                    {' '}
+                                    {article?.isQuizId ? (
+                                      <Button
+                                        onClick={() => {
+                                          if (location == ALL_ARTICLES) {
+                                            router.push(
+                                              `${ALL_QUIZ_ROUTE_USER}?entryId=${article.entryId}`
+                                            );
+                                          } else {
+                                            router.push(
+                                              `/super-admin/manage-quiz?entryId=${article.entryId}`
+                                            );
+                                          }
+                                        }}
+                                        className='text-primary ps-0'
+                                      >
+                                        {'View Quiz'}
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        onClick={() => {
+                                          if (location == ALL_ARTICLES) {
+                                            router.push(
+                                              `${ADD_QUIZ_ROUTE_USER}?entryId=${article.entryId}`
+                                            );
+                                          } else {
+                                            router.push(
+                                              `${ADD_QUIZ_ROUTE_ADMIN}?entryId=${article.entryId}`
+                                            );
+                                          }
+                                        }}
+                                        className='text-primary ps-0'
+                                      >
+                                        {'Create Quiz'}
+                                      </Button>
+                                    )}
+                                    {article?.isSurveyId ? (
+                                      <Button
+                                        onClick={() => {
+                                          if (location == ALL_ARTICLES) {
+                                            router.push(
+                                              `/all-survey?entryId=${article.entryId}`
+                                            );
+                                          } else {
+                                            router.push(
+                                              `/super-admin/manage-survey?entryId=${article.entryId}`
+                                            );
+                                          }
+                                        }}
+                                        className='text-primary ps-0'
+                                      >
+                                        {'View Survey'}
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        onClick={() => {
+                                          if (location == ALL_ARTICLES) {
+                                            router.push(
+                                              `${ADD_SURVEY_ROUTE_USER}?entryId=${article.entryId}`
+                                            );
+                                          } else {
+                                            router.push(
+                                              `${ADD_SURVEY_ROUTE_ADMIN}?entryId=${article.entryId}`
+                                            );
+                                          }
+                                        }}
+                                        className='text-primary ps-0'
+                                      >
+                                        {'Create Survey'}
+                                      </Button>
+                                    )}
+                                  </>
+                                )} */}
                               </div>
                             </div>
                           ) : (
@@ -409,15 +574,39 @@ export function ArticlesList({
                                   if (!isAdmin) {
                                     if (article?.isPodcast) {
                                       router.push(
-                                        article.isStatic?`${Podcast_STATIC_PATH+article.entryId}`: `/podcast?podcastId=${article.entryId}`
+                                        article.isStatic
+                                          ? `${
+                                              Podcast_STATIC_PATH +
+                                              article.entryId
+                                            }`
+                                          : `${
+                                              Podcast_DINAMIC_PATH +
+                                              article.entryId
+                                            }`
                                       );
                                     } else if (isCompany) {
                                       router.push(
-                                        `/directory?directoryId=${article.entryId}`
+                                        article.isStatic
+                                          ? `${
+                                              DIRECTORY_STATIC_PATH +
+                                              article.entryId
+                                            }`
+                                          : `${
+                                              DIRECTORY_DINAMIC_PATH +
+                                              article.entryId
+                                            }`
                                       );
                                     } else {
                                       router.push(
-                                        article.isStatic?`${ARTICLE_STATIC_PATH+article.entryId}`:`/article?articleId=${article.entryId}`
+                                        article.isStatic
+                                          ? `${
+                                              ARTICLE_STATIC_PATH +
+                                              article.entryId
+                                            }`
+                                          : `${
+                                              ARTICLE_DINAMIC_PATH +
+                                              article.entryId
+                                            }`
                                       );
                                     }
                                   }
@@ -446,7 +635,9 @@ export function ArticlesList({
                                   {article.isPromoted && (
                                     <Tippy
                                       content={
-                                        <p className='mb-0'>{t("Promoted Article")}</p>
+                                        <p className='mb-0'>
+                                          {t('Promoted Article')}
+                                        </p>
                                       }
                                     >
                                       <Image
@@ -501,48 +692,211 @@ export function ArticlesList({
                                   )}
                                   {article.title.slice(0, 75)}
                                   {article.title.length > 75 && '...'}{' '}
-                                  {article.isDraft && <span>| Draft </span>}
+                                  {article.isDraft && (
+                                    <span>| {t('draft')} </span>
+                                  )}
                                 </p>
                               </div>
-                              {userAuth.userPerms?.articleManagement &&
-                                isAdmin && (
-                                  <div className='item-menu mt-1'>
-                                    <Button
-                                      onClick={() => {
+                              {((userAuth.userPerms?.articleManagement &&
+                                isAdmin) ||
+                                isAuther) && (
+                                <div className='item-menu mt-1'>
+                                  <Button
+                                    onClick={() => {
+                                      if (location == ALL_ARTICLES) {
+                                        if (article?.isPodcast) {
+                                          router.push(
+                                            article.isStatic
+                                              ? `${
+                                                  Podcast_STATIC_PATH +
+                                                  article.entryId
+                                                }`
+                                              : `${
+                                                  Podcast_DINAMIC_PATH +
+                                                  article.entryId
+                                                }`
+                                          );
+                                        } else if (isCompany) {
+                                          router.push(
+                                            article.isStatic
+                                              ? `${
+                                                  DIRECTORY_STATIC_PATH +
+                                                  article.entryId
+                                                }`
+                                              : `${
+                                                  DIRECTORY_DINAMIC_PATH +
+                                                  article.entryId
+                                                }`
+                                          );
+                                        } else {
+                                          router.push(
+                                            article.isStatic
+                                              ? `${
+                                                  ARTICLE_STATIC_PATH +
+                                                  article.entryId
+                                                }`
+                                              : `${
+                                                  ARTICLE_DINAMIC_PATH +
+                                                  article.entryId
+                                                }`
+                                          );
+                                        }
+                                      } else {
                                         if (article?.isPodcast) {
                                           openLink(
-                                            article.isStatic?`${Podcast_STATIC_PATH+article.entryId}`:  `/podcast?podcastId=${article.entryId}`
+                                            article.isStatic
+                                              ? `${
+                                                  Podcast_STATIC_PATH +
+                                                  article.entryId
+                                                }`
+                                              : `${
+                                                  Podcast_DINAMIC_PATH +
+                                                  article.entryId
+                                                }`
                                           );
                                         } else if (isCompany) {
                                           openLink(
-                                            `/directory?directoryId=${article.entryId}`
+                                            article.isStatic
+                                              ? `${
+                                                  DIRECTORY_STATIC_PATH +
+                                                  article.entryId
+                                                }`
+                                              : `${
+                                                  DIRECTORY_DINAMIC_PATH +
+                                                  article.entryId
+                                                }`
                                           );
                                         } else {
                                           openLink(
-                                            article.isStatic?`${ARTICLE_STATIC_PATH+article.entryId}`: `/article?articleId=${article.entryId}`
+                                            article.isStatic
+                                              ? `${
+                                                  ARTICLE_STATIC_PATH +
+                                                  article.entryId
+                                                }`
+                                              : `${
+                                                  ARTICLE_DINAMIC_PATH +
+                                                  article.entryId
+                                                }`
                                           );
                                         }
-                                      }}
-                                      className='text-primary ps-0'
-                                    >
-                                      {'View'}
-                                    </Button>
-                                    <span>|</span>
-                                    <Button
-                                      onClick={() => {
-                                        handleShow();
-                                        setCategoryItem({
-                                          id: article.entryId,
-                                          name: article.title,
-                                          isAdmin: true,
-                                        });
-                                      }}
-                                      className='removeUl text-danger'
-                                    >
-                                      Delete
-                                    </Button>
-                                  </div>
-                                )}
+                                      }
+                                    }}
+                                    className='text-primary ps-0'
+                                  >
+                                    {'View'}
+                                  </Button>
+                                  <Button
+                                    onClick={() => {
+                                      if (location == ALL_ARTICLES) {
+                                        router.push(
+                                          `/add-article?draftId=${article.entryId}`
+                                        );
+                                      } else {
+                                        openLink(
+                                          `/add-article?draftId=${article.entryId}`
+                                        );
+                                      }
+                                    }}
+                                    className='text-primary ps-0'
+                                  >
+                                    {'Edit'}
+                                  </Button>
+                                  {(status == 'approved' ||
+                                    status == 'pending') && (
+                                    <>
+                                      {' '}
+                                      {article?.isQuizId ? (
+                                        <Button
+                                          onClick={() => {
+                                            if (location == ALL_ARTICLES) {
+                                              router.push(
+                                                `${ALL_QUIZ_ROUTE_USER}?entryId=${article.entryId}`
+                                              );
+                                            } else {
+                                              router.push(
+                                                `/super-admin/manage-quiz?entryId=${article.entryId}`
+                                              );
+                                            }
+                                          }}
+                                          className='text-primary ps-0'
+                                        >
+                                          {'View Quiz'}
+                                        </Button>
+                                      ) : (
+                                        <Button
+                                          onClick={() => {
+                                            if (location == ALL_ARTICLES) {
+                                              router.push(
+                                                `${ADD_QUIZ_ROUTE_USER}?entryId=${article.entryId}`
+                                              );
+                                            } else {
+                                              router.push(
+                                                `${ADD_QUIZ_ROUTE_ADMIN}?entryId=${article.entryId}`
+                                              );
+                                            }
+                                          }}
+                                          className='text-primary ps-0'
+                                        >
+                                          {'Create Quiz'}
+                                        </Button>
+                                      )}
+                                      {article?.isSurveyId ? (
+                                        <Button
+                                          onClick={() => {
+                                            if (location == ALL_ARTICLES) {
+                                              router.push(
+                                                `/all-survey?entryId=${article.entryId}`
+                                              );
+                                            } else {
+                                              router.push(
+                                                `/super-admin/manage-survey?entryId=${article.entryId}`
+                                              );
+                                            }
+                                          }}
+                                          className='text-primary ps-0'
+                                        >
+                                          {'View Survey'}
+                                        </Button>
+                                      ) : (
+                                        <Button
+                                          onClick={() => {
+                                            if (location == ALL_ARTICLES) {
+                                              router.push(
+                                                `${ADD_SURVEY_ROUTE_USER}?entryId=${article.entryId}`
+                                              );
+                                            } else {
+                                              router.push(
+                                                `${ADD_SURVEY_ROUTE_ADMIN}?entryId=${article.entryId}`
+                                              );
+                                            }
+                                          }}
+                                          className='text-primary ps-0'
+                                        >
+                                          {'Create Survey'}
+                                        </Button>
+                                      )}
+                                    </>
+                                  )}
+                                  {userAuth.userPerms?.articleManagement && (
+                                    <>
+                                      <span>|</span>
+                                      <Button
+                                        onClick={() => {
+                                          handleShow();
+                                          setCategoryItem({
+                                            id: article.entryId,
+                                            name: article.title,
+                                            isAdmin: true,
+                                          });
+                                        }}
+                                        className='removeUl text-danger'
+                                      >
+                                        {t('Delete')}
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
+                              )}
                             </>
                           )}
                         </td>
@@ -550,11 +904,13 @@ export function ArticlesList({
                           <Link
                             href={
                               article.isPodcast
-                                ? article.isStatic?`${Podcast_STATIC_PATH+article.entryId}`: `/podcast?podcastId=${article.entryId}`
+                                ? article.isStatic
+                                  ? `${Podcast_STATIC_PATH + article.entryId}`
+                                  : `${Podcast_DINAMIC_PATH + article.entryId}`
                                 : `/profile?userId=${article.userId}`
                             }
                             target={`${
-                              location == '/articles' ? '_self' : '_blank'
+                              location == ALL_ARTICLES ? '_self' : '_blank'
                             }`}
                             className='removeUl'
                           >
@@ -600,13 +956,18 @@ export function ArticlesList({
                           </Tippy>
                         </td>
                         <td>
-                          <span className='w-100'>Created At</span>
+                          <span className='w-100'>{t('Created At')}</span>
                           {/* 2023/11/08 at 06:52 pm */}
                           <span>
-                            {utcToLocal(
-                              article.creation_time,
-                              'YYYY/MM/DD  hh:mm a'
-                            )}
+                            {isAdmin || views
+                              ? utcToLocalAdmin(
+                                  article.creation_time,
+                                  'YYYY/MM/DD  hh:mm a'
+                                )
+                              : utcToLocal(
+                                  article.creation_time,
+                                  'YYYY/MM/DD  hh:mm a'
+                                )}
                           </span>
                         </td>
                         {(currentTab === 'Minted' ||
@@ -633,12 +994,20 @@ export function ArticlesList({
                             )
                           ) : (
                             <div className='d-flex align-items-center justify-content-center gap-1'>
-                              <span
-                                className={`circle-span m-0 ${status}`}
-                              ></span>
+                              <span className={`circle-span m-0 ${status}`} />
                               <p className={`status-text ${status}`}>
                                 {' '}
-                                {status.replace('approved', 'minted')}
+                                {status === 'approved'
+                                  ? status.replace('approved', t('minted'))
+                                  : status === 'approved'
+                                  ? t('approved')
+                                  : status == 'pending'
+                                  ? t('Pending')
+                                  : status == 'rejected'
+                                  ? t('rejected')
+                                  : status == 'approved'
+                                  ? t('approved')
+                                  : status}
                               </p>
                             </div>
                           )}
@@ -667,7 +1036,7 @@ export function ArticlesList({
                           <span>2023/11/08 at 06:52 pm</span>
                         </td>
                         <td className='text-center'>
-                          <span className='circle-span green'></span>
+                          <span className='circle-span green'/>
                         </td>
                       </tr>
                             */}
@@ -686,12 +1055,11 @@ export function ArticlesList({
         <Modal.Header closeButton>
           <h3 className='text-center'>
             {/* Delete <i>{categoryItem.name}</i> */}
-            Delete Exploring Web3 Investments: An Exclusive Interview with Yat
-            Siu on Animoca Brands, Mocaverse, and Digital Property Rights
+            {categoryItem.name}
           </h3>
         </Modal.Header>
         <Modal.Body>
-          <p>Are you sure you want to delete this Entry?</p>
+          <p>{t('Are you sure you want to delete this entry?')}</p>
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -707,7 +1075,7 @@ export function ArticlesList({
               }
             }}
           >
-            {deleting ? <Spinner size='sm' /> : 'Delete'}
+            {deleting ? <Spinner size='sm' /> : t('Delete')}
           </Button>
           <Button
             disabled={deleting}

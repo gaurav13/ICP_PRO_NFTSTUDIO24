@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
 import useLocalization from "@/lib/UseLocalization"
 import { LANG } from '@/constant/language';
+import { DIRECTORY_DINAMIC_PATH, DIRECTORY_STATIC_PATH } from '@/constant/routes';
 export default React.memo(function DirectorySlider({
   relatedDirectory,
   isDirectory
@@ -43,21 +44,21 @@ export default React.memo(function DirectorySlider({
       {
         breakpoint: 2300,
         settings: {
-          slidesToShow: 3,
-          slidesToScroll: 3,
+          slidesToShow: 4,
+          slidesToScroll: 4,
           infinite: false,
         },
       },
       {
         breakpoint: 1900,
         settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
+          slidesToShow: 3,
+          slidesToScroll: 3,
           infinite: false,
         },
       },
       {
-        breakpoint: 1600,
+        breakpoint: 1500,
         settings: {
           slidesToShow: 2,
           slidesToScroll: 2,
@@ -67,8 +68,8 @@ export default React.memo(function DirectorySlider({
       {
         breakpoint: 1400,
         settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
+          slidesToShow: 2,
+          slidesToScroll: 2,
           infinite: false,
         },
       },
@@ -117,15 +118,15 @@ export default React.memo(function DirectorySlider({
         <Slider {...Directory}>
           {relatedDirectory.map((entry: any) => {
             return (
-              <div className='Post-padding' key={entry[0]}>
+              <div className='Post-padding d-flex justify-content-center' key={entry[0]}>
                 <Link
                   href='#'
                   onClick={(e) => {
                     e.preventDefault();
 
                     openArticleLink(
-                      `/directory?directoryId=${entry.length != 0 ? entry[0] : '#'
-                      }`
+                      entry[1].isStatic ? `${DIRECTORY_STATIC_PATH + entry[0]}` : `${entry.length != 0 ? DIRECTORY_DINAMIC_PATH + entry[0] : DIRECTORY_DINAMIC_PATH + '#'
+                        }`
                     );
                   }}
                   className='Product-post direc'
@@ -136,14 +137,14 @@ export default React.memo(function DirectorySlider({
                   src={'/images/b-b.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 /> */}
                       <Image
                         src={entry[1]?.companyBanner ?? tempimg}
                         alt='founder image'
                         height={100}
                         width={100}
-                        style={{ height: '100%', width: '100%' }}
+                        className='h-100-w-auto customeImg'
                       />
                     </div>
                     <div className='text-pnl'>
@@ -153,16 +154,16 @@ export default React.memo(function DirectorySlider({
                             src={entry[1]?.companyLogo ?? '/images/l-b.png'}
                             width={15}
                             height={16}
-                            alt='Logo'
+                            alt='NFTスタジオ24'
                           />
                         </div>
                         <div className='heading-txt-pnl'>
-                          <h3>
+                          <h3 className='mw-180'>
                             {entry[1]?.company.length > 15
                               ? `${entry[1]?.company.slice(0, 15)}...`
                               : entry[1]?.company ?? ''}
                           </h3>
-                          <p style={{ minHeight: 84 }}>
+                          <p style={{ minHeight: 84 }} className='mw-180'>
                             {entry[1]?.shortDescription.length > 50
                               ? `${entry[1]?.shortDescription.slice(0, 50)}...`
                               : entry[1]?.shortDescription ?? ''}
@@ -184,7 +185,7 @@ export default React.memo(function DirectorySlider({
                       </ul>
                     </div>
                   </div>
-                  <div className='txt-pnl' style={{ height: '135px' }}>
+                  <div className='txt-pnl mx-width-405' style={{ height: '135px' }}>
                     <p style={{ overflow: 'hidden', height: '40px' }}>
                       <i>
                         {/* {entry[1]?.founderDetail.length > 50
@@ -202,8 +203,8 @@ export default React.memo(function DirectorySlider({
                       />
 
                       <div>
-                        <h5>{entry[1]?.founderName ?? ''}</h5>
-                        <p>Founder</p>
+                        <h5>{entry[1]?.founderName?.slice(0,19) ?? ''}</h5>
+                        <p>{t('Founder')}</p>
                       </div>
                     </div>
                   </div>
@@ -223,7 +224,7 @@ export default React.memo(function DirectorySlider({
                   src={'/images/b-s.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -233,7 +234,7 @@ export default React.memo(function DirectorySlider({
                       src={'/images/ls.png'}
                       width={20}
                       height={20}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>
@@ -290,7 +291,7 @@ export default React.memo(function DirectorySlider({
                   src={'/images/b-e.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -300,7 +301,7 @@ export default React.memo(function DirectorySlider({
                       src={'/images/l-e.png'}
                       width={20}
                       height={20}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>
@@ -357,7 +358,7 @@ export default React.memo(function DirectorySlider({
                   src={'/images/b-a.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -367,7 +368,7 @@ export default React.memo(function DirectorySlider({
                       src={'/images/l-a.png'}
                       width={20}
                       height={20}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>
@@ -424,7 +425,7 @@ export default React.memo(function DirectorySlider({
                   src={'/images/b-a.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -434,7 +435,7 @@ export default React.memo(function DirectorySlider({
                       src={'/images/l-a.png'}
                       width={20}
                       height={20}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>

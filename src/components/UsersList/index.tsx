@@ -4,7 +4,7 @@ import Image from 'next/image';
 import arrows from '@/assets/Img/Icons/icon-arrows.png';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { utcToLocal } from '@/components/utils/utcToLocal';
+import { utcToLocal, utcToLocalAdmin } from '@/components/utils/utcToLocal';
 import { ListUser } from '@/types/profile';
 import { useConnectPlugWalletStore } from '@/store/useStore';
 import { ConnectPlugWalletSlice } from '@/types/store';
@@ -14,9 +14,10 @@ import { canisterId as commentCanisterId } from '@/dfx/declarations/comment';
 import { toast } from 'react-toastify';
 import instance from '@/components/axios';
 import axios from 'axios';
-import { profileAspect } from '@/constant/sizes';
+import { ID_CARD_Aspect, profileAspect } from '@/constant/sizes';
 import placeholder from '@/assets/Img/id-placeholder.png';
 import { openLink } from '@/components/utils/localStorage';
+import { classNames } from 'react-easy-crop/helpers';
 export function UsersList({
   currentItems,
   handleRefetch,
@@ -39,20 +40,19 @@ export function UsersList({
   const [approving, setApproving] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [isError, setIsError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
   const [buttonClassName, setButtonClassName] = useState('');
 
- 
   const handleButtonClick = (className: React.SetStateAction<string>) => {
     setButtonClassName(className);
   };
-
 
   const { auth, userAuth, identity } = useConnectPlugWalletStore((state) => ({
     auth: (state as ConnectPlugWalletSlice).auth,
     userAuth: (state as ConnectPlugWalletSlice).userAuth,
     identity: (state as ConnectPlugWalletSlice).identity,
   }));
-
 
   const userActor = makeUserActor({
     agentOptions: {
@@ -62,10 +62,10 @@ export function UsersList({
 
   const handleShow = () => {
     setShowModal(true);
-
   };
   const handleClose = () => {
     setShowModal(false);
+    setImageLoading(true)
   };
   const handleBlock = async () => {
     setApproving(true);
@@ -74,6 +74,7 @@ export function UsersList({
       if (blocked.ok) {
         handleRefetch();
         toast.success(blocked.ok[0]);
+
         handleClose();
       } else {
         toast.error(blocked.err);
@@ -86,6 +87,7 @@ export function UsersList({
       if (unblocked.ok) {
         handleRefetch();
         toast.success(unblocked.ok[0]);
+
         handleClose();
       } else {
         toast.error(unblocked.err);
@@ -93,6 +95,9 @@ export function UsersList({
     }
     setApproving(false);
   };
+  let handleImageLoaded=()=>{
+    setImageLoading(false)
+  }
   const handleVerifyUser = async () => {
     setApproving(true);
     if (action.verifyStatus) {
@@ -100,15 +105,20 @@ export function UsersList({
       if (blocked?.ok) {
         if (action?.email != undefined) {
           try {
+            let tempPath = window.location.origin;
             const response = await axios.post(
               `${process.env.BASE_URL}email/userverification`,
               {
                 email: action.email,
                 name: action.name,
+                baseUrl: tempPath,
               }
             );
+            if (response) {
+              toast.success('Email has been sent to user.');
+            }
           } catch (error) {
-            toast.error('There was an issue while sending email');
+            toast.error(t('There was an issue while sending email'));
           }
         }
         handleRefetch();
@@ -125,23 +135,34 @@ export function UsersList({
       if (unblocked?.ok) {
         if (action.email != undefined) {
           try {
+            let tempPath = window.location.origin;
+
             const response = await axios.post(
               `${process.env.BASE_URL}email/userUnverification`,
               {
                 email: action.email,
                 name: action.name,
                 reason: rejectReason,
+                baseUrl: tempPath,
               }
             );
             if (response) {
+              toast.success('Email has been sent to user.');
+
               // toast.success(response);
             }
           } catch (error) {
-            toast.error('There was an issue while sending email');
+            toast.error(t('There was an issue while sending email'));
           }
         }
         handleRefetch();
-        toast.success(unblocked?.ok[0]);
+        if (buttonClassName === 'reject') {
+          // toast.success(unblocked?.ok[0]);
+          toast.success(t('User Rejected'));
+        } else {
+          toast(t('User Unverified'));
+        }
+
         handleClose();
       } else {
         toast.error(unblocked?.err);
@@ -198,7 +219,7 @@ export function UsersList({
                       <td>{user[1].email[0] ?? 'no email'}</td>
                       <td>{user[0] ?? ''}</td>
                       <td>
-                        {utcToLocal(
+                        {utcToLocalAdmin(
                           user[1].joinedFrom.toString(),
                           'DD-MM-YYYY'
                         )}
@@ -207,25 +228,27 @@ export function UsersList({
                         <td className='text-center'>
                           <ul className='btn-list d-flex justify-content-center'>
                             {!user[1]?.isVerified ? ( //here is unverify user list
-                              <><li className='me-0'>
-                                <Button
-                                  onClick={() => {
-                                    setAction({
-                                      status: false,
-                                      id: user[0],
-                                      name: user[1].name[0],
-                                      isverify: true,
-                                      verifyStatus: true,
-                                      email: user[1]?.email[0],
-                                      image: user[1]?.identificationImage[0],
-                                    });
-                                    handleShow();
-                                  }}
-                                  className='green'
-                                >
-                                  Verify
-                                </Button>
-                              </li>
+                              <>
+                                <li className='me-0'>
+                                  <Button
+                                    onClick={() => {
+                                      setAction({
+                                        status: false,
+                                        id: user[0],
+                                        name: user[1].name[0],
+                                        isverify: true,
+                                        verifyStatus: true,
+                                        email: user[1]?.email[0],
+                                        image: user[1]?.identificationImage[0],
+                                      });
+                                      handleShow();
+                                      handleButtonClick('verify');
+                                    }}
+                                    className='green verify'
+                                  >
+                                    Verify
+                                  </Button>
+                                </li>
                                 <li className='me-0'>
                                   <Button
                                     onClick={() => {
@@ -239,18 +262,17 @@ export function UsersList({
                                         image: user[1]?.identificationImage[0],
                                       });
                                       handleShow();
-                                      handleButtonClick('reject')
-
+                                      handleButtonClick('reject');
                                     }}
                                     className='red reject'
                                   >
                                     Reject
                                   </Button>
-                                </li></>
+                                </li>
+                              </>
                             ) : (
                               <li className='me-0'>
                                 <Button
-
                                   onClick={() => {
                                     setAction({
                                       status: false,
@@ -262,7 +284,7 @@ export function UsersList({
                                       image: user[1]?.identificationImage[0],
                                     });
                                     handleShow();
-                                    handleButtonClick('unverify')
+                                    handleButtonClick('unverify');
                                   }}
                                   className='red unverify'
                                 >
@@ -293,7 +315,7 @@ export function UsersList({
                                   });
                                   handleShow();
                                 }}
-                              ></i>
+                              />
                             ) : (
                               <i
                                 className='fa fa-ban ms-3'
@@ -312,8 +334,7 @@ export function UsersList({
                                   });
                                   handleShow();
                                 }}
-                              ></i>
-
+                              />
                             )}
                             <i
                               className='fa fa-pencil ms-3'
@@ -323,7 +344,7 @@ export function UsersList({
                               onClick={() => {
                                 openLink(`/profile-details?userId=${user[0]}`);
                               }}
-                            ></i>
+                            />
                           </ul>
                         </td>
                       )}
@@ -337,23 +358,33 @@ export function UsersList({
                   >
                     <Modal.Header closeButton>
                       <h3 className='text-center'>
-                     { buttonClassName === "reject"
-      ? action.isverify
-        ? action.verifyStatus
-          ? 'Verify'
-          : 'Reject'
-        : action.status
-          ? 'Block'
-          : 'UnBlock'
-      : buttonClassName === "unverify"
-        ? action.isverify
-          ? action.verifyStatus
-            ? 'Verify'
-            : 'Unverify'
-          : action.status
-            ? 'Block'
-            : 'UnBlock'
-        : ''}
+                        {/* {buttonClassName === "reject"
+                          ? action.isverify
+                            ? action.verifyStatus
+                              ? 'Verify'
+                              : 'Reject'
+                            : action.status
+                              ? 'Block'
+                              : 'UnBlock'
+                          : buttonClassName === "unverify"
+                            ? action.isverify
+                              ? action.verifyStatus
+                                ? 'Verify'
+                                : 'Unverify'
+                              : action.status
+                                ? 'Block'
+                                : 'UnBlock'
+                                  :''} */}
+
+                        {action.isverify
+                          ? action.verifyStatus
+                            ? 'Verify'
+                            : buttonClassName === 'unverify'
+                            ? 'Unverify'
+                            : 'Reject'
+                          : action.status
+                          ? 'Block'
+                          : 'UnBlock'}
 
                         {/* {action.isverify
                           ? action.verifyStatus
@@ -366,24 +397,41 @@ export function UsersList({
                     </Modal.Header>
                     <Modal.Body>
                       <p>
-                        Are you sure you want to{' '}
-                        { buttonClassName === "reject"
-      ? action.isverify
-        ? action.verifyStatus
-          ? 'Verify'
-          : 'Reject'
-        : action.status
-          ? 'Block'
-          : 'UnBlock'
-      : buttonClassName === "unverify"
-        ? action.isverify
-          ? action.verifyStatus
-            ? 'Verify'
-            : 'Unverify'
-          : action.status
-            ? 'Block'
-            : 'UnBlock'
-        : ''}{' '} 
+                        {t('Are you sure you want to')}{' '}
+                        {/* {buttonClassName === "reject"
+                          ? action.isverify
+                            ? action.verifyStatus
+                              ? 'Verify'
+                              : 'Reject'
+                            : action.status
+                              ? 'Block'
+                              : 'UnBlock'
+                          : buttonClassName === "unverify"
+                            ? action.isverify
+                              ? action.verifyStatus
+                                ? 'Verify'
+                                : 'Unverify'
+                              : action.status
+                                ? 'Block'
+                                : 'UnBlock'
+                                : buttonClassName === "verify"
+                                ? action.isverify
+                                  ? action.verifyStatus
+                                    ? 'Verify'
+                                    : 'UnVerify'
+                                  : action.status
+                                    ? 'Block'
+                                    : 'UnBlock'
+                                  :''} */}
+                        {action.isverify
+                          ? action.verifyStatus
+                            ? t('Verify')
+                            : buttonClassName === 'unverify'
+                            ? t('Unverify')
+                            : t('Reject')
+                          : action.status
+                          ? t('Block')
+                          : t('UnBlock')}{' '}
                         {/* {action.isverify
                           ? action.verifyStatus
                             ? 'Verify'
@@ -406,22 +454,28 @@ export function UsersList({
                             <div
                               className='img-catch'
                               style={{
-                                aspectRatio: profileAspect,
+                                aspectRatio: ID_CARD_Aspect,
                               }}
                             >
-                              {action.image ? (
-                                <Image
-                                  fill={true}
-                                  src={action.image}
-                                  alt='Banner'
-                                />
-                              ) : (
-                                <Image
+{imageLoading && <Image
                                   src={placeholder}
                                   alt='Banner'
                                   fill={true}
-                                />
-                              )}
+                                />}
+                            {action?.image? <Image
+                                  fill={true}
+                                  className='h'
+                                  src={action?.image}
+                                  alt='Banner'
+                                  onLoad={handleImageLoaded}
+                                />:<Image
+                                src={placeholder}
+                                alt='Banner'
+                                fill={true}
+                              />
+                              
+                              
+                              }
                             </div>
                           </div>
                         </div>
@@ -433,7 +487,9 @@ export function UsersList({
                             controlId='exampleForm.ControlTextarea1'
                           >
                             <Form.Label>
-                              Reason to reject the user verification.
+                              {buttonClassName === 'unverify'
+                                ? 'Reason to unverify the user verification.'
+                                : ' Reason to reject the user verification.'}
                             </Form.Label>
                             <Form.Control
                               as='textarea'
@@ -481,8 +537,10 @@ export function UsersList({
                         ) : action.isverify ? (
                           action.verifyStatus ? (
                             'Verify'
-                          ) : (
+                          ) : buttonClassName === 'unverify' ? (
                             'Unverify'
+                          ) : (
+                            'Reject'
                           )
                         ) : action.status ? (
                           'Block'

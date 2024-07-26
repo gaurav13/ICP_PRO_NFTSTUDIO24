@@ -80,7 +80,7 @@ export default function ReleasePost({ small }: { small?: boolean }) {
       {/* <div className='release-post'>
         <div className={`release-post-inner ${small ? 'small' : ''}`}>
           <div className='img-pnl'>
-            <Link href="/"><Image src={smallpost2} alt="Post" /></Link>
+            <Link href="/"><Image src={smallpost2} alt="Post" />
           </div>
           <div className='txt-pnl'>
             <span>October 22 - October 24</span>
@@ -93,7 +93,7 @@ export default function ReleasePost({ small }: { small?: boolean }) {
       <div className='release-post'>
         <div className={`release-post-inner ${small ? 'small' : ''}`}>
           <div className='img-pnl'>
-            <Link href="/"><Image src={smallpost3} alt="Post" /></Link>
+            <Link href="/"><Image src={smallpost3} alt="Post" />
           </div>
           <div className='txt-pnl'>
             <span>November 1 - November 2</span>

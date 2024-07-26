@@ -6,7 +6,7 @@ import useLocalization from "@/lib/UseLocalization"
 import { LANG } from '@/constant/language';
 import Image from 'next/image';
 export default function DirectorySlider() {
-  \
+  
   const { t, changeLocale } = useLocalization(LANG);
   var Directory = {
     dots: null,
@@ -79,7 +79,7 @@ export default function DirectorySlider() {
                   src={'/images/b-b.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -89,7 +89,7 @@ export default function DirectorySlider() {
                       src={'/images/l-b.png'}
                       width={15}
                       height={16}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>
@@ -131,7 +131,7 @@ export default function DirectorySlider() {
 
                 <div>
                   <h5>NFTStudio 24</h5>
-                  <p>Founder</p>
+                  <p>{t('Founder')}</p>
                 </div>
               </div>
             </div>
@@ -148,7 +148,7 @@ export default function DirectorySlider() {
                   src={'/images/b-s.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -158,7 +158,7 @@ export default function DirectorySlider() {
                       src={'/images/ls.png'}
                       width={20}
                       height={20}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>
@@ -200,7 +200,7 @@ export default function DirectorySlider() {
 
                 <div>
                   <h5>NFTStudio 24</h5>
-                  <p>Founder</p>
+                  <p>{t('Founder')}</p>
                 </div>
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function DirectorySlider() {
                   src={'/images/b-e.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -227,7 +227,7 @@ export default function DirectorySlider() {
                       src={'/images/l-e.png'}
                       width={20}
                       height={20}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>
@@ -285,7 +285,7 @@ export default function DirectorySlider() {
                   src={'/images/b-a.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -295,13 +295,13 @@ export default function DirectorySlider() {
                       src={'/images/l-a.png'}
                       width={20}
                       height={20}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>
                     <h3>Aptos</h3>
                     <p style={{ minHeight: 84 }}>
-                     {t('Aptos Ventures Abroad: Navigating Global Markets in the Web3 and...')}
+                      {t('Aptos Ventures Abroad: Navigating Global Markets in the Web3 and...')}
                     </p>
                   </div>
                 </div>
@@ -323,7 +323,7 @@ export default function DirectorySlider() {
             <div className='txt-pnl'>
               <p>
                 <i>
-                {t('The general population should exercise caution while using...')}
+                  {t('The general population should exercise caution while using...')}
                 </i>
               </p>
               <div className='img-pl'>
@@ -353,7 +353,7 @@ export default function DirectorySlider() {
                   src={'/images/b-a.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -363,18 +363,18 @@ export default function DirectorySlider() {
                       src={'/images/l-a.png'}
                       width={20}
                       height={20}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>
                     <h3>Aptos</h3>
                     <p style={{ minHeight: 84 }}>
-                    {t('Aptos Ventures Abroad: Navigating Global Markets in the Web3 and...')}
+                      {t('Aptos Ventures Abroad: Navigating Global Markets in the Web3 and...')}
                     </p>
                   </div>
                 </div>
                 <ul>
-                <li>
+                  <li>
                     4<span>{t('Posts')}</span>
                   </li>
                   <li>

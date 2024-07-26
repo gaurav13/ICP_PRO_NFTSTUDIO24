@@ -9,7 +9,7 @@ import iconlogo from '@/assets/Img/Icons/icon-logo.png';
 import { Button, Modal, Spinner } from 'react-bootstrap';
 import { useRouter } from 'next/navigation';
 import logger from '@/lib/logger';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 
 function ConnectModal({
@@ -55,24 +55,23 @@ function ConnectModal({
         <div className='d-flex justify-content-center gap-2'>
           <Button
             onClick={connect}
-            className='connect-btn'
-            style={{
-              height: '50px',
-              width: '150px',
-              background: '#eaca08',
-              border: 'none',
-            }}
+            className='connect-btn shj'
             disabled={isConnectLoading}
           >
             <span style={{ width: '30px', height: '30px' }} className='me-2'>
-              <Image src={iconlogo} alt='Logo' height={25} width={25} />
+              <Image
+                src={iconlogo}
+                alt='NFTスタジオ24'
+                height={25}
+                width={25}
+              />
             </span>
             {isConnectLoading ? (
               <Spinner size='sm' className='ms-4 text-primary' />
             ) : connected ? (
               <span className='text-black'>{t('Disconnect')}</span>
             ) : (
-              <span className='text-black'>{t('Connect')}</span>
+              <span className='text-black'>{t('Connect ')}</span>
             )}
           </Button>
           {/* <Button className='default-btn' onClick={handleClose}>

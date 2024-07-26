@@ -43,9 +43,11 @@ import {
   makeDIP721Canister,
   makeEntryActor,
   makeLedgerCanister,
+  makeUserActor,
 } from '@/dfx/service/actor-locator';
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 import {
+  commentTime,
   formatLikesCount,
   isUserConnected,
   utcToLocal,
@@ -72,7 +74,7 @@ import ConnectModal from '@/components/Modal';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import { Date_m_d_y_h_m } from '@/constant/DateFormates';
 import TwitterSVGIcon from '@/components/twitterIconSVG/TwitterSVGIcon';
-import { TAG_CONTENT_ROUTE } from '@/constant/routes';
+import { TAG_CONTENT_ROUTE, SURVEY ,TAKEQUIZPAGE, TAKESURVEYPAGE, TAKE_QUIZ } from '@/constant/routes';
 import iconmessage from '@/assets/Img/Icons/icon-comment.png';
 import InstagramShareButton from '@/components/InstagrameSahreBtn';
 import {
@@ -91,7 +93,7 @@ function VoteButton({
   commentsLength,
   tempLike,
   isFooter,
-  commmentField
+  commmentField,
 }: {
   isLiking: boolean;
   isLiked: boolean;
@@ -100,7 +102,7 @@ function VoteButton({
   commentsLength: number;
   tempLike: number;
   isFooter?: boolean;
-  commmentField?:any
+  commmentField?: any;
 }) {
   const likeEntryMiddleWare = () => {
     if (entry.isPromoted && isLiked) return;
@@ -117,9 +119,8 @@ function VoteButton({
       {!isFooter ? (
         <>
           <h6
-            className={` ${disabled ? 'disabled' : ''}  ${
-              isLiked ? ' liked' : ''
-            }`}
+            className={` ${disabled ? 'disabled' : ''}  ${isLiked ? ' liked' : ''
+              }`}
             onClick={likeEntryMiddleWare}
             style={{
               pointerEvents: disabled ? 'none' : 'all',
@@ -136,11 +137,11 @@ function VoteButton({
                 width={25}
               />
             ) : (
-              // <i className='fa fa-like'></i>
+              // <i className='fa fa-like'/>
               // <i
               //   className='fa-solid  fa-thumbs-up my-fa'
               //   style={{ fontSize: 20, height: 25, width: 25, maxWidth: 25 }}
-              // ></i>
+              // />
               <Image
                 src={'/images/like.svg'}
                 alt='Icon Thumb'
@@ -151,17 +152,19 @@ function VoteButton({
               // <i
               //   className='fa-regular  fa-thumbs-up  my-fa'
               //   style={{ fontSize: 20, height: 25, width: 25, maxWidth: 25 }}
-              // ></i>
+              // />
             )}{' '}
             {parseInt(entry?.likes ?? '0') + tempLike}
           </h6>
           {/* </li> */}
           {/* </ul> */}
-          <Link href="#" onClick={(e:any)=>{
-                            e.preventDefault();
-                            commmentField.focus();
-
-                          }}>
+          <Link
+            href='#'
+            onClick={(e: any) => {
+              e.preventDefault();
+              commmentField.focus();
+            }}
+          >
             <h6>
               <Image
                 src={iconcomment}
@@ -209,7 +212,7 @@ function VoteButton({
             </Link>
           </li>
           <li>
-          <Link href={'#comment'}>
+            <Link href={'#comment'}>
               <Image src={iconmessage} alt='Icon Comment' />{' '}
               {commentsLength ?? ''} {t('Comments')}
             </Link>
@@ -241,15 +244,9 @@ function MintButton({
         <Button
           onClick={mintNft}
           disabled={isMinted || isMinting}
-          className='blue-button'
+          className='yellow-button black'
         >
-          {isMinting ? (
-            <Spinner size='sm'></Spinner>
-          ) : isMinted ? (
-            'Minted'
-          ) : (
-            'Mint'
-          )}
+          {isMinting ? <Spinner size='sm' /> : isMinted ? 'Minted' : 'Mint'}
         </Button>
       </ul>
     </>
@@ -291,6 +288,11 @@ export default function NFTPodcastPost({
   });
   const [shareUrl, setSocialLink] = useState('#');
   const title = 'NFTStudio24';
+  const [quizId, setQuizId] = useState<any>(null);
+  const [surveyId, setSurveyId] = useState<any>(null);
+  const [isRewarded, setIsRewarded] = useState(true);
+  const myTagsRef = useRef<HTMLUListElement | null>(null);
+  const [isOldReaderLoading, setIsOldReaderLoading] = useState(false);
   const [userArticleCommentsLoading, setUserArticleCommentsLoading] =
     useState<boolean>(true);
   let gasFee = GAS_FEE / E8S;
@@ -353,7 +355,8 @@ export default function NFTPodcastPost({
   const handleShow = () => {
     setShowModal(true);
   };
-
+  let [commentVal, setCommentVal] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
   const handleModalClose = () => {
     if (isArticleSubmitting) {
       return false;
@@ -423,6 +426,68 @@ export default function NFTPodcastPost({
       setloadMoreComments(userArticleComments);
     }
   };
+  const sendcomment = async (e: any) => {
+    e.preventDefault();
+    if (!isUserConnected(auth, handleConnectModal)) return;
+    setIsCommenting(true);
+    if (commentVal.trim().length < 1) {
+      return toast.error(t("Comment can't be empty."));
+    }
+   
+    try {
+      if (isPending) {
+        return toast.error(
+          ` ${t('You can not add comment on pending')} ${entrytype}.`
+        );
+      }
+      if (isRejected) {
+        return toast.error(
+          ` ${t('You can not add comment on rejected')} ${entrytype}.`
+        );
+      }
+      if (commentVal.trim().length > 400) {
+        return toast.error(t('Comment can not be more then 400 characters.'));
+      }
+      const commentsActor = makeCommentActor({
+        agentOptions: {
+          identity,
+        },
+      });
+      const addedComment = await commentsActor.addComment(
+        commentVal,
+        userCanisterId,
+        entryCanisterId,
+        articleId,
+        entry.title,
+        entrytype
+      );
+      const user = await auth.actor.get_user_details([principal]);
+      // const dateNow = moment.utc().format('MMMM Do, YYYY');
+      const newComment = {
+        creation_time: utcToLocal('', Date_m_d_y_h_m),
+        user: user.ok[1],
+        content: commentVal,
+        userId: principal,
+      };
+      if (addedComment.ok) {
+        setIsCommenting(false);
+        setcountcomments((pre: any) => pre + 1);
+        setCommentVal('');
+        toast.success(t('Comment added successfully.'));
+      } else {
+        setIsCommenting(false);
+        toast.error(t('Something went wrong.'));
+      }
+      setUserArticleComments((prev: any) => {
+        return [newComment, ...prev];
+      });
+
+      handleCommented();
+    } catch (err) {
+      handleCommented();
+    }
+  };
+
   const handleCommented = () => {
     setIsCommenting(false);
     setCurrentComment('');
@@ -493,7 +558,9 @@ export default function NFTPodcastPost({
         setIsMinting(false);
 
         toast.error(
-          'Sorry, there was an error while minting please reload the page and try again'
+          t(
+            'Sorry, there was an error while minting please reload the page and try again'
+          )
         );
       }
     } catch (error) {
@@ -515,13 +582,17 @@ export default function NFTPodcastPost({
     try {
       if (!isUserConnected(auth, handleConnectModal)) return;
       if (isPending) {
-        return toast.error(` You can't add comment on pending ${entrytype}.`);
+        return toast.error(
+          ` ${t('You can not add comment on pending')} ${entrytype}.`
+        );
       }
       if (isRejected) {
-        return toast.error(` You can't add comment on rejected ${entrytype}.`);
+        return toast.error(
+          ` ${t('You can not add comment on rejected')} ${entrytype}.`
+        );
       }
       if (currentComment.trim().length > 400) {
-        return toast.error("Comment can't be more then 400 characters.");
+        return toast.error(t('Comment can not be more then 400 characters.'));
       }
       setIsCommenting(true);
       const commentsActor = makeCommentActor({
@@ -529,10 +600,11 @@ export default function NFTPodcastPost({
           identity,
         },
       });
-      logger(entrytype, 'entrytypeentrytype');
+
       const addedComment = await commentsActor.addComment(
         currentComment,
         userCanisterId,
+        entryCanisterId,
         articleId,
         entry.title,
         entrytype
@@ -549,10 +621,8 @@ export default function NFTPodcastPost({
         return [newComment, ...prev];
       });
 
-      logger(addedComment, 'Domment added');
       handleCommented();
     } catch (err) {
-      logger(err, 'ERR');
       handleCommented();
     }
   };
@@ -563,10 +633,10 @@ export default function NFTPodcastPost({
         const user = await auth.actor.get_user_details([userId]);
         const creatDate = comment.creation_time.toString();
 
-        const stillUtc = moment.utc(parseInt(creatDate)).toDate();
+        let tempCreation = commentTime(creatDate);
         const newComment = {
           creation_time: utcToLocal(creatDate, Date_m_d_y_h_m),
-          newCreation: moment(stillUtc).local().fromNow(),
+          newCreation: tempCreation,
           user: user.ok[1],
           userId: userId,
           content: comment.content,
@@ -589,69 +659,6 @@ export default function NFTPodcastPost({
     }
   };
 
-  const handlePromote = async () => {
-    const entryActor = makeEntryActor({
-      agentOptions: {
-        identity,
-      },
-    });
-    let rewardConfig = await entryActor.get_reward();
-    logger(rewardConfig);
-    let reward = parseFloat(rewardConfig.master);
-    let platform = parseFloat(rewardConfig.platform);
-    let admin = parseFloat(rewardConfig.admin);
-
-    let promotionE8S = promotionValues.icp * E8S;
-    // TODO ADJUST THIS
-    // let gasInICP = gasFee * 5;
-    // let gasInE8S = gasInICP * E8S;
-    // let promotedICP = promotionE8S + gasInE8S;
-    logger({ promotionE8S });
-    // let promotedICP = (reward / 100) * (promotionValues.icp * E8S);
-
-    const article = {
-      title: entry.title,
-      description: entry.description,
-      seoTitle: entry.seoTitle,
-      seoSlug: entry.seoSlug,
-      seoDescription: entry.seoDescription,
-      seoExcerpt: entry.seoExcerpt,
-      category: entry.category,
-      subscription: entry.subscription,
-      image: entry.image,
-      isDraft: entry.isDraft,
-      isPromoted: true,
-      userName: entry.userName,
-      imageTags: entry.imageTags,
-      caption: entry.caption,
-      tags: entry.tags,
-      // promotionLikesTarget: promotionentry.likes,
-      promotionICP: promotionE8S,
-      pressRelease: entry.pressRelease,
-    };
-    entryActor
-      .insertEntry(article, userCanisterId, true, articleId, commentCanisterId)
-      .then((res: any) => {
-        logger(res, 'draft Published successfully');
-        toast.success('Your article has been promoted successfuly');
-        updateBalance({ identity, auth, setBalance });
-        setIsArticleSubmitting(false);
-        getEntry();
-        handleModalClose();
-        // router.replace(`/article?articleId=${res.ok[1]}&promote=true`);
-
-        // setIsArticleSubmitting(false);
-
-        window.scrollTo(0, 0);
-      })
-      .catch((err: string) => {
-        logger(err);
-        // setIsArticleSubmitting(false);
-
-        setIsArticleSubmitting(false);
-      });
-  };
-
   const createHeadingId = (headingText: string) => {
     if (!headingText) return;
     return headingText.toLowerCase().replace(/\s+/g, '-');
@@ -663,7 +670,10 @@ export default function NFTPodcastPost({
       for (const childNode of node.children) {
         if (childNode.type === 'text') {
           headingText += childNode.data;
-        } else if (childNode.type === 'tag' && childNode.name === 'strong') {
+        } else if (
+          childNode.type === 'tag' &&
+          (childNode.name === 'strong' || childNode.name === 'span')
+        ) {
           headingText += extractHeadingText(childNode);
         }
       }
@@ -692,12 +702,11 @@ export default function NFTPodcastPost({
         if (node.attribs.style && typeof node.attribs.style === 'string') {
           delete node.attribs.style;
         }
-        
-          let newH1 = React.createElement(node.name, node.attribs, [
-            React.createElement('span', { key: 'headingText' }, headingText),
-          ]);
-          return newH1;
-        
+
+        let newH1 = React.createElement(node.name, node.attribs, [
+          React.createElement('span', { key: 'headingText' }, headingText),
+        ]);
+        return newH1;
       }
 
       return undefined;
@@ -724,7 +733,7 @@ export default function NFTPodcastPost({
     const hierarchy2: any[] = [];
     tempDiv?.childNodes.forEach((node) => {
       if (node instanceof HTMLElement) {
-        if (node.tagName === 'H2' ) {
+        if (node.tagName === 'H2') {
           // Found an H2 heading, update currentH2
           // let temph2 = node.lastChild;
           // if (temph2 instanceof Element) {
@@ -740,10 +749,10 @@ export default function NFTPodcastPost({
 
           let currentH2 = {
             text: node.innerText.trim(),
-              level: 'h2',
-              children: [],
-            };
-            hierarchy2.push(currentH2);
+            level: 'h2',
+            children: [],
+          };
+          hierarchy2.push(currentH2);
         } else if (
           node.tagName === 'H3' ||
           node.tagName === 'H4' ||
@@ -814,9 +823,8 @@ export default function NFTPodcastPost({
               {/* <Image src={admin1} alt='admin' /> */}
               <p
                 onClick={() => handleNavigationClick(item.text)}
-                className={` ${
-                  activeSection === createHeadingId(item.text) ? 'activeHD' : ''
-                } mb-0`}
+                className={` ${activeSection === createHeadingId(item.text) ? 'activeHD' : ''
+                  } mb-0`}
               >
                 {item.text}
               </p>
@@ -832,14 +840,13 @@ export default function NFTPodcastPost({
                     <div
                       onClick={() => handleNavigationClick(e.text)}
                       key={index}
-                      // className={headingLevel.length > 1 ? 'no-style' : ''}
+                    // className={headingLevel.length > 1 ? 'no-style' : ''}
                     >
                       <p
-                        className={` ${
-                          activeSection === createHeadingId(e.text)
+                        className={` ${activeSection === createHeadingId(e.text)
                             ? 'activeHD'
                             : ''
-                        } mb-0`}
+                          } mb-0`}
                       >
                         <span> - </span>
                         {e.text}
@@ -861,7 +868,7 @@ export default function NFTPodcastPost({
     // const fetched = currentURL[2] + '/';
     // logger(currentURL, 'PEPEPEPEPEP');
     let location = window.navigator.clipboard.writeText(window.location.href);
-    toast.success('URL copied to clipboard');
+    toast.success(t('URL copied to clipboard'));
   };
   useEffect(() => {
     if (entry?.likedUsers && identity && entry?.minters) {
@@ -890,12 +897,12 @@ export default function NFTPodcastPost({
   }, [entry, identity, auth]);
   useEffect(() => {
     if (entry) {
-      let entrytype = 'article';
+      let entrytype = t('article');
       if (entry?.isPodcast) {
-        entrytype = 'podcast';
+        entrytype = t('podcast');
       }
       if (entry?.pressRelease) {
-        entrytype = 'pressRelease';
+        entrytype = t('pressRelease');
       }
       setEntrytype(entrytype);
     }
@@ -910,7 +917,6 @@ export default function NFTPodcastPost({
       // headingsHierarchy.map((d: any) => {
       //   console.log(d, 'it tried');
       // });
-      logger(_headingsHierarchys, 'it tried to set these');
     }
   }, [auth, entry]);
   function getTextValues(data: any) {
@@ -934,7 +940,6 @@ export default function NFTPodcastPost({
 
       sections.forEach((section) => {
         const sectionElement = document.getElementById(section);
-        logger(section, 'sectionElement');
 
         if (sectionElement) {
           const sectionTop = sectionElement.getBoundingClientRect().top;
@@ -952,14 +957,12 @@ export default function NFTPodcastPost({
   }, [articleIdList]);
   useEffect(() => {
     if (entry) {
-      logger(featuredImage, 'featuredImage');
       const stringsArray = entry.tags;
       const hashtagString = stringsArray.map((str: any) => `#${str}`).join(' ');
       setHashTags(hashtagString);
     }
   }, [entry]);
   useEffect(() => {
-    logger(headingsHierarchy, 'IT TRIED ss');
     if (headingsHierarchy) {
       let idsArray = getTextValues(headingsHierarchy);
       idsArray.forEach((hId) => {
@@ -972,9 +975,7 @@ export default function NFTPodcastPost({
         }
       }
       setArticleIdList(idsArray);
-      logger(idsArray, 'aand it tried');
     } else {
-      logger("it didn't even trie it tried");
     }
   }, [headingsHierarchy]);
   useEffect(() => {
@@ -982,7 +983,6 @@ export default function NFTPodcastPost({
       const tempFun = async () => {
         const newComments = await getUserComments();
         setUserArticleComments(newComments);
-        logger(newComments, 'WE GOT THEM COMMENTS');
       };
       setUserArticleCommentsLoading(false);
 
@@ -993,7 +993,7 @@ export default function NFTPodcastPost({
   }, [articleComments]);
   const getUser = async (userId: string) => {
     let newUser = null;
-    if(!userId) return;
+    if (!userId) return;
     newUser = await auth.actor.get_user_details([userId]);
     if (newUser.ok) {
       if (newUser.ok[1].profileImg.length != 0) {
@@ -1031,6 +1031,83 @@ export default function NFTPodcastPost({
     setCommentCount(userArticleComments.length);
   }, [userArticleComments]);
   const { t, changeLocale } = useLocalization(LANG);
+  const entryActorDefault = makeEntryActor({
+    agentOptions: {
+      identity,
+    },
+  });
+  let getQuizOfEntry = async (articleId: any) => {
+    let quiz = await entryActorDefault.getOnlyActiveQuizOfArticle(articleId);
+    if (quiz && quiz.length != 0) {
+      setQuizId(quiz[0]);
+    } else {
+      setQuizId(null);
+    }
+  };
+  let getSurveyOfEntry = async (articleId: any) => {
+    let survey = await entryActorDefault.getOnlyActiveSurveyOfArticle(
+      articleId
+    );
+    if (survey && survey.length != 0) {
+      setSurveyId(survey[0]);
+    } else {
+      setSurveyId(null);
+    }
+  };
+  useEffect(() => {
+    if (articleId && identity) {
+      getQuizOfEntry(articleId);
+      getSurveyOfEntry(articleId);
+      isAlreadyRead();
+    }
+  }, [articleId, identity]);
+  async function completeReadArticle() {
+    const userActor = makeUserActor({
+      agentOptions: {
+        identity,
+      },
+    });
+    if (countApiCall == 1) {
+      let quiz = await userActor.addReaderOfEntry(
+        articleId,
+        entryCanisterId
+      );
+    }
+  }
+  var countApiCall = 0;
+  const handleScroll = () => {
+    if (isRewarded) return;
+    const decEnd = myTagsRef.current;
+    if (decEnd) {
+      let divBottom = decEnd.getBoundingClientRect().top;
+      let scrollBottom = divBottom - window.innerHeight;
+
+      if (scrollBottom <= 0) {
+        if (articleId && !isOldReaderLoading && !isRewarded) {
+          setIsRewarded(true);
+          countApiCall += 1;
+          setIsOldReaderLoading(true);
+          completeReadArticle();
+        }
+      }
+    }
+  };
+  async function isAlreadyRead() {
+    const userActor = makeUserActor({
+      agentOptions: {
+        identity,
+      },
+    });
+    let quiz = await userActor.isAlreadyReadTheEntry(articleId);
+    setIsRewarded(quiz);
+  }
+
+  useEffect(() => {
+    if (!isRewarded) {
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
+  }, [isRewarded]);
   return (
     <>
       <Row>
@@ -1057,9 +1134,9 @@ export default function NFTPodcastPost({
                     >
                       {t('All Content')}{' '}
                       {showContent ? (
-                        <i className='fa fa-angle-down'></i>
+                        <i className='fa fa-angle-down' />
                       ) : (
-                        <i className='fa fa-angle-right'></i>
+                        <i className='fa fa-angle-right' />
                       )}
                     </Dropdown.Toggle>
                   </Dropdown>
@@ -1073,7 +1150,7 @@ export default function NFTPodcastPost({
                   </ul>
                 </div>
               )}
-            <div id='comments'></div>
+            <div id='comments' />
             <div className='comment-card web-view-display'>
               <div className='card-header'>
                 <span style={{ maxHeight: 18 }}>
@@ -1118,9 +1195,11 @@ export default function NFTPodcastPost({
                         width={15}
                         height={15}
                       />{' '}
-                     {t('Earn the Web3 Expert Badge')}
+                      {t('Earn the Web3 Expert Badge')}
                     </span>{' '}
-                    {t('for your insights in this field. – your path to distinction is just a click away!')}
+                    {t(
+                      'for your insights in this field. – your path to distinction is just a click away!'
+                    )}
                     {/* {t('Icon Crown Earn the Web3 Expert Badge for your insights in this field. – your path to distinction is just a click away!')} */}
                   </div>
                 </div>
@@ -1153,19 +1232,14 @@ export default function NFTPodcastPost({
                       addComment();
                     }
                   }}
-                  // onChange={(e) => setCommentVal(e.target.value)}
+                // onChange={(e) => setCommentVal(e.target.value)}
                 />
               </div>
               <div className='d-flex justify-content-end'>
                 <Button
                   disabled={isCommenting || currentComment.length <= 0}
                   onClick={addComment}
-                  className='reg-btn blue-btn'
-                  style={{
-                    borderRadius: 0,
-                    padding: '2px 10px',
-                    fontWeight: 'normal',
-                  }}
+                  className='reg-btn blue-btn font-weight-normal font-weight-normal pdng brder0'
                 >
                   {isCommenting ? (
                     <Spinner animation='border' size='sm' />
@@ -1176,7 +1250,7 @@ export default function NFTPodcastPost({
               </div>
             </div>
 
-            <div className='spacer-10'></div>
+            <div className='spacer-10' />
           </div>
         </Col>
         <Col
@@ -1188,7 +1262,7 @@ export default function NFTPodcastPost({
           <div className='article-detail-pnl new '>
             {entry ? (
               <>
-                <h3 className='blue-title'>{entry?.title ?? ''}</h3>
+                <h1 className='blue-title'>{entry?.title ?? ''}</h1>
                 <div className='top-img new'>
                   {/* <Image src={post1} alt='Post' /> */}
                   <div
@@ -1206,9 +1280,9 @@ export default function NFTPodcastPost({
                             <div>
                               <p className='m-0'>
                                 {isPending &&
-                                  'Your Article will be reviewed soon'}
+                                  t('Your Article will be reviewed soon')}
                                 {isRejected &&
-                                  'Your Article Review has been rejected'}
+                                  t('Your Article Review has been rejected')}
                               </p>
                             </div>
                           }
@@ -1246,7 +1320,7 @@ export default function NFTPodcastPost({
                 {articleHeadingsHierarchy &&
                   articleHeadingsHierarchy.length != 0 && (
                     <div className='d-none d-xl-block mobile-view-display w-100'>
-                      <div className='spacer-20'></div>
+                      <div className='spacer-20' />
                       <Dropdown
                         onClick={() => setShowContent((pre) => !pre)}
                         className='mb-2'
@@ -1256,11 +1330,11 @@ export default function NFTPodcastPost({
                           className='fill'
                           id='dropdown-basic'
                         >
-                          All Content{' '}
+                          {t('All Content')}{' '}
                           {showContent ? (
-                            <i className='fa fa-angle-down'></i>
+                            <i className='fa fa-angle-down' />
                           ) : (
-                            <i className='fa fa-angle-right'></i>
+                            <i className='fa fa-angle-right' />
                           )}
                         </Dropdown.Toggle>
                       </Dropdown>
@@ -1274,7 +1348,7 @@ export default function NFTPodcastPost({
                       </ul>
                     </div>
                   )}
-                <div className='post-info-head  web-view-display'></div>
+                <div className='post-info-head  web-view-display' />
 
                 <div className='text-detail-pnl discript-box'>
                   <div
@@ -1284,10 +1358,10 @@ export default function NFTPodcastPost({
                   >
                     {/* <h3>{entry?.title ?? ''}</h3> */}
                     {parse(entry?.description ?? '', parseOptions)}
-                    <div className='spacer-20 web-view-display'></div>
+                    <div className='spacer-20 web-view-display' />
                   </div>
 
-                  <ul className='hash-list'>
+                  <ul className='hash-list' ref={myTagsRef}>
                     {entry?.tags.map((tag: any, index: number) => (
                       <li
                         key={index}
@@ -1302,6 +1376,39 @@ export default function NFTPodcastPost({
                       </li>
                     )) ?? ''}
                   </ul>
+                  
+
+              <div className='d-flex justify-content-end'>
+                  {quizId && (
+                   
+                     <div>
+                        <Button
+                          style={{ fontWeight: 700, background: "#1e5fb3", boxShadow: "0px 0px 10px rgba(41, 192, 242, 0.5) !important" }}
+                          className='me-3 rounded-0 fill dropdown-toggle btn btn-success mb-1'
+                          onClick={() => {
+                            router.push(`${TAKE_QUIZ}?id=${quizId}`);
+                          }}
+                        >
+                          Take Quiz
+                        </Button>
+                      </div>
+                    )}
+
+                    {surveyId && (
+                      <div>
+                        <Button
+                          style={{ fontWeight: 700, background: "#1e5fb3", boxShadow: "0px 0px 10px rgba(41, 192, 242, 0.5) !important" }}
+                          className='fill rounded-0 dropdown-toggle btn btn-success mb-1'
+                          onClick={() => {
+                            router.push(`${SURVEY}?id=${surveyId}`);
+                          }}
+                        >
+                          Take Survey
+                        </Button>
+                      </div>
+                    )}
+                    </div>
+                  
                   <div className='mobile-view-display w-100'>
                     <CommentBox
                       entryId={articleId}
@@ -1314,47 +1421,51 @@ export default function NFTPodcastPost({
                       useRef={commmentField}
                     />
                   </div>
-                  {!(isPending || isRejected) && <div className='mobile-view-display w-100 m-0'>
-                    <ul className='post-comment-like-pnl'>
-                      <li>
-                        {isLiked ? (
-                          <Image
-                            src={'/images/liked.svg'}
-                            alt='Icon Thumb'
-                            style={{ maxWidth: 18 }}
-                            height={18}
-                            width={18}
-                          />
-                        ) : (
-                          <Image
-                            src={'/images/like.svg'}
-                            alt='Icon Thumb'
-                            style={{ maxWidth: 18 }}
-                            height={18}
-                            width={18}
-                          />
-                        )}{' '}
-                        {parseInt(entry?.likes ?? '0') + tempLike}
-                      </li>
-                      <li>
-                      <Link href="#" onClick={(e:any)=>{
-                            e.preventDefault();
-                            commmentField?.current.focus();
-
-                          }}>
-                          <h6>
+                  {!(isPending || isRejected) && (
+                    <div className='mobile-view-display w-100 m-0'>
+                      <ul className='post-comment-like-pnl'>
+                        <li>
+                          {isLiked ? (
                             <Image
-                              src={iconcomment}
-                              alt='Comment'
-                              style={{ height: 18, width: 18, maxWidth: 18 }}
+                              src={'/images/liked.svg'}
+                              alt='Icon Thumb'
+                              style={{ maxWidth: 18 }}
+                              height={18}
+                              width={18}
                             />
-                            {parseInt(`${commentCount}` ?? '0')}
-                          </h6>
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>}
-                  <div className='count-top'></div>
+                          ) : (
+                            <Image
+                              src={'/images/like.svg'}
+                              alt='Icon Thumb'
+                              style={{ maxWidth: 18 }}
+                              height={18}
+                              width={18}
+                            />
+                          )}{' '}
+                          {parseInt(entry?.likes ?? '0') + tempLike}
+                        </li>
+                        <li>
+                          <Link
+                            href='#'
+                            onClick={(e: any) => {
+                              e.preventDefault();
+                              commmentField?.current.focus();
+                            }}
+                          >
+                            <h6>
+                              <Image
+                                src={iconcomment}
+                                alt='Comment'
+                                style={{ height: 18, width: 18, maxWidth: 18 }}
+                              />
+                              {parseInt(`${commentCount}` ?? '0')}
+                            </h6>
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                  <div className='count-top' />
 
                   {!(isPending || isRejected) && (
                     <>
@@ -1362,7 +1473,7 @@ export default function NFTPodcastPost({
                         {/* <div className='d-flex gap-3'> */}
                         <h6>
                           <div className='viewbox py-1'>
-                            <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
+                            <i className='fa fa-eye fill blue-icon fa-lg me-1' />
                             {t('Views')} <span className='mx-1'>|</span>
                             {formatLikesCount(parseInt(entry?.views))}
                           </div>
@@ -1385,18 +1496,79 @@ export default function NFTPodcastPost({
                           {t('Share')}
                         </h6>
                       </div>
+                      <div
+            className='footer_pnl_article_detail count-description-pnl pt-2 pb-2'
+            // onClick={() =>
+            //   openArticleLink(`${ARTICLE_DINAMIC_PATH+article[0]}&route=comments`)
+            // }
+          >
+            <div
+              className=''
+              style={{
+                aspectRatio: profileAspect,
+                position: 'relative',
+                width: '55px',
+              }}
+            >
+              <Image
+                src={userImage != '' ? userImage : girl}
+                alt='notice'
+                fill
+                className='rounded-circle userImg'
+              />
+            </div>
+            <div className='txt-pnl'>
+              <input
+                type='text'
+                placeholder={t('share your opinion')}
+                value={commentVal}
+                ref={inputRef}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    sendcomment(e);
+                  }
+                }}
+                onChange={(e) => setCommentVal(e.target.value)}
+              />
+              {commentVal.length > 0 ? (
+                <ul>
+                  <li>
+                    {isCommenting ? (
+                      <Spinner animation='border' size='sm' />
+                    ) : (
+                      <Link href='#' onClick={sendcomment}>
+                        <i className='fa fa-send' />
+                      </Link>
+                    )}
+                  </li>
+                </ul>
+              ) : (
+                <ul>
+                  <li>
+                    <Link
+                      href='#'
+                      style={{ pointerEvents: 'none' }}
+                      className='disabled'
+                    >
+                      <i className='fa fa-send' />
+                    </Link>
+                  </li>
+                </ul>
+              )}
+            </div>
+          </div>
                       <div className='text-center'>
-                      <ul className='mobile-view-display-inline-flex comment-social-list'>
+                        <ul className='mobile-view-display-inline-flex comment-social-list'>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-facebook'></i>
+                              <i className='fa fa-facebook'/>
                             </Link> */}
                             <FacebookShareButton
                               url={shareUrl}
                               quote={title}
                               hashtag={hashTags}
                             >
-                              <i className='fa fa-facebook'></i>
+                              <i className='fa fa-facebook' />
                             </FacebookShareButton>
                           </li>
                           <li>
@@ -1404,7 +1576,9 @@ export default function NFTPodcastPost({
                               <TwitterSVGIcon color='white' />
                             </Link> */}
                             <TwitterShareButton
-                              url={"https://7uioq-vyaaa-aaaal-ac6ea-cai.icp0.io/"}
+                              url={
+                                'https://7uioq-vyaaa-aaaal-ac6ea-cai.icp0.io/'
+                              }
                               title={title}
                               className='instagramebtn'
                               hashtags={entry?.tags}
@@ -1418,44 +1592,44 @@ export default function NFTPodcastPost({
                           </li>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-pinterest'></i>
+                              <i className='fa fa-pinterest'/>
                             </Link> */}
                             <PinterestShareButton
                               url={shareUrl}
                               media={featuredImage}
                               description={title}
                             >
-                              <i className='fa fa-pinterest'></i>
+                              <i className='fa fa-pinterest' />
                             </PinterestShareButton>
                           </li>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-instagram'></i>
+                              <i className='fa fa-instagram'/>
                             </Link> */}
                             <InstagramShareButton url={featuredImage} />
                           </li>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-telegram'></i>
+                              <i className='fa fa-telegram'/>
                             </Link> */}
                             <TelegramShareButton url={shareUrl} title={title}>
-                              <i className='fa fa-telegram'></i>
+                              <i className='fa fa-telegram' />
                             </TelegramShareButton>
                           </li>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-linkedin'></i>
+                              <i className='fa fa-linkedin'/>
                             </Link> */}
                             <LinkedinShareButton url={window.location.origin}>
-                              <i className='fa fa-linkedin'></i>
+                              <i className='fa fa-linkedin' />
                             </LinkedinShareButton>
                           </li>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-whatsapp'></i>
+                              <i className='fa fa-whatsapp'/>
                             </Link> */}
                             <WhatsappShareButton url={shareUrl} title={title}>
-                              <i className='fa fa-whatsapp'></i>
+                              <i className='fa fa-whatsapp' />
                             </WhatsappShareButton>
                           </li>
                         </ul>
@@ -1463,31 +1637,36 @@ export default function NFTPodcastPost({
                     </>
                   )}
                 </div>
-                <div className='footer-comment-pnl'>
-                  <ul>
-                    <VoteButton
-                      isLiked={isLiked}
-                      isLiking={isLiking}
-                      handleLikeEntry={handleLikeEntry}
-                      entry={entry}
-                      commentsLength={commentCount}
-                      tempLike={tempLike}
-                      isFooter={true}
-                    />
+                {!(isPending || isRejected) && (
+                  <div className='footer-comment-pnl'>
+                    <ul>
+                      <VoteButton
+                        isLiked={isLiked}
+                        isLiking={isLiking}
+                        handleLikeEntry={handleLikeEntry}
+                        entry={entry}
+                        commentsLength={commentCount}
+                        tempLike={tempLike}
+                        isFooter={true}
+                      />
 
-                    <li>
-                      <Link
-                        href='#'
-                        onClick={(e) => {
-                          e.preventDefault();
-                          copyToClipboard(e, `podcast?podcastId=${articleId}`);
-                        }}
-                      >
-                        <Image src={iconshare} alt='Icon Share' /> Share
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
+                      <li>
+                        <Link
+                          href='#'
+                          onClick={(e) => {
+                            e.preventDefault();
+                            copyToClipboard(
+                              e,
+                              `podcast?podcastId=${articleId}`
+                            );
+                          }}
+                        >
+                          <Image src={iconshare} alt='Icon Share' /> Share
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </>
             ) : (
               <div className='d-flex justify-content-center my-4'>

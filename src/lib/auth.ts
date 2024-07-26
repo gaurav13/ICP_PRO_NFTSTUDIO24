@@ -75,6 +75,7 @@ const authMethods = ({
         // `http://localhost:8000?canisterId=${process.env.INTERNET_IDENTITY_CANISTER_ID}#authorize`,
         onSuccess: () => {
           authenticate(auth.client as AuthClient);
+          localStorage.removeItem("token")
         },
         onError: () => {
           handleClose();

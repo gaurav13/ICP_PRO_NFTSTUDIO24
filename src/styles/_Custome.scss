@@ -245,7 +245,7 @@ img {
 }
 
 h3,
-h4 {
+h4,h4.h4txt {
   color: $black;
 
   img {
@@ -396,7 +396,25 @@ input[type='checkbox'] {
 }
 
 // Button List
+.padd-top-10{
+  padding-top:10px;
+}
 
+.sgreencolor{
+  background-color: #92E33A;
+}
+.sbluecolor{
+  background-color: #348BFB;
+}
+.syellowcolor{
+  background-color: #FFE544;
+}
+.sornagecolor{
+  background-color: #FFAA7A;
+}
+.sblueclor{
+  color: #348BFB;
+}
 // Tabs
 .nav-tabs {
   justify-content: center;
@@ -671,6 +689,7 @@ input[type='checkbox'] {
   }
 }
 
+
 .filter-btn {
   background-color: $white;
   color: $black;
@@ -684,8 +703,8 @@ input[type='checkbox'] {
     max-width: 20px;
   }
 
-  &.show,
-  &:hover {
+  &.show:not(.footerbtn),
+  &:hover:not(.footerbtn) {
     background-color: $color;
     color: $white;
     border-color: $color;
@@ -931,7 +950,7 @@ input[type='checkbox'] {
   background: $color;
 
   @media (max-width: 575px) {
-    bottom: -45px;
+    bottom: -65px;
     top: unset;
   }
 
@@ -1596,6 +1615,9 @@ button.red-link {
     color: rgb(57, 57, 57);
     height: 40px;
     padding-left: 10px;
+    &:focus{
+      border: 2px solid black;
+    }
   }
 
   ::placeholder {
@@ -1931,6 +1953,7 @@ input.form-control.bluewala {
     display: flex;
     width: 100%;
     justify-content: space-between;
+    list-style-type: none;
     li {
       a {
         font-size: 16px;
@@ -1948,7 +1971,7 @@ input.form-control.bluewala {
   }
 }
 
-.filter-btn :not(.showbtn) {
+.filter-btn:not(.showbtn){
   display: none;
   @media (max-width: 767px) {
     display: inline-flex;
@@ -1967,7 +1990,7 @@ input.form-control.bluewala {
     background-color: $white;
     padding: 5px;
     z-index: 999;
-    &:hover {
+    &:hover:not(.footerbtn) {
       background-color: $blue;
       color: $white;
     }
@@ -1983,4 +2006,59 @@ input.form-control.bluewala {
       'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif,
       'Font Awesome 6 Brands', 'Font Awesome 6 Free' !important;
   }
+}
+.flexcls{
+  display: flex;
+  justify-content: center;
+}
+
+.footerbtn{
+  background-color: transparent !important;
+  border: none !important;
+  height: 50px !important;
+  width: 50px !important;
+}
+.font-weight-normal{
+  font-weight: normal !important;
+}
+.pdng{
+  padding: 2px 10px;
+}
+.brder0{
+  border-radius: 0 !important;
+}
+.shj{
+  height: 50px !important;
+  width: 150px !important;
+  background: #eaca08 !important;
+  border: none !important;
+}
+.mw-300{
+  max-width: 300px;
+}
+.mw-180{
+  max-width: 180px !important;
+  overflow: hidden;
+}
+.cursor-pointer{
+  cursor: pointer;
+}
+.cursor-none{
+  cursor: not-allowed;
+  user-select: none; 
+}
+.asRow{
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 0;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: calc(-1* var(--bs-gutter-y));
+  margin-right: calc(-0.5* var(--bs-gutter-x));
+  margin-left: calc(-0.5* var(--bs-gutter-x));
+}
+.companyNameBox{
+  max-width: 180px !important;
+  font-size: 16px !important;
+  font-weight: 700;
+  overflow: hidden;
 }

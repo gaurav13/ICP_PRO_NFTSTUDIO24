@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import Image from 'next/image';
 import quiz from '@/assets/Img/quiz.png';
@@ -6,9 +7,15 @@ import icontest from '@/assets/Img/Icons/icon-test.png';
 import iconcheck from '@/assets/Img/Icons/icon-check.png';
 import iconrefresh from '@/assets/Img/Icons/icon-refresh.png';
 import { Button } from 'react-bootstrap';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { makeEntryActor } from '@/dfx/service/actor-locator';
+import { ConnectPlugWalletSlice } from '@/types/store';
+import { useConnectPlugWalletStore } from '@/store/useStore';
+import Link from 'next/link';
+
 export default function QuizPost() {
+
   const { t, changeLocale } = useLocalization(LANG);
   return (
     <>
@@ -16,7 +23,9 @@ export default function QuizPost() {
         <Image src={quiz} alt='Quiz' />
         <div className='grey-heading'>
           <h2>
-            {t('NIGERIAN LOCAL TRARDERS COMMENT ON THE USE OF CRYPTOCURRENCY FOR RECIECVING PAYMENTS')}
+            {t(
+              'NIGERIAN LOCAL TRARDERS COMMENT ON THE USE OF CRYPTOCURRENCY FOR RECIECVING PAYMENTS'
+            )}
           </h2>
         </div>
         <span className='blue-span'>
@@ -30,14 +39,18 @@ export default function QuizPost() {
             <div className='img-pnl'>
               <Image src={iconcheck} alt='icon test' />
             </div>
-            <p>{t('You need to answer all questions in the quiz to earn 500 XP')}</p>
+            <p>
+              {t('You need to answer all questions in the quiz to earn 500 XP')}
+            </p>
           </li>
           <li>
             <div className='img-pnl'>
               <Image src={icontest} alt='icon test' />
             </div>
             <p>
-              {t('Each quiz will have single or multiple correct answers, choose wisely.')}
+              {t(
+                'Each quiz will have single or multiple correct answers, choose wisely.'
+              )}
             </p>
           </li>
           <li>
@@ -45,7 +58,9 @@ export default function QuizPost() {
               <Image src={iconrefresh} alt='icon test' />
             </div>
             <p>
-             {t('You will be able to retry multiple times if you fail the quiz.')}
+              {t(
+                'You will be able to retry multiple times if you fail the quiz.'
+              )}
             </p>
           </li>
         </ul>
@@ -58,9 +73,13 @@ export default function QuizPost() {
           />{' '}
           +500 ICP
         </h6>
+        
         <Button disabled={true} className='blue-button'>
           {t('take quiz')}
         </Button>
+     
+      
+       
         <h2 className='comingsoonlb'>{t('Comming Soon')}</h2>
       </div>
     </>

@@ -14,6 +14,7 @@ import post1 from '@/assets/Img/placeholder-img.jpg';
 import { ARTICLE_FEATURED_IMAGE_ASPECT } from '@/constant/sizes';
 import useLocalization from "@/lib/UseLocalization"
 import { LANG } from '@/constant/language';
+import { Event_DINAMIC_PATH } from '@/constant/routes';
 export default function EventSlider({ eventList }: { eventList: any }) {
   var Event = {
     dots: null,
@@ -84,7 +85,7 @@ export default function EventSlider({ eventList }: { eventList: any }) {
                 <div className='Event-Post-small'>
                   <div className='Event-Post-inner'>
                     <Link
-                      href={`event-details?eventId=${event.id}`}
+                      href={`${Event_DINAMIC_PATH+event.id}`}
                       className='img-pnl'
                       style={{
                         aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
@@ -104,7 +105,7 @@ export default function EventSlider({ eventList }: { eventList: any }) {
                     </Link>
                     <div className='txt-pnl'>
                       <p>{event.date}</p>
-                      <Link href='#' className='text-decoration-no'>
+                      <Link href={`${Event_DINAMIC_PATH+event.id}`} className='text-decoration-no'>
                         {event.title}
                       </Link>
                     </div>

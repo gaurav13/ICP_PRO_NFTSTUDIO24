@@ -278,7 +278,42 @@
     padding: 8px 15px;
   }
 }
+.yellow-button {
+  background-color: #eaca08;
+  border-radius: 5px;
+  padding: 5px 30px;
+  font-size: 18px;
+  font-weight: 700;
+  color: $white;
+  border: 0;
+  // border-color: $blue;
 
+  &:hover {
+    background-color: $black;
+    color: $white;
+    // border-color: $black;
+  }
+
+  &.sm {
+    padding: 8px 15px;
+  }
+}
+.yellow-button.black {
+  color: rgb(8, 8, 8);
+  &:hover {
+    color: white;
+    background-color: $blue;
+  }
+}
+.yellow-button.promotebtn {
+  &:hover {
+    color: white;
+    background-color: $blue;
+  }
+}
+.selectedBgClr {
+  background-color: #ebe8e8;
+}
 // Reg Button
 
 // Grey Button
@@ -480,6 +515,11 @@
     font-size: 12px;
   }
   @media (max-width: 1400px) {
+    min-width: 80px;
+    max-width: 100px;
+    font-size: 12px;
+  }
+  @media (max-width: 1200px) {
     min-width: 130px;
     max-width: 150px;
     font-size: 14px;
@@ -574,3 +614,323 @@
 // .rounded-button svg {
 //   margin-right: 5px;
 // }
+
+.slick-dots {
+  display: flex !important;
+  li {
+    min-height: 102px !important;
+    min-width: 195px !important;
+  }
+}
+.expectedRatioheader {
+  font-size: 18px;
+  color: #727171;
+  span {
+    font-size: 14px;
+  }
+}
+
+.language-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  line-height: 28px;
+  width: 140px;
+  display: flex;
+  border: none;
+  align-items: center;
+  background-color: #eaca08;
+  color: #000000;
+  font-size: 15px;
+  border-radius: 25px;
+  z-index: 11111111;
+  display: flex;
+  select {
+    border-radius: 10px;
+    width: 86px;
+    background: transparent;
+    border: none;
+    height: 20px;
+    margin-left: 5px;
+    &:active,
+    &:hover,
+    &:focus {
+      outline: none;
+      box-shadow: none;
+      border-color: transparent;
+    }
+  }
+  .img1 {
+    height: 25px;
+    display: block !important;
+  }
+  .img2 {
+    height: 25px;
+    display: none !important;
+  }
+  &:hover {
+    .img1 {
+      display: none !important;
+    }
+    .img2 {
+      display: block !important;
+    }
+    select {
+      option {
+        color: black;
+      }
+      color: white;
+    }
+  }
+}
+
+.shortCls {
+  height: 305px !important;
+  width: 169px !important;
+}
+
+table:not(.article-table, .leadrship-quiz table) {
+  * {
+    box-sizing: border-box;
+  }
+  tbody,
+  td,
+  tfoot,
+  th,
+  thead,
+  tr {
+    border-color: inherit;
+    border-style: solid;
+    border-width: 0;
+  }
+  tr {
+    td:not(.Take-Quiz-Pnl.leadrship-quiz table td) {
+      border: 1px solid #dadada;
+      min-width: 2em;
+      padding: 0.4em;
+      user-select: text;
+      vertical-align: middle;
+    }
+  }
+}
+.jodit-container {
+  ul {
+    padding-left: 2rem;
+  }
+}
+ul.slick-dots {
+  // min-width: 650px;
+  @media (max-width: 625px) {
+    overflow-x: scroll;
+    justify-content: unset !important;
+  }
+
+  li {
+    list-style-type: none;
+  }
+}
+.jpFont {
+  font-size: 13px;
+  span {
+    font-size: 13px;
+  }
+}
+
+.sidebarLng {
+  display: flex;
+  width: 100%;
+  font-size: 16px;
+  position: relative;
+  font-weight: 600;
+  padding: 10px 15px;
+  color: #666666;
+  padding-left: 30px;
+  font-family: 'Arial', sans-serif;
+  z-index: 4;
+
+  @media (min-width: 992px) {
+    display: none;
+  }
+}
+.stories-container {
+  .slick-slide {
+    padding: 0 25px;
+  }
+}
+.uploadImg {
+  padding: 5px 10px;
+}
+.editorUploadImgModel {
+  position: relative;
+}
+
+.copybtn {
+  font-size: 14px;
+  font-weight: 600;
+  color: #a1a1a1;
+  margin-left: 5px;
+}
+
+// color: #727171;
+span:not(.discript-box span, .text-detail-pnl span) {
+  font-size: 14px;
+}
+
+.lngcontainer {
+  .language-btn {
+    left: 0;
+    right: unset;
+    top: 55px;
+  }
+}
+.imageCropperStandered {
+  position: relative;
+  bottom: 2px;
+  font-weight: bold;
+}
+
+.addQuestionBtn {
+  border: none;
+}
+.centercls {
+  display: flex;
+  justify-content: center;
+  ul {
+    text-align: none;
+  }
+}
+.submitQuestionBtn {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 25px;
+  .questionCount{
+    border-radius: 2px; 
+    border: 1px solid black;
+    padding: 6px 30px;
+    margin: 0 5px;
+  }
+  .pagination-container{
+    ul,li{
+      margin-bottom: 0;
+    }
+    li:not(.previous,.next,.selected){
+      display: none;
+    }
+  }
+}
+.selectAnswerSelection {
+  display: flex;
+  justify-content: space-evenly;
+  div {
+    label {
+      display: flex;
+      align-items: center;
+      span {
+        margin-left: 3px;
+      }
+    }
+  }
+}
+.quizBtnList {
+  display: flex;
+  text-decoration: none;
+  list-style: none;
+  color: #1e5fb3;
+}
+.borderRadius10 {
+  border-radius: 10px;
+}
+.flexWrap {
+  flex-wrap: wrap;
+}
+.resultPannel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+};
+.addFieldbtnContainer{
+  display: flex;
+    align-items: end;
+    margin-bottom: 25px;
+    i{
+      font-size: 25px;
+      &:first-child{
+        margin-left: 10px;
+        color: green;
+              }
+      &:last-child{
+margin-left: 10px;
+color: red;
+      }
+    }
+    
+}
+.temp{
+  position: relative;
+    z-index: 10000;
+}
+
+.signinbtninpodcast{
+  margin-top: 18px;
+  &:active{
+    background-color: #eaca08 !important;
+    color: #000000 !important;
+  }
+
+}
+.imageStyle{
+  height: '21px';
+   width: '21px' ;
+}
+.tooltiptokenLogo{
+  height: 20px;
+  width: 20px;
+}
+.confirmationBtn{
+  background-color: $color;
+  color: #000000;
+  border: none;
+  &:active,&:hover{
+    background-color: $color;
+  color: #000000;
+opacity: 0.8;
+  }
+}
+
+.emtryGraphStyle{
+  display: block;
+  height: 130px;
+  width: 130px;
+  box-sizing: border-box;
+}
+.customeIcon_plusicon{
+
+  background-color: $color;
+border: none;
+color: #000000;
+margin-left: 5px;
+&:hover,&.active,&:focus{
+  background-color: $color;
+  color: #000000;
+opacity: 0.8;
+}
+  i{
+    font-weight: 700;
+  }
+}
+.deleteAllbtn{
+  background-color: #cb2525;
+ 
+  border: none;
+  &:hover,&:active,&:focus{
+
+  background-color: #cb2525;
+
+  }
+  &.disabled{
+    opacity: 0.8;
+  background-color: #cb2525;
+
+  }
+}

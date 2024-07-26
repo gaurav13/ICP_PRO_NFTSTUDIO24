@@ -69,8 +69,8 @@ export default function NavBar() {
         <Container fluid>
           <Navbar.Brand>
             <Link href='/'>
-              <Image src={logo} alt='Logo' />
-              <Image src={logo2} alt='Logo' />
+              <Image src={logo} alt='NFTスタジオ24' />
+              <Image src={logo2} alt='NFTスタジオ24' />
             </Link>
           </Navbar.Brand>
           {tab !== '/super-admin' && (
@@ -115,8 +115,8 @@ export default function NavBar() {
                   handleButtonClick(); // Call your handleButtonClick function here
                 }}
               >
-                <i className='fa fa-sun-o'></i>
-                <i className='fa fa-moon-o'></i>
+                <i className='fa fa-sun-o' />
+                <i className='fa fa-moon-o' />
               </Button>
               {/* <Link className='reg-btn yellow' href='#'>
                 Sign Out

@@ -18,7 +18,7 @@ export default function StoriesPost() {
           <div className='Stories-post-inner'>
             <div className='top-span'>
               <span className='span-logo'>
-                <Image className='post-logo' src={logo} alt='Logo' />
+                <Image className='post-logo' src={logo} alt='NFTスタジオ24' />
               </span>
               <Link href='#' className='story-btn'>
                 Story
@@ -40,7 +40,7 @@ export default function StoriesPost() {
           <div className='Stories-post-inner'>
             <div className='top-span'>
               <span className='span-logo'>
-                <Image className='post-logo' src={logo} alt='Logo' />
+                <Image className='post-logo' src={logo} alt='NFTスタジオ24' />
               </span>
               <Link href='#' className='story-btn'>
                 Story
@@ -62,7 +62,7 @@ export default function StoriesPost() {
           <div className='Stories-post-inner'>
             <div className='top-span'>
               <span className='span-logo'>
-                <Image className='post-logo' src={logo} alt='Logo' />
+                <Image className='post-logo' src={logo} alt='NFTスタジオ24' />
               </span>
               <Link href='#' className='story-btn'>
                 Story
@@ -84,7 +84,7 @@ export default function StoriesPost() {
           <div className='Stories-post-inner'>
             <div className='top-span'>
               <span className='span-logo'>
-                <Image className='post-logo' src={logo} alt='Logo' />
+                <Image className='post-logo' src={logo} alt='NFTスタジオ24' />
               </span>
               <Link href='#' className='story-btn'>
                 Story

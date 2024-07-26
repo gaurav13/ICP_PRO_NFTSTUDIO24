@@ -22,16 +22,18 @@ import ReactPaginate from 'react-paginate';
 import Tippy from '@tippyjs/react';
 import PodcastSVG from '@/components/podcastSVG/Podcastsvg';
 import { profileAspect } from '@/constant/sizes';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { ARTICLE_STATIC_PATH, Podcast_STATIC_PATH } from '@/constant/routes';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+
+import {
+  ARTICLE_DINAMIC_PATH,
+  ARTICLE_STATIC_PATH,
+  DIRECTORY_DINAMIC_PATH,
+  DIRECTORY_STATIC_PATH,
+  Podcast_DINAMIC_PATH,
+  Podcast_STATIC_PATH,
+} from '@/constant/routes';
+
 // const articleTabName = 'Articles';
 // const activityTabName = 'Activity';
 // const tabs = [
@@ -95,6 +97,7 @@ export default function ActivityTab({ }: {}) {
   let startIndex = forcePaginate * itemsPerPage;
 
   let currentItems = myActivity;
+
   // logger({ currentItems, myActivity, startIndex }, 'THESEEE');
   const refineActivity = (activity: Activity): RefinedActivity => {
     const refinedActivity: RefinedActivity = {
@@ -107,89 +110,106 @@ export default function ActivityTab({ }: {}) {
       pressRelease: false,
       isPodcast: false,
       isWeb3: false,
-      shoudRoute :false,
-      isStatic:false
+      shoudRoute: false,
+      isStatic: false,
     };
+
     if (activity.activity_type.hasOwnProperty('subscribe')) {
-      refinedActivity.message = 'You subscribed to a User';
+      const translatedMessage = t('You subscribed to a User');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
     } else if (activity.activity_type.hasOwnProperty('create_podcats')) {
-      refinedActivity.message = 'You created a Podcast';
+      const translatedMessage = t('You created a Podcast');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isPodcast = true;
     } else if (activity.activity_type.hasOwnProperty('create_pressRelease')) {
-      refinedActivity.message = 'You created a Press Release';
+      const translatedMessage = t('You created a Press Release');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.pressRelease = true;
       refinedActivity.isStatic = activity.isStatic;
-      
     } else if (activity.activity_type.hasOwnProperty('like_web3')) {
-      refinedActivity.message = 'You liked a Company';
+      const translatedMessage = t('You liked a Company');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isWeb3 = true;
+      refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('create_web3')) {
-      refinedActivity.message = 'You created a Company';
+      const translatedMessage = t('You created a Company');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isWeb3 = true;
+      refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('comment')) {
-      refinedActivity.message = 'You commented on an Article';
+      const translatedMessage = t('You commented on an Article');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('comment_podcats')) {
-      refinedActivity.message = 'You commented on a Podcast';
+      const translatedMessage = t('You commented on a Podcast');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isPodcast = true;
       refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('delete_podcats')) {
-      refinedActivity.message = 'You deleted a Podcast';
+      const translatedMessage = t('You deleted a Podcast');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isPodcast = true;
       refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('delete_article')) {
-      refinedActivity.message = 'You deleted an Article';
+      const translatedMessage = t('You deleted an Article');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('delete_pressRelease')) {
-      refinedActivity.message = 'You deleted a Press Release';
+      const translatedMessage = t('You deleted a Press Release');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isStatic = activity.isStatic;
       refinedActivity.pressRelease = true;
     } else if (activity.activity_type.hasOwnProperty('comment_pressRelease')) {
-      refinedActivity.message = 'You commented on a Press Release';
+      const translatedMessage = t('You commented on a Press Release');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.pressRelease = true;
       refinedActivity.isStatic = activity.isStatic;
-    }
-    else if (activity.activity_type.hasOwnProperty('promote')) {
-      refinedActivity.message = 'You promoted an article';
+    } else if (activity.activity_type.hasOwnProperty('promote')) {
+      const translatedMessage = t('You promoted an article');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.pressRelease = false;
       refinedActivity.isPodcast = false;
       refinedActivity.isPromoted = true;
       refinedActivity.isStatic = activity.isStatic;
-
     } else if (activity.activity_type.hasOwnProperty('like')) {
       if (activity.isPodcast) {
-        refinedActivity.message = 'You liked a Podcast';
+        const translatedMessage = t('You liked a Podcast');
+        refinedActivity.message = translatedMessage ?? 'Error';
         refinedActivity.title = activity.title;
         refinedActivity.isPodcast = true;
         refinedActivity.isStatic = activity.isStatic;
       } else {
         if (activity.pressRelease) {
-          refinedActivity.message = 'You liked a Press Release';
+          const translatedMessage = t('You liked a Press Release');
+          refinedActivity.message = translatedMessage ?? 'Error';
           refinedActivity.title = activity.title;
           refinedActivity.pressRelease = true;
           refinedActivity.isStatic = activity.isStatic;
         } else {
-          refinedActivity.message = 'You liked an Article';
+          const translatedMessage = t('You liked an Article');
+          refinedActivity.message = translatedMessage ?? 'Error';
           refinedActivity.title = activity.title;
           refinedActivity.isStatic = activity.isStatic;
         }
       }
     } else if (activity.activity_type.hasOwnProperty('create')) {
+      const translatedMessage1 = t('You Promoted an Article');
+      const translatedMessage2 = t('You created an Article');
       refinedActivity.message = activity.isPromoted
-        ? 'You Promoted an Article'
-        : 'You created an Article';
+        ? translatedMessage1
+        : translatedMessage2;
       refinedActivity.title = activity.title;
       refinedActivity.isStatic = activity.isStatic;
     }
@@ -202,7 +222,7 @@ export default function ActivityTab({ }: {}) {
     // refinedActivity.pressRelease = activity.pressRelease;
     refinedActivity.time = utcToLocal(activity.time.toString(), 'hh:mm A');
     refinedActivity.date = utcToLocal(activity.time.toString(), 'DD-MM-yyyy');
-    refinedActivity.shoudRoute=activity.shoudRoute;
+    refinedActivity.shoudRoute = activity.shoudRoute;
     return refinedActivity;
   };
   let paginatedActivities = async (
@@ -226,6 +246,7 @@ export default function ActivityTab({ }: {}) {
           activity.title = entry[0].company;
           activity.isWeb3 = true;
           activity.shoudRoute = true;
+          activity.isStatic = entry[0].isStatic;
         } else {
           // activity.title = 'not-found';
           activity.isWeb3 = true;
@@ -239,8 +260,7 @@ export default function ActivityTab({ }: {}) {
           activity.pressRelease = entry[0].pressRelease;
           activity.isPodcast = entry[0].isPodcast;
           activity.shoudRoute = true;
-          activity.isStatic=entry[0].isStatic; 
-
+          activity.isStatic = entry[0].isStatic;
 
           // if (entry[0].)
         } else {
@@ -262,7 +282,7 @@ export default function ActivityTab({ }: {}) {
             activity.pressRelease = false;
 
             activity.isPromoted = false;
-          };
+          }
           activity.shoudRoute = false;
         }
       }
@@ -317,9 +337,9 @@ export default function ActivityTab({ }: {}) {
       getActivities();
     }
   }, []);
-let openLink=(link:any)=>{
-  router.push(link);
-}
+  let openLink = (link: any) => {
+    router.push(link);
+  };
   return (
     <div>
       <div
@@ -339,7 +359,7 @@ let openLink=(link:any)=>{
                       <p>{t('date')}</p>
                     </th>
                     <th>
-                      <p>Time</p>
+                      <p>{t('Time')}</p>
                     </th>
                   </tr>
                 </thead>
@@ -351,7 +371,9 @@ let openLink=(link:any)=>{
                           {activity.message ?? ''}
                           {activity.isPromoted && (
                             <Tippy
-                              content={<p className='mb-0'>{t('Promoted Article')}</p>}
+                              content={
+                                <p className='mb-0'>{t('Promoted Article')}</p>
+                              }
                             >
                               <Image
                                 src={proimg}
@@ -364,7 +386,9 @@ let openLink=(link:any)=>{
                           )}
                           {activity?.pressRelease && (
                             <Tippy
-                              content={<p className='mb-0'> {t('Press Release')}</p>}
+                              content={
+                                <p className='mb-0'> {t('Press Release')}</p>
+                              }
                             >
                               <Image
                                 src={pressicon}
@@ -379,7 +403,7 @@ let openLink=(link:any)=>{
                             // </span>
                           )}
                           {activity?.isPodcast && (
-                            <Tippy content={<p className='mb-0'>Podcast</p>}>
+                            <Tippy content={<p className='mb-0'>{t('podcast')}</p>}>
                               <div
                                 className='position-relative ms-1'
                                 style={{
@@ -396,26 +420,47 @@ let openLink=(link:any)=>{
                             // </span>
                           )}
                           <Link
-                          onClick={(e)=>{
-                            e.preventDefault();
-                            if(activity.shoudRoute){
-
-                            
-                            if(activity.message == 'You subscribed to a User'){
-                              openLink(`/profile?userId=${activity.target}`)
-
-                            }else if(activity.isPodcast){
-                              openLink(activity.isStatic?`${Podcast_STATIC_PATH+activity.target}`:`/podcast?podcastId=${activity.target}`);
-                            }else if(activity.isWeb3){
-                              openLink(`/directory?directoryId=${activity.target}`);
-                            }else{
-                              openLink(activity.isStatic?`${ARTICLE_STATIC_PATH+activity.target}`:`/article?articleId=${activity.target}`);
-                            }
-                          }
-                          }}
-                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (activity.shoudRoute) {
+                                if (
+                                  activity.message == 'You subscribed to a User'
+                                ) {
+                                  openLink(
+                                    `/profile?userId=${activity.target}`
+                                  );
+                                } else if (activity.isPodcast) {
+                                  openLink(
+                                    activity.isStatic
+                                      ? `${Podcast_STATIC_PATH + activity.target
+                                      }`
+                                      : `${Podcast_DINAMIC_PATH+activity.target}`
+                                  );
+                                } else if (activity.isWeb3) {
+                                  openLink(
+                                    activity.isStatic
+                                      ? `${DIRECTORY_STATIC_PATH +
+                                      activity.target
+                                      }`
+                                      : `${DIRECTORY_DINAMIC_PATH+activity.target}`
+                                  );
+                                } else {
+                                  openLink(
+                                    activity.isStatic
+                                      ? `${ARTICLE_STATIC_PATH + activity.target
+                                      }`
+                                      : `${ARTICLE_DINAMIC_PATH+activity.target}`
+                                  );
+                                }
+                              }
+                            }}
+                            href='#'
                             className='ms-1'
-                            style={{cursor:activity.shoudRoute?"pointer":"not-allowed"}}
+                            style={{
+                              cursor: activity.shoudRoute
+                                ? 'pointer'
+                                : 'not-allowed',
+                            }}
                           >
                             {' '}
                             {activity.title.length < 20
@@ -437,7 +482,7 @@ let openLink=(link:any)=>{
             {isLoading ? (
               <Spinner />
             ) : (
-              <p className='h5 m-0'>No Recent Activity Found</p>
+              <p className='h5 m-0'>{t('No Recent Activity Found')}</p>
             )}
           </div>
         )}

@@ -1,14 +1,37 @@
-type anon_class_22_1 = 
+type anon_class_25_1 = 
  service {
-   add_reward: (principal, nat) -> (bool);
+   addReaderOfEntry: (EntryId, text) -> (bool);
+   add_reward: (principal, nat, text) -> (bool);
    add_user: () -> (Result_1);
-   admin_update_user: (Id, InputUser) -> (Result);
+   admin_update_user: (Id, InputUser, text) -> (Result);
    assign_role: (principal, text, Role__1) -> (Result_1);
    block_sub_admin: (text, text) -> (Result_1);
    block_user: (text, text) -> (Result_1);
    check_user_exists: (principal) -> (bool);
-   claim_rewards: (text) -> (bool);
+   claim_rewards_of_user: () -> (bool);
+   claim_rewards_old: (text) -> (bool);
    entry_require_permission: (principal, Permission) -> (bool) query;
+   getArticleReadReward: () -> (nat) query;
+   getDailyLoginReward: () -> (nat) query;
+   getEmailVerificationReward: () -> (nat) query;
+   getListOfArtificialAndMenualRewardList: (bool, text, nat, nat) ->
+    (record {
+       amount: nat;
+       reward: ReturnMenualAndArtificialRewardList;
+     }) query;
+   getListOfMinters: (opt principal, nat, nat, text) ->
+    (record {
+       minters: Minters;
+       total: nat;
+     });
+   getMinimumClaimReward: () -> (nat) query;
+   getProfileCompReward: () -> (nat) query;
+   getRewardChangerList: (text, nat, nat) ->
+    (record {
+       amount: nat;
+       entries: RewardValuesChangeRecordReturnList;
+     }) query;
+   get_NFT24Coin: () -> (nat) query;
    get_authorized_users: (text, nat, nat) ->
     (record {
        amount: nat;
@@ -16,6 +39,18 @@ type anon_class_22_1 =
                     Id;
                     ListUser;
                   };
+     }) query;
+   get_newUserReward: () -> (nat) query;
+   get_reward_of_user: (nat, nat) ->
+    (record {
+       amount: nat;
+       reward: UsersRewards__1;
+     }) query;
+   get_reward_of_user_count: () ->
+    (record {
+       all: nat;
+       claimed: nat;
+       unclaimed: nat;
      }) query;
    get_subAdmin_users: (text, nat, nat) ->
     (record {
@@ -26,11 +61,14 @@ type anon_class_22_1 =
                   };
      }) query;
    get_user_details: (UserId) -> (Result_2) query;
+   get_user_email: (principal) -> (opt record {email: opt text;}) query;
    get_user_name: (principal) ->
-    (opt record {
-           image: opt NewImageObject__1;
-           name: opt text;
-         }) query;
+    (opt
+      record {
+        designation: opt text;
+        image: opt NewImageObject__1;
+        name: opt text;
+      }) query;
    get_user_name_only: (principal) -> (opt text) query;
    get_users: (text, bool, nat, nat) ->
     (record {
@@ -48,16 +86,48 @@ type anon_class_22_1 =
                     TopWinnerUserList;
                   };
      }) query;
-   give_reward: (Id, nat) -> (bool);
+   give_reward: (Id, nat, bool) -> (bool);
+   isAlreadyReadTheEntry: (EntryId) -> (bool) query;
+   isAlreadyVerifiedEmail: (Id) -> (bool) query;
    make_admin: (principal, Role__1) -> (bool);
    request_verification: (NewImageObject__1) -> (Result);
+   saveRewardValuesChangerInterCanister: (Id, RewardConfig, RewardConfig) ->
+    () oneway;
+   saveRewardValuesChangers: (Id, nat, nat, text) -> () oneway;
    unBlock_sub_admin: (text, text) -> (Result_1);
    unBlock_user: (text, text) -> (Result_1);
    un_verify_user: (text, text) -> (Result);
-   update_user: (InputUser) -> (Result);
+   updateArticleReadReward: (nat) -> (bool);
+   updateDailyLoginReward: (nat) -> (bool);
+   updateEmailVerificationReward: (nat) -> (bool);
+   updateMinimumClaimReward: (nat) -> (bool);
+   updateNewUserReward: (nat) -> (bool);
+   updateProfileCompReward: (nat) -> (bool);
+   update_NFT24Coin: (nat) -> (bool);
+   update_user: (InputUser, text) -> (Result);
+   user_count: () -> (int) query;
+   verified_user_count: () -> (UserCount) query;
    verify_user: (text, text) -> (Result);
  };
+type UsersRewards__1 = vec UsersReward;
+type UsersRewards = vec UsersReward;
+type UsersReward = 
+ record {
+   amount: nat;
+   claimed_at: opt int;
+   creation_time: int;
+   isClaimed: bool;
+   reward_type: text;
+ };
 type UserId = opt text;
+type UserCount = 
+ record {
+   Unblocked: int;
+   Users: int;
+   blocked: int;
+   unverified: int;
+   verified: int;
+ };
 type User = 
  record {
    authorDescription: opt text;
@@ -91,8 +161,15 @@ type TopWinnerUserList =
    joinedFrom: int;
    name: text;
    profileImg: opt NewImageObject;
-   rewards: Rewards;
+   rewards: UsersRewards;
    totalReward: int;
+ };
+type TokenMinter = 
+ record {
+   creation_time: int;
+   name: text;
+   tokens: nat;
+   user: principal;
  };
 type Role__1 = 
  variant {
@@ -111,12 +188,47 @@ type Role =
    user_admin;
  };
 type Rewards = vec Reward;
+type RewardValuesChangeRecordReturnList = 
+ vec record {
+       text;
+       RewardValuesChangeRecordReturn;
+     };
+type RewardValuesChangeRecordReturn = 
+ record {
+   changer: Id__1;
+   changerName: text;
+   creation_time: int;
+   newValue: nat;
+   oldValue: nat;
+   rewardType: text;
+ };
+type RewardConfig = 
+ record {
+   admin: nat;
+   master: nat;
+   platform: nat;
+ };
 type Reward = 
  record {
    amount: nat;
    claimed_at: opt int;
    creation_time: int;
    isClaimed: bool;
+ };
+type ReturnMenualAndArtificialRewardList = 
+ vec record {
+       text;
+       ReturnMenualAndArtificialReward;
+     };
+type ReturnMenualAndArtificialReward = 
+ record {
+   amount: nat;
+   creation_time: int;
+   from: Id__1;
+   isMenual: bool;
+   receiverName: text;
+   senderName: text;
+   to: Id__1;
  };
 type Result_2 = 
  variant {
@@ -153,6 +265,11 @@ type Permission =
  };
 type NewImageObject__1 = text;
 type NewImageObject = text;
+type Minters = 
+ vec record {
+       text;
+       TokenMinter;
+     };
 type ListUser = 
  record {
    email: opt text;
@@ -191,5 +308,7 @@ type InputUser =
    twitter: text;
    website: text;
  };
+type Id__1 = principal;
 type Id = principal;
-service : () -> anon_class_22_1
+type EntryId = text;
+service : () -> anon_class_25_1

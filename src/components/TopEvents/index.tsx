@@ -15,8 +15,9 @@ import { TopEvent } from '@/types/article';
 import { ARTICLE_FEATURED_IMAGE_ASPECT } from '@/constant/sizes';
 import { Form, Spinner } from 'react-bootstrap';
 import getVariant from '@/components/utils/getEventStatus';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { Event_DINAMIC_PATH, Event_STATIC_PATH } from '@/constant/routes';
 
 export default function TopEvents({ small }: { small?: boolean }) {
   const { t, changeLocale } = useLocalization(LANG);
@@ -67,7 +68,8 @@ export default function TopEvents({ small }: { small?: boolean }) {
           freeTicket: unEvent?.freeTicket,
           applyTicket: unEvent?.applyTicket,
           lat: unEvent?.lat,
-          lng: unEvent?.lng
+          lng: unEvent?.lng,
+          isStatic: unEvent.isStatic,
         };
         return refinedEvent;
       });
@@ -96,15 +98,15 @@ export default function TopEvents({ small }: { small?: boolean }) {
   }, []);
   return (
     <>
-      <h4 className='hedingxt'>
+      <h2 className='hedingxt'>
         <Image src={iconevents} alt='Hot' /> {t('Events')}
-      </h4>
-      <div className='spacer-20'></div>
+      </h2>
+      <div className='spacer-20' />
       <div className='flex-div align-items-center'>
         <div className='seelect'>
           {/* <Dropdown className='trans'>
                       <Dropdown.Toggle variant='success' id='dropdown-basic'>
-                        Upcoming <i className='fa fa-angle-down'></i>
+                        Upcoming <i className='fa fa-angle-down'/>
                       </Dropdown.Toggle>
 
                       <Dropdown.Menu>
@@ -145,15 +147,15 @@ export default function TopEvents({ small }: { small?: boolean }) {
                 getEvents(true);
               }}
             >
-              <i className='fa fa-xmark mx-1'></i>
+              <i className='fa fa-xmark mx-1' />
             </button>
           )}
           <button onClick={() => getEvents()}>
-            <i className='fa fa-search'></i>
+            <i className='fa fa-search' />
           </button>
         </div>
       </div>
-      <div className='spacer-30'></div>
+      <div className='spacer-30' />
       {isLoading ? (
         <div className='d-flex justify-content-center'>
           <Spinner size='sm' />
@@ -171,7 +173,11 @@ export default function TopEvents({ small }: { small?: boolean }) {
                       margin: '0 auto',
                       aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
                     }}
-                    href={`/event-details?eventId=${event.id}`}
+                    href={
+                      event.isStatic
+                        ? `${Event_STATIC_PATH + event.id}`
+                        : `${Event_DINAMIC_PATH + event.id}`
+                    }
                   >
                     <Image src={event.image} fill alt='Post' />
                   </Link>
@@ -180,7 +186,11 @@ export default function TopEvents({ small }: { small?: boolean }) {
                   <span>{event.date}</span>
                   <h6>
                     <Link
-                      href={`/event-details?eventId=${event.id}`}
+                      href={
+                        event.isStatic
+                          ? `${Event_STATIC_PATH + event.id}`
+                          : `${Event_DINAMIC_PATH + event.id}`
+                      }
                       className='text-primary'
                     >
                       {/* ONE°15 Marina Sentosa... */}
@@ -213,7 +223,7 @@ export default function TopEvents({ small }: { small?: boolean }) {
       {/* <div className='release-post'>
         <div className={`release-post-inner ${small ? 'small' : ''}`}>
           <div className='img-pnl'>
-            <Link href="/"><Image src={smallpost2} alt="Post" /></Link>
+            <Link href="/"><Image src={smallpost2} alt="Post" />
           </div>
           <div className='txt-pnl'>
             <span>October 22 - October 24</span>
@@ -226,7 +236,7 @@ export default function TopEvents({ small }: { small?: boolean }) {
       <div className='release-post'>
         <div className={`release-post-inner ${small ? 'small' : ''}`}>
           <div className='img-pnl'>
-            <Link href="/"><Image src={smallpost3} alt="Post" /></Link>
+            <Link href="/"><Image src={smallpost3} alt="Post" />
           </div>
           <div className='txt-pnl'>
             <span>November 1 - November 2</span>

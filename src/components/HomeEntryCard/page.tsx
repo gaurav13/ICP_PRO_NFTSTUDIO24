@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { Entry } from '@/types/dashboard';
+import Image from 'next/image';
 
 export default function HomeEntryCard({ entry }: any) {
   // const { allUsersEntries, setAllUsersEntries } = useEntriesStore((state) => ({
@@ -21,7 +22,7 @@ export default function HomeEntryCard({ entry }: any) {
   return (
     <div className='max-w-sm rounded-lg border border-gray-200 bg-white shadow dark:border-gray-700 dark:bg-gray-800'>
       <a href='#'>
-        <img
+        <Image
           className='rounded-t-lg'
           src='/docs/images/blog/image-1.jpg'
           alt=''
@@ -40,7 +41,7 @@ export default function HomeEntryCard({ entry }: any) {
           href='#'
           className='inline-flex items-center rounded-lg bg-blue-700 px-3 py-2 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
         >
-          Read more
+          {t('Read More')}
           <svg
             className='ml-2 h-3.5 w-3.5'
             xmlns='http://www.w3.org/2000/svg'

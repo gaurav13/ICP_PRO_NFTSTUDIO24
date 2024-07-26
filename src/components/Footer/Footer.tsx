@@ -15,7 +15,7 @@ import { LANG } from '@/constant/language';
 import { usePathname } from 'next/navigation';
 import TwitterSVGIcon from '@/components/twitterIconSVG/TwitterSVGIcon';
 import logger from '@/lib/logger';
-import { PATHS } from '@/constant/routes';
+import { CAREERS, CATEGORY_PATH, CONTACT_US, DISCLAIMER, DONTNOTSELL, EDITOR_POLICY, ETHICS_POLICY, EVENTS, HINZAASIF, PATHS, PRESSRELEASE, PRIVACY_POLICY, QUIZ, TERMSOFUSE } from '@/constant/routes';
 import { profileAspect } from '@/constant/sizes';
 
 export default function Footer() {
@@ -37,6 +37,33 @@ export default function Footer() {
       setBtnShow(false);
     }
   }, [path]);
+  let routes: {
+    ethicspolicy: string;
+    editorpolicy: string;
+    privacypolicy: string;
+    termOfUse: string;
+    doNOtSell: string;
+    career: string;
+    contactUs: string;
+    hinzaAsif: string;
+    pressRelease: string;
+    event: string;
+    disclaimer: string;
+    quiz: string;
+  } = {
+    ethicspolicy: ETHICS_POLICY,
+    editorpolicy: EDITOR_POLICY,
+    pressRelease: PRESSRELEASE,
+    event: EVENTS,
+    privacypolicy: PRIVACY_POLICY,
+    termOfUse: TERMSOFUSE,
+    doNOtSell: DONTNOTSELL,
+    career: CAREERS,
+    contactUs: CONTACT_US,
+    hinzaAsif: HINZAASIF,
+    disclaimer: DISCLAIMER,
+    quiz: QUIZ,
+  };
 
   return (
     <>
@@ -49,116 +76,100 @@ export default function Footer() {
                   <div className='mobile-scl-cntnr'>
                     <div>
                       <Link href='#;' className='footer-logo'>
-                        <Image src={Footerlogo} alt='Logo' />
+                        <Image src={Footerlogo} alt='NFTスタジオ24' />
                       </Link>
-                      <h4 className='blue-text'>
+                      <div className='blue-text'>
                         {t(
                           'Your go-to for Web3, Blockchain, Crypto, & Metaverse AI news and insights. Stay informed and ahead with us!'
                         )}
-                      </h4>
+                      </div>
                     </div>
-                    {LANG == 'en' && (
-                      <ul className='footer-social-list align-items-center mobile-view-display-flex'>
-                        <li>
+                    {/* {LANG == 'en' && ( */}
+                    <ul className='footer-social-list align-items-center mobile-view-display-flex'>
+                      {/* <li>
                           <h4>{t('Follow Us')}</h4>
-                        </li>
-                        <li>
-                          <Link
-                            target='_blank'
-                            href='https://www.facebook.com/nftstudio24.eth'
-                          >
-                            <i className='fa fa-facebook'></i>
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            target='_blank'
-                            href='https://twitter.com/nftstudio24'
-                          >
-                            {/* <i className='fa-brands fa-x-twitter'></i> */}
-                            <TwitterSVGIcon color='white' />
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            target='_blank'
-                            href='https://www.instagram.com/nftstudio24/'
-                          >
-                            <i className='fa fa-instagram'></i>
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            target='_blank'
-                            href='https://www.youtube.com/channel/UCO18Z_ft-kBWh4g7rXqqeLQ'
-                          >
-                            <i className='fa fa-youtube-play'></i>
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            target='_blank'
-                            href='https://www.linkedin.com/company/nftstudio24-com?trk=public_profile_experience-item_profile-section-card_image-click&originalSubdomain=ng'
-                          >
-                            <i className='fa fa-linkedin'></i>
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            target='_blank'
-                            href='https://t.me/NFTStudio24_official'
-                          >
-                            <i className='fa fa-telegram'></i>
-                          </Link>
-                        </li>
-                      </ul>
-                    )}
+                        </li> */}
+                      <li>
+                        <Link
+                          target='_blank'
+                          href='https://www.facebook.com/nftstudio24.eth'
+                        >
+                          <i className='fa fa-facebook' />
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          target='_blank'
+                          href='https://twitter.com/nftstudio24'
+                        >
+                          {/* <i className='fa-brands fa-x-twitter'/> */}
+                          <TwitterSVGIcon color='white' />
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          target='_blank'
+                          href='https://www.instagram.com/nftstudio24/'
+                        >
+                          <i className='fa fa-instagram' />
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          target='_blank'
+                          href='https://www.youtube.com/channel/UCO18Z_ft-kBWh4g7rXqqeLQ'
+                        >
+                          <i className='fa fa-youtube-play' />
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          target='_blank'
+                          href='https://www.linkedin.com/company/nftstudio24-com?trk=public_profile_experience-item_profile-section-card_image-click&originalSubdomain=ng'
+                        >
+                          <i className='fa fa-linkedin' />
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          target='_blank'
+                          href='https://t.me/NFTStudio24_official'
+                        >
+                          <i className='fa fa-telegram' />
+                        </Link>
+                      </li>
+                    </ul>
+                    {/* )} */}
                   </div>
                 </Col>
                 <Col xl='9' lg='12' md='12'>
                   <Row>
-                    <Col
-                      xl={LANG == 'jp' ? '4' : '3'}
-                      lg={LANG == 'jp' ? '4' : '3'}
-                      md={LANG == 'jp' ? '4' : '3'}
-                      sm={LANG == 'jp' ? '4' : '3'}
-                      xs={LANG == 'jp' ? '4' : '6'}
-                    >
-                      <h6>{t('About Us')}</h6>
+                    <Col xl={'3'} lg={'3'} md={'3'} sm={'3'} xs={'6'}>
+                      <div className='heading6'>{t('About Us')}</div>
                       <ul>
                         <li>
                           <Link href='https://nftstudio24.com/about/'>
-                            {t('About Us')}
+                            {t('About NFTStudio24')}
                           </Link>
                         </li>
                         <li>
                           {/* <Link href='/hinza-asif'> */}
-                          <Link href='https://nftstudio24.com/hinza-asif/'>
+                          <Link href={routes.hinzaAsif}>
                             {t('About Hinza Asif')}
                           </Link>
                         </li>
                         <li>
                           {/* <Link href='/careers'> */}
-                          <Link href='https://nftstudio24.com/careers/'>
-                            {t('Career')}
-                          </Link>
+                          <Link href={routes.career}>{t('Career')}</Link>
                         </li>
                         <li>
                           {/* <Link href='/contact-us'> */}
-                          <Link href='https://nftstudio24.com/contact-us/'>
-                            {t('Contact Us')}
-                          </Link>
+                          <Link href={routes.contactUs}>{t('Contact Us')}</Link>
                         </li>
                       </ul>
                     </Col>
-                    <Col
-                      xl={LANG == 'jp' ? '4' : '3'}
-                      lg={LANG == 'jp' ? '4' : '3'}
-                      md={LANG == 'jp' ? '4' : '3'}
-                      sm={LANG == 'jp' ? '4' : '3'}
-                      xs={LANG == 'jp' ? '4' : '6'}
-                    >
-                      <h6>{t('Our Services')}</h6>
+                    <Col xl={'3'} lg={'3'} md={'3'} sm={'3'} xs={'6'}>
+                      <div className='heading6'>{t('Our Services')}</div>
                       <ul>
                         <li>
                           <Link href='https://nftstudio24.com/advertise-with-us/'>
@@ -175,7 +186,7 @@ export default function Footer() {
                             {t('Web3 Accelerators')}
                           </Link>
                         </li>
-                        <li>
+                        {/* <li>
                           <Link href='https://nftstudio24.com/experts-alliance/'>
                             {t('Experts Alliance')}
                           </Link>
@@ -199,192 +210,203 @@ export default function Footer() {
                           <Link href='https://nftstudio24.com/apply-for-experts-alliance/'>
                             {t('Experts Alliance')}
                           </Link>
-                        </li>
+                        </li> */}
                       </ul>
                     </Col>
-                    <Col
-                      xl={LANG == 'jp' ? '4' : '3'}
-                      lg={LANG == 'jp' ? '4' : '3'}
-                      md={LANG == 'jp' ? '4' : '3'}
-                      sm={LANG == 'jp' ? '4' : '3'}
-                      xs={LANG == 'jp' ? '4' : '6'}
-                    >
-                      <h6>{t('Top Categories')}</h6>
+                    <Col xl={'3'} lg={'3'} md={'3'} sm={'3'} xs={'6'}>
+                      <div className='heading6'>{t('Top Categories')}</div>
                       <ul>
                         <li>
-                          <Link href='https://nftstudio24.com/news/'>
+                          <Link href={CATEGORY_PATH.LATEST_NEW}>
                             {t('News')}
                           </Link>
                         </li>
                         <li>
-                          <Link href='https://nftstudio24.com/press-release/'>
+                          <Link href={routes.pressRelease}>
                             {t('Press Release')}
                           </Link>
                         </li>
                         <li>
-                          <Link href='https://nftstudio24.com/nft-review/'>
+                          <Link href={CATEGORY_PATH.NFT}>
                             {t('NFT Collection Review')}
                           </Link>
                         </li>
                         <li>
-                          <Link href='https://nftstudio24.com/game-review/'>
+                          <Link href={CATEGORY_PATH.BLOCKCHAIN_GAMES}>
                             {t('Blockchain Game Review')}
                           </Link>
                         </li>
                         <li>
-                          <Link href='https://nftstudio24.com/guide/'>
+                          <Link href={CATEGORY_PATH.WEB3}>
                             {t('WEB3 Guide')}
                           </Link>
                         </li>
                         <li>
-                          <Link href='https://nftstudio24.com/events/'>
-                            {t('Events')}
-                          </Link>
+                          <Link href={routes.event}>{t('Events')}</Link>
                         </li>
                       </ul>
                     </Col>
-                    {LANG == 'en' && (
-                      <Col xl='3' lg='3' md='3' sm='3' xs='6'>
-                        <h6>{t('Our Policy')}</h6>
-                        <ul>
-                          <li>
-                            {/* <Link href='/privacy-policy'> */}
-                            <Link href='https://nftstudio24.com/privacy-policy/'>
-                              {t('Privacy Policy')}
-                            </Link>
-                          </li>
-                          <li>
-                            {/* <Link href='/terms-of-use'> */}
-                            <Link href='https://nftstudio24.com/terms-of-use/'>
-                              {t('Terms of Use')}
-                            </Link>
-                          </li>
-                          <li>
-                            {/* <Link href='/ethics-policy'> */}
-                            <Link href='https://nftstudio24.com/ethics-policy/'>
-                              {t('Ethics Policy')}
-                            </Link>
-                          </li>
-                          <li>
-                            {/* <Link href='/do-not-sell'> */}
-                            <Link href='https://nftstudio24.com/do-not-sell-my-personal-info/'>
-                              {t('Do Not Sell My Personal Info')}
-                            </Link>
-                          </li>
-                          <li>
-                            {/* <Link href='/disclaimer'> */}
-                            <Link href='https://nftstudio24.com/disclaimer/'>
-                              {t('Disclaimer')}
-                            </Link>
-                          </li>
-                          <li>
-                            {/* <Link href='/contact-us'> */}
-                            <Link href='https://nftstudio24.com/contact-us/'>
-                              {t('Contact Us')}
-                            </Link>
-                          </li>
-                        </ul>
-                      </Col>
-                    )}
+
+                    <Col xl='3' lg='3' md='3' sm='3' xs='6'>
+                      <div className='heading6'>{t('Our Policy')}</div>
+                      <ul>
+                        <li>
+                          {/* <Link href='/privacy-policy'> */}
+                          <Link href={routes.privacypolicy}>
+                            {t('Privacy Policy')}
+                          </Link>
+                        </li>
+                        <li>
+                          {/* <Link href='/terms-of-use'> */}
+                          <Link href={routes.termOfUse}>
+                            {t('Terms of Use')}
+                          </Link>
+                        </li>
+                        <li>
+                          {/* <Link href='/ethics-policy'> */}
+                          <Link
+                            href={
+                              LANG == 'jp'
+                                ? routes.editorpolicy
+                                : routes.ethicspolicy
+                            }
+                          >
+                            {LANG == 'jp'
+                              ? t('Editor Policy')
+                              : t('Ethics Policy')}
+                          </Link>
+                        </li>
+                        <li>
+                          {/* <Link href='/do-not-sell'> */}
+                          <Link href={routes.doNOtSell}>
+                            {t('Do Not Sell My Personal Info')}
+                          </Link>
+                        </li>
+                        <li>
+                          {/* <Link href='/disclaimer'> */}
+                          <Link href={routes.disclaimer}>
+                            {t('Disclaimer')}
+                          </Link>
+                        </li>
+                        <li>
+                          {/* <Link href='/contact-us'> */}
+                          <Link href={routes.contactUs}>{t('Contact Us')}</Link>
+                        </li>
+                      </ul>
+                    </Col>
                   </Row>
                 </Col>
                 <Col xl='12' lg='12' md='12'>
-                  <div className='spacer-20'></div>
+                  <div className='spacer-20' />
                   <div className='flex-div-sm'>
-                    <p>{t('© 2023 NFTStudio24.com . All Rights Reserved.')}</p>
-                    {LANG == 'en' && (
-                      <div>
-                        <ul className='footer-social-list align-items-center web-view-display'>
-                          <li>
+                    <p>{t('© 2024 NFTStudio24.com . All Rights Reserved.')}</p>
+                    {/* {LANG == 'en' && ( */}
+                    <div>
+                      <ul className='footer-social-list align-items-center web-view-display'>
+                        {/* <li>
                             <h4>{t('Follow Us')}</h4>
-                          </li>
-                          <li>
-                            <Link
-                              target='_blank'
-                              href='https://www.facebook.com/nftstudio24.eth'
-                            >
-                              <i className='fa fa-facebook'></i>
-                            </Link>
-                          </li>
-                          <li>
-                            <Link
-                              target='_blank'
-                              href='https://twitter.com/nftstudio24'
-                            >
-                              {/* <i className='fa-brands fa-x-twitter'></i> */}
-                              <TwitterSVGIcon color='white' />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link
-                              target='_blank'
-                              href='https://www.instagram.com/nftstudio24/'
-                            >
-                              <i className='fa fa-instagram'></i>
-                            </Link>
-                          </li>
-                          <li>
-                            <Link
-                              target='_blank'
-                              href='https://www.youtube.com/channel/UCO18Z_ft-kBWh4g7rXqqeLQ'
-                            >
-                              <i className='fa fa-youtube-play'></i>
-                            </Link>
-                          </li>
-                          <li>
-                            <Link
-                              target='_blank'
-                              href='https://www.linkedin.com/company/nftstudio24-com?trk=public_profile_experience-item_profile-section-card_image-click&originalSubdomain=ng'
-                            >
-                              <i className='fa fa-linkedin'></i>
-                            </Link>
-                          </li>
-                          <li>
-                            <Link
-                              target='_blank'
-                              href='https://t.me/NFTStudio24_official'
-                            >
-                              <i className='fa fa-telegram'></i>
-                            </Link>
-                          </li>
-                        </ul>
-                      </div>
-                    )}
+                          </li> */}
+                        <li>
+                          <Link
+                            target='_blank'
+                            href='https://www.facebook.com/nftstudio24.eth'
+                          >
+                            <i className='fa fa-facebook' />
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            target='_blank'
+                            href='https://twitter.com/nftstudio24'
+                          >
+                            {/* <i className='fa-brands fa-x-twitter'/> */}
+                            <TwitterSVGIcon color='white' />
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            target='_blank'
+                            href='https://www.instagram.com/nftstudio24/'
+                          >
+                            <i className='fa fa-instagram' />
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            target='_blank'
+                            href='https://www.youtube.com/channel/UCO18Z_ft-kBWh4g7rXqqeLQ'
+                          >
+                            <i className='fa fa-youtube-play' />
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            target='_blank'
+                            href='https://www.linkedin.com/company/nftstudio24-com?trk=public_profile_experience-item_profile-section-card_image-click&originalSubdomain=ng'
+                          >
+                            <i className='fa fa-linkedin' />
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            target='_blank'
+                            href='https://t.me/NFTStudio24_official'
+                          >
+                            <i className='fa fa-telegram' />
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+                    {/* )} */}
                   </div>
                 </Col>
               </Row>
               <Row>
                 <Col xl='12' lg='12' md='12'>
                   <div className='footer-bottom'>
-                    {LANG == 'en' && (
-                      <p className='m-0'>
-                        {t('Please note that our')}{' '}
-                        {/* <Link href='/privacy-policy'> */}
-                        <Link href='https://nftstudio24.com/privacy-policy/'>
-                          {t('Privacy Policy')}
-                        </Link>
-                        , {/* <Link href='/terms-of-use'> */}
-                        <Link href='https://nftstudio24.com/terms-of-use/'>
-                          {t('Terms of Use')}z
+                    <p className='m-0'>
+                      {t('Please note that our')}{' '}
+                      {/* <Link href='/privacy-policy'> */}
+                      <Link href={routes.privacypolicy}>
+                        {t('Privacy Policy')}
+                      </Link>
+                      , {/* <Link href='/terms-of-use'> */}
+                      <Link href={routes.termOfUse}>
+                        {t('Terms of Use')}
+                      </Link>{' '}
+                      {/* {LANG === 'en' && ( */}
+                      <>
+                        {t(', cookies, and')}{' '}
+                        <Link href={routes.doNOtSell}>
+                          {t('do not sell my personal information')}
                         </Link>{' '}
-                        {t(', cookies, and')} {/* <Link href='/do-not-sell'> */}
-                        <Link href='https://nftstudio24.com/do-not-sell-my-personal-info/'>
-                          do not sell my personal information
-                        </Link>
-                        {t('has been updated')}.
-                      </p>
-                    )}
-                    <div className='spacer-20'></div>
+                        {t('has been updated')}
+                      </>
+                      {/* )} */}
+                    </p>
+
+                    <div className='spacer-20' />
                     <p>
                       {t(
                         'The leader in news and information on cryptocurrency, digital assets and the future of money, NFTStudio24 is a decentralized media outlet that strives for the highest journalistic standards and abides by a'
                       )}{' '}
                       {/* <Link href='/ethics-policy'> */}
-                      <Link href='https://nftstudio24.com/ethics-policy/'>
-                        {t('strict set of editorial policies')}
-                      </Link>
-                      {t(
-                        ' NFTStudio24 is an independent operating subsidiary of Diki Co ltd Japan, which invests in cryptocurrencies and blockchain startups. As part of their compensation, certain NFTStudio24 employees, including editorial employees, may receive exposure to Daiki Co Ltd equity in the form of stock appreciation rights, which vest over a multi-year period. NFTStudio24 journalists are not allowed to purchase stock outright in Daiki Co Ltd'
+                      {LANG == 'en' && (
+                        <>
+                          {' '}
+                          <Link href={routes.ethicspolicy}>
+                            {t('strict set of editorial policies')}
+                          </Link>{' '}
+                          NFTStudio24 is an independent operating subsidiary of
+                          Diki Co ltd Japan, which invests in cryptocurrencies
+                          and blockchain startups. As part of their
+                          compensation, certain NFTStudio24 employees, including
+                          editorial employees, may receive exposure to Daiki Co
+                          Ltd equity in the form of stock appreciation rights,
+                          which vest over a multi-year period. NFTStudio24
+                          journalists are not allowed to purchase stock outright
+                          in Daiki Co Ltd'
+                        </>
                       )}
                     </p>
                   </div>
@@ -393,11 +415,11 @@ export default function Footer() {
             </div>
             {btnShow && (
               <Button
-                className='filter-btn'
+                className='filter-btn footerbtn'
                 onClick={() => setIsDetailPage((pre) => !pre)}
               >
                 <Image
-                  src='/images/bars-solid.jpg'
+                  src='/images/bars-solid.png'
                   alt='Mobile'
                   height={30}
                   width={40}
