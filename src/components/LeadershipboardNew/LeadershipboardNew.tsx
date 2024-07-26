@@ -11,7 +11,7 @@ import icpimage from '@/assets/Img/coin-image.png';
 // import infinity1 from '@/assets/Img/Icons/icon-infinite3.png';
 import infinity1 from '@/assets/Img/coin-image.png';
 import cup from '@/assets/Img/icon-cup-1.png';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import leadership from '@/assets/Img/leader.png';
 import Girl from '@/assets/Img/Icons/icon-woman.png';
@@ -23,6 +23,7 @@ import { useConnectPlugWalletStore } from '@/store/useStore';
 import { getImage } from '@/components/utils/getImage';
 import { E8S } from '@/constant/config';
 import { Button } from 'react-bootstrap';
+import { formatLikesCount } from '@/components/utils/utcToLocal';
 export default function LeadershipboardNew({ more }: { more?: boolean }) {
   const { t, changeLocale } = useLocalization(LANG);
   const [topuserlist, setTopuserList] = useState<any>([]);
@@ -41,7 +42,7 @@ export default function LeadershipboardNew({ more }: { more?: boolean }) {
       if (userList[user][1].profileImg.length != 0) {
         image = getImage(userList[user][1].profileImg[0]);
       }
-      const amount = parseInt(userList[user][1].totalReward) / E8S;
+      const amount = parseInt(userList[user][1].totalReward) ;
       let tempUser = {
         image,
         name: userList[user][1].name,
@@ -87,19 +88,21 @@ export default function LeadershipboardNew({ more }: { more?: boolean }) {
         </span>
         <div className='hddr'>
           <Link className='learnmore-bt' href='#'>
-          {t('Learn More')} <i className='fa fa-angle-right'></i>
+            {t('Learn More')} <i className='fa fa-angle-right' />
           </Link>
           <div className='im'>
             <Image src={cup} alt='Coin' />
           </div>
           <div className='txt'>
             <div>
-              <h1>{t('TOP 10')}</h1>
+              <strong>{t('TOP 10')}</strong>
             </div>
-            <h3>{t('THIS WEEK')}</h3>
-            <h2>
-              {t('The leaderboard exclusively monitors the Additional Weekly NS24 points gained from user activities over a span of 7 days.')}
-            </h2>
+            <strong className='h3'>{t('THIS WEEK')}</strong>
+            <p className='h2txt'>
+              {t(
+                'The leaderboard exclusively monitors the Additional Weekly NS24 points gained from user activities over a span of 7 days.'
+              )}
+            </p>
           </div>
         </div>
         <div className='table-container'>
@@ -118,8 +121,8 @@ export default function LeadershipboardNew({ more }: { more?: boolean }) {
                             <Image src={Girl} alt='icp' />
                           </div>
                           <div className='txt-pnl'>
-                            <h4>Mfo imo</h4>
-                            <h5>#54134</h5>
+                            <p className='h4txt'>Mfo imo</p>
+                            <p className='h5txt'>#54134</p>
                           </div>
                         </div>
                       </td>
@@ -137,8 +140,8 @@ export default function LeadershipboardNew({ more }: { more?: boolean }) {
                             <Image src={Girl} alt='icp' />
                           </div>
                           <div className='txt-pnl'>
-                            <h4>Mfo imo</h4>
-                            <h5>#54134</h5>
+                            <p className='h4txt'>Mfo imo</p>
+                            <p className='h5txt'>#54134</p>
                           </div>
                         </div>
                       </td>
@@ -156,8 +159,8 @@ export default function LeadershipboardNew({ more }: { more?: boolean }) {
                             <Image src={Girl} alt='icp' />
                           </div>
                           <div className='txt-pnl'>
-                            <h4>Mfo imo</h4>
-                            <h5>#54134</h5>
+                            <p className='h4txt'>Mfo imo</p>
+                            <p className='h5txt'>#54134</p>
                           </div>
                         </div>
                       </td>
@@ -192,14 +195,14 @@ export default function LeadershipboardNew({ more }: { more?: boolean }) {
                                   />
                                 </div>
                                 <div className='txt-pnl'>
-                                  <h4>{user.name}</h4>
-                                  <h5>#56743</h5>
+                                  <p className='h4txt'>{user.name}</p>
+                                  <p className='h5txt'>#56743</p>
                                   {/* <h5>#{user.level}</h5> */}
                                 </div>
                               </div>
                             </td>
                             <td className='text-right'>
-                              +{user.amount} <Image src={infinity1} alt='icp' />
+                              +{formatLikesCount(user.amount)} <Image src={infinity1} alt='icp' />
                             </td>
                           </tr>
                         );
@@ -289,12 +292,16 @@ export default function LeadershipboardNew({ more }: { more?: boolean }) {
         </div>
         <div>
           <Link href='#' style={{ color: 'black' }}>
-            {t('show more')} <i className='fa fa-caret-down'></i>
+            {t('show more')} <i className='fa fa-caret-down' />
           </Link>
         </div>
-        <div className='spacer-20'></div>
+        <div className='spacer-20' />
         <Button className='blue-button'>
-          <Image src={leadership} alt='leadership' />
+          {LANG === 'en' ? (
+            <Image src={leadership} alt='leadership' />
+          ) : (
+            'リーダーボード'
+          )}
         </Button>
       </div>
     </>

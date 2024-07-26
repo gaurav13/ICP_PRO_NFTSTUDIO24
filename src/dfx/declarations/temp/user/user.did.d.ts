@@ -1,7 +1,9 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
+export type EntryId = string;
 export type Id = Principal;
+export type Id__1 = Principal;
 export interface InputUser {
   'dob' : string,
   'authorDescription' : string,
@@ -37,6 +39,7 @@ export interface ListUser {
   'joinedFrom' : bigint,
   'identificationImage' : [] | [NewImageObject],
 }
+export type Minters = Array<[string, TokenMinter]>;
 export type NewImageObject = string;
 export type NewImageObject__1 = string;
 export type Permission = { 'assign_role' : null } |
@@ -49,12 +52,40 @@ export type Result_1 = { 'ok' : [string, User] } |
   { 'err' : string };
 export type Result_2 = { 'ok' : [string, User, boolean] } |
   { 'err' : string };
+export interface ReturnMenualAndArtificialReward {
+  'to' : Id__1,
+  'creation_time' : bigint,
+  'from' : Id__1,
+  'isMenual' : boolean,
+  'receiverName' : string,
+  'senderName' : string,
+  'amount' : bigint,
+}
+export type ReturnMenualAndArtificialRewardList = Array<
+  [string, ReturnMenualAndArtificialReward]
+>;
 export interface Reward {
   'creation_time' : bigint,
   'claimed_at' : [] | [bigint],
   'isClaimed' : boolean,
   'amount' : bigint,
 }
+export interface RewardConfig {
+  'admin' : bigint,
+  'platform' : bigint,
+  'master' : bigint,
+}
+export interface RewardValuesChangeRecordReturn {
+  'creation_time' : bigint,
+  'oldValue' : bigint,
+  'newValue' : bigint,
+  'changerName' : string,
+  'rewardType' : string,
+  'changer' : Id__1,
+}
+export type RewardValuesChangeRecordReturnList = Array<
+  [string, RewardValuesChangeRecordReturn]
+>;
 export type Rewards = Array<Reward>;
 export type Role = { 'admin' : null } |
   { 'article_admin' : null } |
@@ -66,12 +97,18 @@ export type Role__1 = { 'admin' : null } |
   { 'authorized' : null } |
   { 'user_admin' : null } |
   { 'sub_admin' : null };
+export interface TokenMinter {
+  'creation_time' : bigint,
+  'name' : string,
+  'user' : Principal,
+  'tokens' : bigint,
+}
 export interface TopWinnerUserList {
   'dob' : [] | [string],
   'name' : string,
   'joinedFrom' : bigint,
   'gender' : [] | [string],
-  'rewards' : Rewards,
+  'rewards' : UsersRewards,
   'totalReward' : bigint,
   'profileImg' : [] | [NewImageObject],
 }
@@ -100,29 +137,84 @@ export interface User {
   'authorTitle' : [] | [string],
   'profileImg' : [] | [NewImageObject],
 }
+export interface UserCount {
+  'verified' : bigint,
+  'Users' : bigint,
+  'blocked' : bigint,
+  'unverified' : bigint,
+  'Unblocked' : bigint,
+}
 export type UserId = [] | [string];
-export interface anon_class_22_1 {
-  'add_reward' : ActorMethod<[Principal, bigint], boolean>,
+export interface UsersReward {
+  'creation_time' : bigint,
+  'claimed_at' : [] | [bigint],
+  'isClaimed' : boolean,
+  'reward_type' : string,
+  'amount' : bigint,
+}
+export type UsersRewards = Array<UsersReward>;
+export type UsersRewards__1 = Array<UsersReward>;
+export interface anon_class_25_1 {
+  'addReaderOfEntry' : ActorMethod<[EntryId, string], boolean>,
+  'add_reward' : ActorMethod<[Principal, bigint, string], boolean>,
   'add_user' : ActorMethod<[], Result_1>,
-  'admin_update_user' : ActorMethod<[Id, InputUser], Result>,
+  'admin_update_user' : ActorMethod<[Id, InputUser, string], Result>,
   'assign_role' : ActorMethod<[Principal, string, Role__1], Result_1>,
   'block_sub_admin' : ActorMethod<[string, string], Result_1>,
   'block_user' : ActorMethod<[string, string], Result_1>,
   'check_user_exists' : ActorMethod<[Principal], boolean>,
-  'claim_rewards' : ActorMethod<[string], boolean>,
+  'claim_rewards_of_user' : ActorMethod<[], boolean>,
+  'claim_rewards_old' : ActorMethod<[string], boolean>,
   'entry_require_permission' : ActorMethod<[Principal, Permission], boolean>,
+  'getArticleReadReward' : ActorMethod<[], bigint>,
+  'getDailyLoginReward' : ActorMethod<[], bigint>,
+  'getEmailVerificationReward' : ActorMethod<[], bigint>,
+  'getListOfArtificialAndMenualRewardList' : ActorMethod<
+    [boolean, string, bigint, bigint],
+    { 'reward' : ReturnMenualAndArtificialRewardList, 'amount' : bigint }
+  >,
+  'getListOfMinters' : ActorMethod<
+    [[] | [Principal], bigint, bigint, string],
+    { 'total' : bigint, 'minters' : Minters }
+  >,
+  'getMinimumClaimReward' : ActorMethod<[], bigint>,
+  'getProfileCompReward' : ActorMethod<[], bigint>,
+  'getRewardChangerList' : ActorMethod<
+    [string, bigint, bigint],
+    { 'entries' : RewardValuesChangeRecordReturnList, 'amount' : bigint }
+  >,
+  'get_NFT24Coin' : ActorMethod<[], bigint>,
   'get_authorized_users' : ActorMethod<
     [string, bigint, bigint],
     { 'users' : Array<[Id, ListUser]>, 'amount' : bigint }
+  >,
+  'get_newUserReward' : ActorMethod<[], bigint>,
+  'get_reward_of_user' : ActorMethod<
+    [bigint, bigint],
+    { 'reward' : UsersRewards__1, 'amount' : bigint }
+  >,
+  'get_reward_of_user_count' : ActorMethod<
+    [],
+    { 'all' : bigint, 'unclaimed' : bigint, 'claimed' : bigint }
   >,
   'get_subAdmin_users' : ActorMethod<
     [string, bigint, bigint],
     { 'users' : Array<[Id, ListAdminUser]>, 'amount' : bigint }
   >,
   'get_user_details' : ActorMethod<[UserId], Result_2>,
+  'get_user_email' : ActorMethod<
+    [Principal],
+    [] | [{ 'email' : [] | [string] }]
+  >,
   'get_user_name' : ActorMethod<
     [Principal],
-    [] | [{ 'name' : [] | [string], 'image' : [] | [NewImageObject__1] }]
+    [] | [
+      {
+        'name' : [] | [string],
+        'designation' : [] | [string],
+        'image' : [] | [NewImageObject__1],
+      }
+    ]
   >,
   'get_user_name_only' : ActorMethod<[Principal], [] | [string]>,
   'get_users' : ActorMethod<
@@ -133,13 +225,32 @@ export interface anon_class_22_1 {
     [string, bigint, bigint],
     { 'users' : Array<[Id, TopWinnerUserList]>, 'amount' : bigint }
   >,
-  'give_reward' : ActorMethod<[Id, bigint], boolean>,
+  'give_reward' : ActorMethod<[Id, bigint, boolean], boolean>,
+  'isAlreadyReadTheEntry' : ActorMethod<[EntryId], boolean>,
+  'isAlreadyVerifiedEmail' : ActorMethod<[Id], boolean>,
   'make_admin' : ActorMethod<[Principal, Role__1], boolean>,
   'request_verification' : ActorMethod<[NewImageObject__1], Result>,
+  'saveRewardValuesChangerInterCanister' : ActorMethod<
+    [Id, RewardConfig, RewardConfig],
+    undefined
+  >,
+  'saveRewardValuesChangers' : ActorMethod<
+    [Id, bigint, bigint, string],
+    undefined
+  >,
   'unBlock_sub_admin' : ActorMethod<[string, string], Result_1>,
   'unBlock_user' : ActorMethod<[string, string], Result_1>,
   'un_verify_user' : ActorMethod<[string, string], Result>,
-  'update_user' : ActorMethod<[InputUser], Result>,
+  'updateArticleReadReward' : ActorMethod<[bigint], boolean>,
+  'updateDailyLoginReward' : ActorMethod<[bigint], boolean>,
+  'updateEmailVerificationReward' : ActorMethod<[bigint], boolean>,
+  'updateMinimumClaimReward' : ActorMethod<[bigint], boolean>,
+  'updateNewUserReward' : ActorMethod<[bigint], boolean>,
+  'updateProfileCompReward' : ActorMethod<[bigint], boolean>,
+  'update_NFT24Coin' : ActorMethod<[bigint], boolean>,
+  'update_user' : ActorMethod<[InputUser, string], Result>,
+  'user_count' : ActorMethod<[], bigint>,
+  'verified_user_count' : ActorMethod<[], UserCount>,
   'verify_user' : ActorMethod<[string, string], Result>,
 }
-export interface _SERVICE extends anon_class_22_1 {}
+export interface _SERVICE extends anon_class_25_1 {}

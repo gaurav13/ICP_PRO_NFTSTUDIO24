@@ -14,6 +14,7 @@ import { getImage } from '@/components/utils/getImage';
 import { Spinner } from 'react-bootstrap';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { ARTICLE_DINAMIC_PATH } from '@/constant/routes';
 export default function FeaturedSlider() {
   let [promotedArticle, setPromotedArticle] = useState([]);
   let [isloaded, setIsloaded] = useState(true);
@@ -183,7 +184,7 @@ export default function FeaturedSlider() {
                       className='img-pnl d-flex align-items-center bg-dark'
                       style={{ height: '192px' }}
                     >
-                      <Link href={`/article?articleId=${entry[0]}`}>
+                      <Link href={`${ARTICLE_DINAMIC_PATH + entry[0]}`}>
                         <Image
                           src={entry[1].image ? entry[1].image : post1}
                           alt='Post'
@@ -200,21 +201,21 @@ export default function FeaturedSlider() {
                       </h5>
                       <p className='d-flex'>
                         <span>
-                          {/* <Image src={logo} alt='logo' /> */}
+                          {/* <Image src={logo} alt='NFTスタジオ24' /> */}
                           <Link
                             href={`/profile?userId=${entry[1].user.toString()}`}
                             className='mylink'
                           >
                             <Image
                               src={entry[1].userImg ? entry[1].userImg : logo}
-                              alt='logo'
+                              alt='NFTスタジオ24'
                               className='myimg'
                               height={100}
                               width={100}
                             />
                           </Link>
                         </span>{' '}
-                        Created by{' '}
+                        {t('Created by')}{' '}
                         <b>
                           <Link
                             href={`/profile?userId=${entry[1].user.toString()}`}
@@ -224,7 +225,7 @@ export default function FeaturedSlider() {
                           </Link>
                         </b>
                       </p>
-                      <Link href={`/article?articleId=${entry[0]}`}>
+                      <Link href={`${ARTICLE_DINAMIC_PATH + entry[0]}`}>
                         View Article
                       </Link>
                     </div>
@@ -247,12 +248,12 @@ export default function FeaturedSlider() {
                 </h5>
                 <p>
                   <span>
-                    <Image src={logo} alt='logo' />
+                    <Image src={logo} alt='NFTスタジオ24' />
                   </span>{' '}
                   {t('Campaing of')} <b>NFTStudio24</b>
                 </p>
                 <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
+                  <Image src={box} alt='NFTスタジオ24' /> {t('2500 USDT Up for Grabs!')}
                 </Link>
               </div>
             </div>
@@ -272,12 +273,12 @@ export default function FeaturedSlider() {
                 </h5>
                 <p>
                   <span>
-                    <Image src={logo} alt='logo' />
+                    <Image src={logo} alt='NFTスタジオ24' />
                   </span>{' '}
                   {t('Campaing of')} <b>NFTStudio24</b>
                 </p>
                 <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
+                  <Image src={box} alt='NFTスタジオ24' /> {t('2500 USDT Up for Grabs!')}
                 </Link>
               </div>
             </div>
@@ -297,12 +298,12 @@ export default function FeaturedSlider() {
                 </h5>
                 <p>
                   <span>
-                    <Image src={logo} alt='logo' />
+                    <Image src={logo} alt='NFTスタジオ24' />
                   </span>{' '}
                   {t('Campaing of')} <b>NFTStudio24</b>
                 </p>
                 <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
+                  <Image src={box} alt='NFTスタジオ24' /> {t('2500 USDT Up for Grabs!')}
                 </Link>
               </div>
             </div>

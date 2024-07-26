@@ -15,7 +15,7 @@ import { makeUserActor } from '@/dfx/service/actor-locator';
 import { useConnectPlugWalletStore } from '@/store/useStore';
 import { getImage } from '@/components/utils/getImage';
 import { E8S } from '@/constant/config';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 export default function LeadershipPost({ more }: { more?: boolean }) {
   const { t, changeLocale } = useLocalization(LANG);
@@ -81,9 +81,13 @@ export default function LeadershipPost({ more }: { more?: boolean }) {
             <Image src={coinimage} alt='Coin' />
           </span>
 
-          <h1>
-            <Image src={leadership} alt='Leadership' />
-          </h1>
+          <strong>
+            {LANG === 'en' ? (
+              <Image src={leadership} alt='leadership' />
+            ) : (
+              'リーダーボード'
+            )}
+          </strong>
           <h6> Additional Weekly NS24 Tracks</h6>
         </div>
         <div className='table-container'>
@@ -272,7 +276,7 @@ export default function LeadershipPost({ more }: { more?: boolean }) {
         </div>
         <div className='text-center'>
           {/* <Link href='/nft-article-leader-board' className='show-more-link'>
-            {t('show more')} <i className='fa fa-caret-down'></i>
+            {t('show more')} <i className='fa fa-caret-down'/>
           </Link> */}
         </div>
       </div>

@@ -10,6 +10,7 @@ import { ARTICLE_FEATURED_IMAGE_ASPECT, profileAspect } from '@/constant/sizes';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { DIRECTORY_DINAMIC_PATH, DIRECTORY_STATIC_PATH } from '@/constant/routes';
 export default function ProductSlider({
   trendingDirectries,
 }: {
@@ -38,8 +39,9 @@ export default function ProductSlider({
           infinite: false,
         },
       },
+
       {
-        breakpoint: 1600,
+        breakpoint: 1400,
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
@@ -47,15 +49,15 @@ export default function ProductSlider({
         },
       },
       {
-        breakpoint: 1400,
+        breakpoint: 1330,
         settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
+          slidesToShow: 4,
+          slidesToScroll: 4,
           infinite: false,
         },
       },
       {
-        breakpoint: 1199,
+        breakpoint: 1200,
         settings: {
           slidesToShow: 3,
           slidesToScroll: 3,
@@ -71,10 +73,10 @@ export default function ProductSlider({
         },
       },
       {
-        breakpoint: 575,
+        breakpoint: 576,
         settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
+          slidesToShow: 2,
+          slidesToScroll: 2,
           infinite: false,
         },
       },
@@ -88,19 +90,15 @@ export default function ProductSlider({
         {trendingDirectries.length != 0 &&
           trendingDirectries.map((item: any) => {
             return (
-              <div className='Post-padding' key={item[0]}>
+              <div className='Post-padding d-flex justify-content-center' key={item[0]}>
                 <Link
-                  href={`/directory?directoryId=${item[0]}`}
+                  href={item[1].isStatic ? `${DIRECTORY_STATIC_PATH + item[0]}` : `${DIRECTORY_DINAMIC_PATH + item[0]}`}
                   className='Product-post'
                 >
-                  <div className='Product-post-inner'>
+                <div className='Product-post-inner'>
                     <div
                       className='img-pnl'
-                      style={{
-                        aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
-                        width: '100%',
-                        position: 'relative',
-                      }}
+                  
                     >
                       <Image
                         src={
@@ -108,8 +106,10 @@ export default function ProductSlider({
                             ? item[1].companyBanner
                             : '/images/b-b.png'
                         }
-                        fill
-                        alt='Logo'
+                        height={100}
+                        width={100}
+                        className='h-100 w-100'
+                        alt='NFTスタジオ24'
                       />
                     </div>
                     <div className='text-pnl'>
@@ -130,7 +130,7 @@ export default function ProductSlider({
                                 : '/images/l-b.png'
                             }
                             fill
-                            alt='Logo'
+                            alt='NFTスタジオ24'
                           />
                         </div>
                         <div className='heading-txt-pnl'>
@@ -201,7 +201,7 @@ export default function ProductSlider({
                   src={'/images/b-s.png'}
                   width={213}
                   height={78}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -211,7 +211,7 @@ export default function ProductSlider({
                       src={'/images/ls.png'}
                       width={20}
                       height={20}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>
@@ -265,7 +265,7 @@ export default function ProductSlider({
                   src={'/images/b-e.png'}
                   width={213}
                   height={78}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -275,7 +275,7 @@ export default function ProductSlider({
                       src={'/images/l-e.png'}
                       width={20}
                       height={20}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>
@@ -329,7 +329,7 @@ export default function ProductSlider({
                   src={'/images/b-a.png'}
                   width={213}
                   height={78}
-                  alt='Logo'
+                  alt='NFTスタジオ24'
                 />
               </div>
               <div className='text-pnl'>
@@ -339,7 +339,7 @@ export default function ProductSlider({
                       src={'/images/l-a.png'}
                       width={20}
                       height={20}
-                      alt='Logo'
+                      alt='NFTスタジオ24'
                     />
                   </div>
                   <div className='heading-txt-pnl'>

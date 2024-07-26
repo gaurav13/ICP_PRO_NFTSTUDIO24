@@ -13,7 +13,7 @@ import { ARTICLE_FEATURED_IMAGE_ASPECT } from '@/constant/sizes';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { ARTICLE_STATIC_PATH } from '@/constant/routes';
+import { ARTICLE_DINAMIC_PATH, ARTICLE_STATIC_PATH } from '@/constant/routes';
 export default React.memo(function EntryListNewHome({
   Entries,
   connectModel,
@@ -50,27 +50,37 @@ export default React.memo(function EntryListNewHome({
                     openArticleLink(
                       ent[1].isStatic
                         ? `${ARTICLE_STATIC_PATH + ent[0]}`
-                        : `/article?articleId=${ent[0].length != 0 ? ent[0] : '#'
-                        }`
+                        : `${
+                            ent[0].length != 0
+                              ? ARTICLE_DINAMIC_PATH + ent[0]
+                              : ARTICLE_DINAMIC_PATH + '#'
+                          }`
                     )
                   }
                 />
               </div>
 
               <div className='txt-pnl'>
-                <div className='spacer-10'></div>
+                <div className='spacer-10' />
                 <Link
                   href={
                     ent[1].isStatic
                       ? `${ARTICLE_STATIC_PATH + ent[0]}`
-                      : `/article?articleId=${ent[0].length != 0 ? ent[0] : '#'
-                      }`
+                      : `${
+                          ent[0].length != 0
+                            ? ARTICLE_DINAMIC_PATH + ent[0]
+                            : ARTICLE_DINAMIC_PATH + '#'
+                        }`
                   }
                   target='_self'
                 >
                   <h6>
                     {ent[1].isPromoted ? (
-                      <Tippy content={<p className='mb-0'>{t("Promoted Article")}</p>}>
+                      <Tippy
+                        content={
+                          <p className='mb-0'>{t('Promoted Article')}</p>
+                        }
+                      >
                         <Image
                           src={promotedIcon}
                           alt='promoted'
@@ -78,19 +88,21 @@ export default React.memo(function EntryListNewHome({
                         />
                       </Tippy>
                     ) : // <span className='publish-btn table-btn'>
-                      //   promotedIcon
-                      // </span>
-                      ent[1].pressRelease ? (
-                        <Tippy content={<p className='mb-0'>{t('Press Release')}</p>}>
-                          <Image
-                            src={pressicon}
-                            alt='promoted'
-                            style={{ width: 20, height: 20 }}
-                          />
-                        </Tippy>
-                      ) : (
-                        <></>
-                      )}{' '}
+                    //   promotedIcon
+                    // </span>
+                    ent[1].pressRelease ? (
+                      <Tippy
+                        content={<p className='mb-0'>{t('Press Release')}</p>}
+                      >
+                        <Image
+                          src={pressicon}
+                          alt='promoted'
+                          style={{ width: 20, height: 20 }}
+                        />
+                      </Tippy>
+                    ) : (
+                      <></>
+                    )}{' '}
                     {ent[1].title.length > 60
                       ? `${ent[1].title.slice(0, 60)}...`
                       : ent[1].title}
@@ -106,8 +118,11 @@ export default React.memo(function EntryListNewHome({
                     openArticleLink(
                       ent[1].isStatic
                         ? `${ARTICLE_STATIC_PATH + ent[0]}`
-                        : `/article?articleId=${ent[0].length != 0 ? ent[0] : '#'
-                        }`
+                        : `${
+                            ent[0].length != 0
+                              ? ARTICLE_DINAMIC_PATH + ent[0]
+                              : ARTICLE_DINAMIC_PATH + '#'
+                          }`
                     )
                   }
                 >
@@ -135,7 +150,7 @@ export default React.memo(function EntryListNewHome({
                   <li>
                     <Link href={`#`} onClick={connectModel} className='ms-1'>
                       <div className='viewbox'>
-                        <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
+                        <i className='fa fa-eye fill blue-icon fa-lg me-1' />
                         {t('Views')}
                         <span className='mx-1'>|</span>
 

@@ -10,6 +10,7 @@ import React, { use, useEffect, useState } from 'react';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import Link from 'next/link';
+import { DIRECTORY_DINAMIC_PATH, DIRECTORY_STATIC_PATH } from '@/constant/routes';
 
 export default function CompanyListSidebar({
   contentLength,
@@ -87,12 +88,12 @@ export default function CompanyListSidebar({
                     <Image src={entry[1].companyLogo} fill alt='Arb' />
                   </div>
                   <div className='txty-pnl'>
-                    <Link href={`/directory?directoryId=${entry[0]}`}>
+                    <Link href={entry[1].isStatic? `${DIRECTORY_STATIC_PATH +entry[0]}`:`${DIRECTORY_DINAMIC_PATH+entry[0]}`}>
                       <h4>{entry[1]?.company}</h4>
                     </Link>
                     <p>{entry[1]?.shortDescription}</p>
                     <Link
-                      href={`/directory?directoryId=${entry[0]}`}
+                      href={entry[1].isStatic? `${DIRECTORY_STATIC_PATH +entry[0]}`:`${DIRECTORY_DINAMIC_PATH+entry[0]}`}
                       className='follow-btn'
                     >
                       +{t('Follow')}

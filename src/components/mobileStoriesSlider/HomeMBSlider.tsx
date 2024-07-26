@@ -15,7 +15,7 @@ import Slider from 'react-slick';
 import { Date_m_d_y_h_m } from '@/constant/DateFormates';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { ARTICLE_STATIC_PATH } from '@/constant/routes';
+import { ARTICLE_DINAMIC_PATH, ARTICLE_STATIC_PATH } from '@/constant/routes';
 
 export default function HomeMBSlider({ isArticle }: { isArticle: boolean }) {
   let [entries, setEntries] = useState<any>([]);
@@ -182,17 +182,17 @@ export default function HomeMBSlider({ isArticle }: { isArticle: boolean }) {
                             />
                           </div>
                         ) : (
-                          <div className='img-pnl'></div>
+                          <div className='img-pnl' />
                         )}
                         <div className='txt-pnl'>
                           <span className='mobile-view-display  red-span'>
-                            Latest News
+                            {t('Latest News')}
                           </span>
                           <Link
                             href={
                               entry[1]?.isStatic
                                 ? `${ARTICLE_STATIC_PATH + entry[0]}`
-                                : `/article?articleId=${entry[0]}`
+                                : `${ARTICLE_DINAMIC_PATH + entry[0]}`
                             }
                           >
                             <h6
@@ -224,7 +224,7 @@ export default function HomeMBSlider({ isArticle }: { isArticle: boolean }) {
                                 href={
                                   entry[1]?.isStatic
                                     ? `${ARTICLE_STATIC_PATH + entry[0]}`
-                                    : `/article?articleId=${entry[0]}`
+                                    : `${ARTICLE_DINAMIC_PATH + entry[0]}`
                                 }
                               >
                                 <Image src={iconthumb} alt='Icon Thumb' />{' '}
@@ -235,7 +235,9 @@ export default function HomeMBSlider({ isArticle }: { isArticle: boolean }) {
                                 href={
                                   entry[1]?.isStatic
                                     ? `${ARTICLE_STATIC_PATH + entry[0]}`
-                                    : `/article?articleId=${entry[0]}&route=comments`
+                                    : `${
+                                        ARTICLE_DINAMIC_PATH + entry[0]
+                                      }&route=comments`
                                 }
                               >
                                 <Image src={iconmessage} alt='Icon Comment' />{' '}
@@ -247,12 +249,12 @@ export default function HomeMBSlider({ isArticle }: { isArticle: boolean }) {
                                 href={
                                   entry[1]?.isStatic
                                     ? `${ARTICLE_STATIC_PATH + entry[0]}`
-                                    : `/article?articleId=${entry[0]}`
+                                    : `${ARTICLE_DINAMIC_PATH + entry[0]}`
                                 }
                                 className='ms-1'
                               >
                                 <div className='viewbox'>
-                                  <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
+                                  <i className='fa fa-eye fill blue-icon fa-lg me-1' />
                                   {t('Views')} <span className='mx-1'>|</span>
                                   {entry[1].views ? entry[1].views : 0}
                                 </div>
@@ -264,7 +266,9 @@ export default function HomeMBSlider({ isArticle }: { isArticle: boolean }) {
                                     ? `${
                                         ARTICLE_STATIC_PATH + entry[0]
                                       }?route=comments`
-                                    : `/article?articleId=${entry[0]}&route=comments`
+                                    : `${
+                                        ARTICLE_DINAMIC_PATH + entry[0]
+                                      }&route=comments`
                                 }
                               >
                                 <Image src={iconmessage} alt='Icon Comment' />{' '}

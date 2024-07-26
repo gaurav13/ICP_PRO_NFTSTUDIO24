@@ -9,14 +9,14 @@ import iconcap from '@/assets/Img/Icons/icon-cap.png';
 import iconshare from '@/assets/Img/Icons/icon-share.png';
 import infinite from '@/assets/Img/Icons/infinity.png';
 import icpimage from '@/assets/Img/coin-image.png';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 
 export default function SurveyPost() {
   const { t, changeLocale } = useLocalization(LANG);
   return (
     <>
-      <div className='servey-post position-relative'>
+      <div className='servey-post position-relative pannelRes'>
         <h2 className='comingsoonlb'>{t('Comming Soon')}</h2>
 
         <div className='servey-post-inner'>
@@ -27,7 +27,7 @@ export default function SurveyPost() {
               </div>
               <div className='txt-pnl'>
                 <h6>
-                  Dev Singh
+                  {t('surveyer name')}
                   {/* <Link href="#"><Image src={iconcap} alt="Cap" />Expert</Link> */}
                 </h6>
                 <p>

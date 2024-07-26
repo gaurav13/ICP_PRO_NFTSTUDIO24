@@ -3,16 +3,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Row, Col } from 'react-bootstrap';
 import podcast from '@/assets/Img/Icons/icon-podcast-3.png';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import podcastuser from '@/assets/Img/Profile/Podcast.png';
+import SignInButton from '@/components/SignInButton';
 export default function PodcastPost() {
   const { t, changeLocale } = useLocalization(LANG);
   return (
     <>
       {/* <div className='Podcast-pnl scroll-anime'>
         <Row>
-          <Col xl="12" lg="12" md="12"></Col>
+          <Col xl="12" lg="12" md="12"/>
           <div className='podcast-post'>
             <div className='text-pnl'>
               <h2>
@@ -36,25 +37,25 @@ export default function PodcastPost() {
         <ul>
           <li>
             <Link href="#">
-              <i className='fa fa-podcast'></i>
+              <i className='fa fa-podcast'/>
               <p>iTunes</p>
             </Link>
           </li>
           <li>
             <Link href="#">
-              <i className='fa fa-soundcloud'></i>
+              <i className='fa fa-soundcloud'/>
               <p>Soundcloud</p>
             </Link>
           </li>
           <li>
             <Link href="#">
-              <i className='fa fa-spotify'></i>
+              <i className='fa fa-spotify'/>
               <p>Spotify</p>
             </Link>
           </li>
           <li>
             <Link href="#">
-              <i className='fa fa-google-plus-circle'></i>
+              <i className='fa fa-google-plus-circle'/>
               <p>Google</p>
             </Link>
           </li>
@@ -62,54 +63,53 @@ export default function PodcastPost() {
       </div> */}
       <div className='Podcast-pnl scroll-anime'>
         <Row>
-          <Col xl='12' lg='12' md='12'></Col>
+          {/* <Col xl='12' lg='12' md='12'/> */}
           <div className='podcast-post'>
             <div className='text-pnl'>
               <h2>
                 {/* Podcasting */}
-                {t('PODCASTING')}
+                {t('Podcasting')}
                 <span>{t('SIMPLIFIED')}</span>
               </h2>
               <h5>
                 {/* Welcome to <b>NFTStudio24</b> Podcast! Explore the Web3 and
                 blockchain world through success and failure stories from
                 industry pioneers. Get inspired and informed in just minutes. */}
-                {t('Welcome to NFTStudio24 Podcast! Explore the Web3 and blockchain world through success and failure stories from industry pioneers. Get inspired and informed in just minutes.')}
+
+                {t(
+                  'Welcome to NFTStudio24 Podcast! Explore the Web3 and blockchain world through success and failure stories from industry pioneers. Get inspired and informed in just minutes.'
+                )}
               </h5>
-              <Link
-                href='https://nftstudio24.com/interview/'
+              {/* <Link
+                href='/'
+
                 className='reg-btn big'
-              >
-                {t('Subscribe now!')}
-              </Link>
+              > */}
+
+              {/* </Link> */}
+
+              <SignInButton isPodcastLink={true} />
+
               <Link href='/podcasts' className='reg-btn big'>
                 <Image src={podcast} alt='podcast' /> {t('podcast')}
               </Link>
               <div className='full-div podcast-list'>
                 <ul>
                   <li>
-                    <Link href='https://nftstudio24.com/interview/'>
-                      <i className='fa fa-podcast'></i>
-                      <p>iTunes</p>
-                    </Link>
+                    <i className='fa fa-podcast' />
+                    <p>iTunes</p>
                   </li>
                   <li>
-                    <Link href='https://nftstudio24.com/interview/'>
-                      <i className='fa fa-soundcloud'></i>
-                      <p>Soundcloud</p>
-                    </Link>
+                    <i className='fa fa-soundcloud' />
+                    <p>Soundcloud</p>
                   </li>
                   <li>
-                    <Link href='https://nftstudio24.com/interview/'>
-                      <i className='fa fa-spotify'></i>
-                      <p>Spotify</p>
-                    </Link>
+                    <i className='fa fa-spotify' />
+                    <p>Spotify</p>
                   </li>
                   <li>
-                    <Link href='https://nftstudio24.com/interview/'>
-                      <i className='fa fa-google-plus-circle'></i>
-                      <p>Google</p>
-                    </Link>
+                    <i className='fa fa-google-plus-circle' />
+                    <p>Google</p>
                   </li>
                 </ul>
               </div>

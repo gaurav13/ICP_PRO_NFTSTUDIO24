@@ -193,7 +193,7 @@
     padding-top: 20px;
     padding-bottom: 20px;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
 
     @media (max-width: 1400px) {
       display: inline-block;
@@ -260,7 +260,7 @@
       }
     }
 
-    img {
+    img:not(.userImg) {
       max-width: 20px;
     }
 
@@ -612,6 +612,7 @@
   padding: 8px 10px;
   position: relative;
   margin-top: 10px;
+  list-style-type: none;
   @media (max-width: 575px) {
     padding: 8px 0px;
   }
@@ -655,6 +656,7 @@
   width: 100%;
   padding-top: 5px;
   border-top: 1px solid #bdbdbd;
+  list-style-type: none;
   li {
     margin-right: 15px;
     font-size: 14px;
@@ -666,5 +668,11 @@
     img {
       margin-right: 5px;
     }
+  }
+}
+
+@media (max-width: 1200px) {
+  .order_2{
+order: 2;
   }
 }
