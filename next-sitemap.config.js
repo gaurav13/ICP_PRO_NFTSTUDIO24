@@ -181,9 +181,6 @@ function generateRobotsFile() {
   User-agent: *
   Allow: /
   
-  # Host
-  Host: ${siteUrl}
-  
   # Sitemaps
   Sitemap: ${siteUrl}sitemap.xml
   `;
