@@ -632,6 +632,7 @@
     background-color: $color;
     color: $black;
     font-size: 15px;
+
     font-weight: 500;
     padding: 0px 20px 2px;
     border: 1px solid;
@@ -1264,8 +1265,8 @@ main.dark {
       position: relative;
       margin-top: 15px !important;
       @media (max-width: 575px) {
-        width: 1000px;
-        min-width: 1000px;
+        width: 1020px;
+        min-width: 1020px;
       }
       .nav-link {
         margin-bottom: 0;
@@ -1440,5 +1441,21 @@ main.dark {
 @media (max-width: 575px) {
   .navbar.dark .d-flex {
     width: auto;
+  }
+}
+/* components/GlobalSearch.module.css */
+.searchContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: none;
+  button {
+    border: none;
+    background-color: transparent;
+    margin-top: 10px;
+    i {
+      color: $blue;
+      font-size: 20px;
+    }
   }
 }

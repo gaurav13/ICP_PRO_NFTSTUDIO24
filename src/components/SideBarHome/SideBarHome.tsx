@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import iconuser1 from '@/assets/Img/Icons/icon-user-2.png';
 import iconuser2 from '@/assets/Img/Icons/icon-user-1.png';
@@ -43,6 +43,7 @@ import ArticlesPost from '@/components/ArticlesPost/ArticlesPost';
 import { useConnectPlugWalletStore, useThemeStore } from '@/store/useStore';
 import authMethods from '@/lib/auth';
 import logger from '@/lib/logger';
+import { ALL_ARTICLES } from '@/constant/routes';
 
 export default function SidebarHome() {
   const { t, changeLocale } = useLocalization(LANG);
@@ -57,7 +58,7 @@ export default function SidebarHome() {
   const router = useRouter();
   const location = usePathname();
 
-  const route = location.split('/')[1];
+  const route = location?.split('/')[1];
   const sidebarRef = React.useRef<HTMLElement | null>();
 
   const { auth, setAuth, setIdentity } = useConnectPlugWalletStore((state) => ({
@@ -157,11 +158,11 @@ export default function SidebarHome() {
         >
           <div className='sidebar-inner'>
             <button className='toggler' onClick={toggleHandle}>
-              <div>
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
+              <p className='m-0'>
+                <span />
+                <span />
+                <span />
+              </p>
             </button>
             <ul>
               <li>
@@ -171,7 +172,7 @@ export default function SidebarHome() {
                   disabled={isConnectLoading || connected}
                 >
                   <span>
-                    <Image src={iconlogo} alt='Logo' />
+                    <Image src={iconlogo} alt='Blockza' />
                   </span>
                   {isConnectLoading ? (
                     <Spinner size='sm' className='ms-4 text-primary' />
@@ -270,8 +271,8 @@ export default function SidebarHome() {
                   // onClick={(e) => {
                   //   e.preventDefault();
                   // }}
-                  className={location === '/articles' ? 'active' : ''}
-                  href='/articles'
+                  className={location === ALL_ARTICLES ? 'active' : ''}
+                  href={ALL_ARTICLES}
                 >
                   <div className='img-pnl'>
                     <Image src={Articles1} alt='Articles' />
@@ -416,7 +417,7 @@ export default function SidebarHome() {
                   href='/'
                 >
                   <div className='img-pnl'>
-                    <i className='fa fa-ellipsis-h'></i>
+                    <i className='fa fa-ellipsis-h' />
                   </div>
                   {t('More')}
                 </Link>
@@ -426,10 +427,10 @@ export default function SidebarHome() {
           </div>
           {location === '/' && (
             <div className='trending-side-panel'>
-              <div className='spacer-20'></div>
+              <div className='spacer-20' />
               <h4>
                 {t('Trending')} {t('Stories')}{' '}
-                <i className='fa fa-angle-down'></i>
+                <i className='fa fa-angle-down' />
               </h4>
               <ArticlesPost />
             </div>
@@ -440,10 +441,10 @@ export default function SidebarHome() {
         <Modal show={show} centered onHide={handleClose}>
           <Modal.Body>
             <div className='flex-div connect-heading-pnl'>
-              <i className='fa fa-question-circle-o'></i>
+              <i className='fa fa-question-circle-o' />
               <p>{t('Connect Wallet')}</p>
               <Button className='close-btn' onClick={handleClose}>
-                <i className='fa fa-close'></i>
+                <i className='fa fa-close' />
               </Button>
             </div>
             <div className='full-div'>

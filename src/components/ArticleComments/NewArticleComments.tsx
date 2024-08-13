@@ -4,11 +4,17 @@ import Link from 'next/link';
 import React from 'react';
 import girl from '@/assets/Img/user-img.png';
 import logger from '@/lib/logger';
+import { dateTranslate } from '@/constant/DateFormates';
+import useLocalization from '@/lib/UseLocalization';
+import { LANG } from '@/constant/language';
 
 let ArticleComments: React.FC<any> = ({
   userArticleComments,
   totalcomment,
 }) => {
+  const { t, changeLocale } = useLocalization(LANG);
+
+
   return (
     <>
       <ul className='comment-list new'>
@@ -64,7 +70,7 @@ let ArticleComments: React.FC<any> = ({
                     <p>{comment.content ?? ''}</p>
                   </div>
                   <span className='just-now-span'>
-                    {comment.newCreation ?? 'Just now'}
+                     {comment.newCreation ?? t('Just now')}
                   </span>
                 </div>
               </li>

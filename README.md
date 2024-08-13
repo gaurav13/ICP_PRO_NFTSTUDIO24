@@ -14,14 +14,14 @@ yarn install
 
 ### Running Nftstudio24
 
-**Remove *icp_ledger_canister* from *dfx.json* if you get any errors while deploying cansiters**
-
 ```bash
 dfx deploy
 ```
-```bash
 
-dfx start 
+_Remove **icp_ledger_canister** from **dfx.json** if you get any errors while deploying cansiters_
+
+```bash
+dfx start
 
 yarn run dev
 ```

@@ -42,7 +42,10 @@ import EntryListNewHome from '@/components/EntryListNewHome/EntryListNewHome';
 import ConnectModal from '@/components/Modal';
 import PromotedSVG from '@/components/PromotedSvg/Promoted';
 import Tippy from '@tippyjs/react';
-import { ARTICLE_FEATURED_IMAGE_ASPECT } from '@/constant/sizes';
+import {
+  ADDS_IMAGE_RATIO,
+  ARTICLE_FEATURED_IMAGE_ASPECT,
+} from '@/constant/sizes';
 import TopEvents from '@/components/TopEvents';
 import { E8S } from '@/constant/config';
 import { fromNullable } from '@dfinity/utils';
@@ -53,22 +56,33 @@ import { formatLikesCount } from '@/components/utils/utcToLocal';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import TrendingPressRelease from '@/components/TrendingArticleSide/TrendingPressRelease';
 import HomeMBSlider from '@/components/mobileStoriesSlider/HomeMBSlider';
-import { ARTICLE_STATIC_PATH } from '@/constant/routes';
+import {
+  AI_CATEGORY_ID,
+  ALL_ARTICLES,
+  ARTICLE_DINAMIC_PATH,
+  ARTICLE_STATIC_PATH,
+  BLOCKCHAIN_CATEGORY_ID,
+  BLOCKCHAIN_GAMES_CATEGORY_ID,
+  CRYPTO_CATEGORY_ID,
+  DAO_CATEGORY_ID,
+  DEFI_CATEGORY_ID,
+  DIRECTORY_DINAMIC_PATH,
+  DIRECTORY_STATIC_PATH,
+  EVENTS,
+  METAVERCE_CATEGORY_ID,
+  NFT_CATEGORY_ID,
+  QUIZ_ROUTE,
+  WEB3_CATEGORY_ID,
+} from '@/constant/routes';
 import TopEventsSlider from '@/components/EntryListNewHome/EventSliderHome';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
 
 export default function UnAuthenticated() {
   const { t, changeLocale } = useLocalization(LANG);
   const router = useRouter();
   const [animatedElements, setAnimatedElements] = useState([]);
-  const [Entries, setEntries] = useState<any>([]);
+  // const [Entries, setEntries] = useState<any>([]);
+  const [blockchainEntries, setBlockchainEntries] = useState<any>([]);
+
   const [connectLink, setConnectLink] = useState('/');
   const [latestEntry, setLatestEntry] = useState<any>([]);
   const [showConnectModal, setShowConnectModal] = useState(false);
@@ -249,14 +263,14 @@ export default function UnAuthenticated() {
         let refined = await refineEntries(filteredEntries);
         setLatestEntry(refined[0]);
         let [bcaa, ...restEntries] = refined;
-        setEntries(restEntries);
+        // setEntries(restEntries);
         setIsArticleLoading(false);
       } else if (tempEntries.length != 0) {
         let refined = await refineEntries(tempEntries);
         logger(refined, 'refinedrefined');
 
-        let [bcaa, ...restEntries] = refined;
-        setEntries(restEntries);
+        // let [bcaa, ...restEntries] = refined;
+        // setEntries(restEntries);
 
         setIsArticleLoading(false);
         // setIsArticleLoading(false)
@@ -271,8 +285,35 @@ export default function UnAuthenticated() {
       // logger('pop');
     }
   };
-  let checkStatefn = () => {
-    return Entries.length !== 0 ? true : false;
+  const getBlockchainEntries = async (category: string | null) => {
+    try {
+      const entryActor = makeEntryActor({
+        agentOptions: {
+          identity,
+        },
+      });
+
+      const tempEntries = await entryActor.getAllEntries(category);
+      if (tempEntries.length > 5) {
+        const filteredEntries = tempEntries.slice(0, 5);
+        let refined = await refineEntries(filteredEntries);
+
+        let [bcaa, ...restEntries] = refined;
+        setBlockchainEntries(restEntries);
+        setIsArticleLoading(false);
+      } else if (tempEntries.length != 0) {
+        let refined = await refineEntries(tempEntries);
+
+        let [bcaa, ...restEntries] = refined;
+        setBlockchainEntries(restEntries);
+
+        setIsArticleLoading(false);
+      } else {
+        setIsArticleLoading(false);
+      }
+    } catch (err) {
+      setIsArticleLoading(false);
+    }
   };
   let openArticleLink = (articleLink: any) => {
     router.push(articleLink);
@@ -295,6 +336,7 @@ export default function UnAuthenticated() {
     // console.log('reee');
     getAllWeb3List();
     getEntries();
+    getBlockchainEntries(BLOCKCHAIN_CATEGORY_ID);
   }, []);
   useEffect(() => {
     if (cRoute && auth.state === 'initialized') {
@@ -312,12 +354,40 @@ export default function UnAuthenticated() {
   return (
     <>
       <main id='main' className='new-home'>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         <div className='main-inner home'>
           <Head>
             <title>Hi</title>
           </Head>
           <div className='section pmt-0' id='top'>
             <Row>
+              <div className='col-xl-12 col-lg-12 col-md-12'>
+                <ins
+                  className='adsbygoogle'
+                  data-ad-layout='in-article'
+                  data-ad-format='fluid'
+                  data-ad-client='ca-pub-8110270797239445'
+                  data-ad-slot='3863906898'
+                  style={{ display: 'block', textAlign: 'center' }}
+                />
+                <Link
+                  href='https://www.bitget.com/'
+                  className='img-pnl new'
+                  style={{
+                    aspectRatio: ADDS_IMAGE_RATIO,
+                  }}
+                >
+                  <Image
+                    src={
+                      'https://blockza.io/wp-content/uploads/2024/07/promotess-img-.png'
+                    }
+                    width={100}
+                    height={100}
+                    style={{ width: '100%', maxHeight: 'unset' }}
+                    alt={'BlockZa'}
+                  />
+                </Link>
+              </div>
               <Col xl='6' lg='12' md='12'>
                 <div className='anime-left bdrd-pnl featured-slid-cntnr'>
                   <Row>
@@ -332,13 +402,13 @@ export default function UnAuthenticated() {
                         <Image src={stars} alt='Hot' />
                         {t('Featured Campaigns')}{' '}
                       </h4>
-                      <div className='spacer-20'></div>
+                      <div className='spacer-20' />
                     </Col>
                     <FeaturedSlider isHome={true} />
                     <div className='full-div mobile-view-display bordery text-right'>
                       <Link className='red-anchor' href='#'>
                         {t('View All Feature Campaigns')}{' '}
-                        <i className='fa fa-angle-right'></i>
+                        <i className='fa fa-angle-right' />
                       </Link>
                     </div>
                   </Row>
@@ -347,7 +417,7 @@ export default function UnAuthenticated() {
               <Col sm='12' className='mobile-view-display'>
                 <Row>
                   <Col xl='12' lg='12' className='heding'>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
                     <Dropdown
                       onClick={() => setHideTrendinpost((pre: any) => !pre)}
                     >
@@ -358,9 +428,9 @@ export default function UnAuthenticated() {
                       >
                         {t('Trending')}{' '}
                         {HideTrendinpost ? (
-                          <i className='fa fa-angle-down'></i>
+                          <i className='fa fa-angle-down' />
                         ) : (
-                          <i className='fa fa-angle-right'></i>
+                          <i className='fa fa-angle-right' />
                         )}
                       </Dropdown.Toggle>
                       {/* 
@@ -373,7 +443,7 @@ export default function UnAuthenticated() {
                         </Dropdown.Item>
                       </Dropdown.Menu> */}
                     </Dropdown>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
                   </Col>
                   <Col
                     className={
@@ -385,7 +455,7 @@ export default function UnAuthenticated() {
                   {/* {HideTrendinpost && <TrendingArticleSide isArticle={true} />} */}
                   <div className='full-div mobile-view-display bordery  text-right'>
                     <Link className='red-anchor' href='#'>
-                      {t('View All News')} <i className='fa fa-angle-right'></i>
+                      {t('View All News')} <i className='fa fa-angle-right' />
                     </Link>
                   </div>
                 </Row>
@@ -400,16 +470,16 @@ export default function UnAuthenticated() {
                       className='heding'
                       id='pressRelease'
                     >
-                      <h4>
+                      <h2>
                         <Image src={press} alt='Hot' /> {t('Press Release')}
-                      </h4>
-                      <div className='spacer-20'></div>
+                      </h2>
+                      <div className='spacer-20' />
                     </Col>
                     <ReleaseSlider isHome={true} />
                     <div className='full-div mobile-view-display bordery  text-right'>
                       <Link className='red-anchor' href='#'>
                         {t('View All Press Releases')}{' '}
-                        <i className='fa fa-angle-right'></i>
+                        <i className='fa fa-angle-right' />
                       </Link>
                     </div>
                   </Row>
@@ -417,10 +487,19 @@ export default function UnAuthenticated() {
               </Col>
             </Row>
           </div>
+          <Row>
+            <Col>
+              <iframe
+                src={LANG=="en"?'https://www.chatbase.co/chatbot-iframe/vXOyMigraOFfiJ7f5O1Il':"https://www.chatbase.co/chatbot-iframe/384SXpy6Uf9FJnTpRTgef"}
+                frameBorder='0'
+                className='bootIframe'
+              ></iframe>
+            </Col>
+          </Row>
           <div className='section scroll-anime anime-down pmyb-0' id='news'>
             <Row>
               <Col xl='12' lg='12' md='12' sm='12' className='web-view-display'>
-                <div className='spacer-20'></div>
+                <div className='spacer-20' />
               </Col>
               <Col
                 xl='12'
@@ -429,9 +508,9 @@ export default function UnAuthenticated() {
                 sm='12'
                 className='heding web-view-display'
               >
-                <h4>
-                  <Image src={iconrss} alt='Hot' /> {t('NFTStudio24 Feed')}
-                </h4>
+                <h2>
+                  <Image src={iconrss} alt='Hot' /> {t('Blockza Feed')}
+                </h2>
               </Col>
 
               <Col
@@ -444,7 +523,7 @@ export default function UnAuthenticated() {
               >
                 <Row>
                   <Col xl='12' lg='12' className='heding'>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
                     <Dropdown
                       onClick={() => setHideTrendinpost((pre: any) => !pre)}
                     >
@@ -455,9 +534,9 @@ export default function UnAuthenticated() {
                       >
                         {t('Trending')}{' '}
                         {HideTrendinpost ? (
-                          <i className='fa fa-angle-down'></i>
+                          <i className='fa fa-angle-down' />
                         ) : (
-                          <i className='fa fa-angle-right'></i>
+                          <i className='fa fa-angle-right' />
                         )}
                       </Dropdown.Toggle>
 
@@ -470,7 +549,7 @@ export default function UnAuthenticated() {
                         </Dropdown.Item>
                       </Dropdown.Menu> */}
                     </Dropdown>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
                   </Col>
 
                   <span
@@ -502,9 +581,9 @@ export default function UnAuthenticated() {
                       >
                         {t('top stories')}{' '}
                         {HideStoriespost ? (
-                          <i className='fa fa-angle-down'></i>
+                          <i className='fa fa-angle-down' />
                         ) : (
-                          <i className='fa fa-angle-right'></i>
+                          <i className='fa fa-angle-right' />
                         )}
                       </Dropdown.Toggle>
 
@@ -517,7 +596,7 @@ export default function UnAuthenticated() {
                         </Dropdown.Item>
                       </Dropdown.Menu> */}
                     </Dropdown>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
                   </Col>
 
                   <span
@@ -530,13 +609,15 @@ export default function UnAuthenticated() {
 
                   <div className='full-div mobile-view-display bordery  text-right'>
                     <Link className='red-anchor' href='#'>
-                      View All Stories <i className='fa fa-angle-right'></i>
+                      {t('View All Stories')}{' '}
+                      <i className='fa fa-angle-right' />
                     </Link>
                   </div>
                 </Row>
               </Col>
+
               <Col xxl='6' xl='12' lg='12' md='12' sm='12'>
-                <div className='spacer-20'></div>
+                <div className='spacer-20' />
 
                 <h3 className='mobile-view-display-flex hedingxt'>
                   <Image
@@ -546,6 +627,7 @@ export default function UnAuthenticated() {
                   />{' '}
                   Latest Article
                 </h3>
+
                 {isArticleLoading ? (
                   <div className='d-flex justify-content-center'>
                     <Spinner />
@@ -564,10 +646,10 @@ export default function UnAuthenticated() {
                             href={
                               latestEntry[1]?.isStatic
                                 ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
-                                : `/article?articleId=${
+                                : `${
                                     latestEntry.length != 0
-                                      ? latestEntry[0]
-                                      : '#'
+                                      ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                                      : ARTICLE_DINAMIC_PATH + '#'
                                   }`
                             }
                             target='_self'
@@ -642,7 +724,7 @@ export default function UnAuthenticated() {
                               }
                               style={{ cursor: 'pointer' }}
                             >
-                              By{' '}
+                              {t('by')}{' '}
                               {latestEntry.length != 0
                                 ? latestEntry[1].user.name[0]
                                 : 'User'}
@@ -653,7 +735,6 @@ export default function UnAuthenticated() {
                               </p>
                             </h5>
 
-                            {/* <p>Ceo NFTStudio24</p>/ */}
                           </div>
                         </div>
                         <div className='user-pnl'>
@@ -681,16 +762,22 @@ export default function UnAuthenticated() {
                                   latestEntry[1]?.directory
                                 ) {
                                   openArticleLink(
-                                    `/directory?directoryId=${
-                                      latestEntry.length != 0
-                                        ? latestEntry[1]?.companyId
-                                        : '#'
-                                    }`
+                                    latestEntry[1]?.directory[0]?.isStatic
+                                      ? `${
+                                          DIRECTORY_STATIC_PATH +
+                                          latestEntry[1]?.companyId
+                                        }`
+                                      : `${
+                                          latestEntry.length != 0
+                                            ? DIRECTORY_DINAMIC_PATH +
+                                              latestEntry[1]?.companyId
+                                            : DIRECTORY_DINAMIC_PATH + '#'
+                                        }`
                                   );
                                 }
                               }}
                             >
-                              On{' '}
+                              {t('ON')}{' '}
                               {/* {latestEntry.length != 0
                                 ? latestEntry[1].category[0]
                                 : 'category'} */}
@@ -725,24 +812,26 @@ export default function UnAuthenticated() {
                           </div>
                         </div>
                       </div>
-                      <div className='spacer-20'></div>
+                      <div className='spacer-20' />
                       <Link
                         href={
                           latestEntry[1]?.isStatic
                             ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
-                            : `/article?articleId=${
-                                latestEntry.length != 0 ? latestEntry[0] : '#'
+                            : `${
+                                latestEntry.length != 0
+                                  ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                                  : ARTICLE_DINAMIC_PATH + '#'
                               }`
                         }
                         target='_self'
                       >
-                        <h1 className='text-black'>
+                        <h2 className='homeEntryTitle text-black'>
                           {latestEntry.length != 0
                             ? latestEntry[1].title.length > 58
                               ? `${latestEntry[1].title.slice(0, 58)}...`
                               : latestEntry[1].title
                             : 'loading...'}
-                        </h1>
+                        </h2>
                       </Link>
                       <p
                         style={{
@@ -754,8 +843,10 @@ export default function UnAuthenticated() {
                           openArticleLink(
                             latestEntry[1]?.isStatic
                               ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
-                              : `/article?articleId=${
-                                  latestEntry.length != 0 ? latestEntry[0] : '#'
+                              : `${
+                                  latestEntry.length != 0
+                                    ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                                    : ARTICLE_DINAMIC_PATH + '#'
                                 }`
                           )
                         }
@@ -768,14 +859,16 @@ export default function UnAuthenticated() {
                         href={
                           latestEntry[1]?.isStatic
                             ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
-                            : `/article?articleId=${
-                                latestEntry.length != 0 ? latestEntry[0] : '#'
+                            : `${
+                                latestEntry.length != 0
+                                  ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                                  : ARTICLE_DINAMIC_PATH + '#'
                               }`
                         }
                         target='_self'
                         className='text-secondary'
                       >
-                        {t('show more')} <i className='fa fa-caret-down'></i>
+                        {t('show more')} <i className='fa fa-caret-down' />
                       </Link>
                       <ul className='thumb-list auto'>
                         <li>
@@ -788,10 +881,11 @@ export default function UnAuthenticated() {
                                 handleConnectModal(
                                   latestEntry[1]?.isStatic
                                     ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
-                                    : `/article?articleId=${
+                                    : `${
                                         latestEntry.length != 0
-                                          ? latestEntry[0]
-                                          : '#'
+                                          ? ARTICLE_DINAMIC_PATH +
+                                            latestEntry[0]
+                                          : ARTICLE_DINAMIC_PATH + '#'
                                       }`
                                 )
                               }
@@ -817,10 +911,11 @@ export default function UnAuthenticated() {
                                 handleConnectModal(
                                   latestEntry[1]?.isStatic
                                     ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
-                                    : `/article?articleId=${
+                                    : `${
                                         latestEntry.length != 0
-                                          ? latestEntry[0]
-                                          : '#'
+                                          ? ARTICLE_DINAMIC_PATH +
+                                            latestEntry[0]
+                                          : ARTICLE_DINAMIC_PATH + '#'
                                       }`
                                 )
                               }
@@ -836,7 +931,7 @@ export default function UnAuthenticated() {
                             <li>
                               <span className='myanch'>
                                 <div className='viewbox kharab-wala-view-box'>
-                                  <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
+                                  <i className='fa fa-eye fill blue-icon fa-lg me-1' />
                                   {t('Views')} <span className='mx-1'>|</span>
                                   {formatLikesCount(
                                     parseInt(latestEntry[1]?.views)
@@ -856,17 +951,15 @@ export default function UnAuthenticated() {
                                       maxWidth: '32px',
                                     }}
                                   />{' '}
-                                  <span>+500 NS24</span>
+                                  <span>+500 BlockZa</span>
                                 </li>
                                 <li>
                                   <Link
-                                    href='#'
-                                    style={{
-                                      pointerEvents: 'none',
-                                    }}
+                                    href={QUIZ_ROUTE}
+                               
                                   >
                                     {t('take quiz')}{' '}
-                                    <i className='fa fa-angle-right'></i>
+                                    <i className='fa fa-angle-right' />
                                   </Link>
                                 </li>
                               </ul>
@@ -884,8 +977,8 @@ export default function UnAuthenticated() {
                 )}
               </Col>
               <div className='full-div mobile-view-display bordery text-right'>
-                <Link className='red-anchor' href='/articles'>
-                  View All Articles <i className='fa fa-angle-right'></i>
+                <Link className='red-anchor' href={ALL_ARTICLES}>
+                  View All Articles <i className='fa fa-angle-right' />
                 </Link>
               </div>
               <Col
@@ -898,7 +991,7 @@ export default function UnAuthenticated() {
               >
                 <Row>
                   <Col xl='12' lg='12' className='heding'>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
                     <Dropdown
                       onClick={() => setHideStoriespost((pre: any) => !pre)}
                     >
@@ -909,9 +1002,9 @@ export default function UnAuthenticated() {
                       >
                         {t('top stories')}{' '}
                         {HideStoriespost ? (
-                          <i className='fa fa-angle-down'></i>
+                          <i className='fa fa-angle-down' />
                         ) : (
-                          <i className='fa fa-angle-right'></i>
+                          <i className='fa fa-angle-right' />
                         )}
                       </Dropdown.Toggle>
 
@@ -924,7 +1017,7 @@ export default function UnAuthenticated() {
                         </Dropdown.Item>
                       </Dropdown.Menu> */}
                     </Dropdown>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
                   </Col>
 
                   <span
@@ -942,9 +1035,9 @@ export default function UnAuthenticated() {
                 </div>
               </Col>
               <div className='full-div mobile-view-display  bordery text-right'>
-                <Link className='red-anchor' href='/events'>
+                <Link className='red-anchor' href={EVENTS}>
                   {t('View more')} {t('Events')}{' '}
-                  <i className='fa fa-angle-right'></i>
+                  <i className='fa fa-angle-right' />
                 </Link>
               </div>
             </Row>
@@ -952,53 +1045,32 @@ export default function UnAuthenticated() {
 
           <div className='section scroll-anime anime-down pmyb-0' id='news'>
             <Row>
-              {isArticleLoading ? (
-                <div className='d-flex justify-content-center'>
-                  <Spinner />
-                </div>
-              ) : // TODO:::
-              Entries.length !== 0 ? (
-                <>
-                  <Col
-                    xl='12'
-                    lg='12'
-                    md='12'
-                    className='heding'
-                    id='blockchain'
-                  >
-                    <h4>
-                      <Image src={iconrss} alt='RSS' /> {t('Blockchain News')}
-                    </h4>
-                    <div className='spacer-20'></div>
-                  </Col>
-                  <EntryListNewHome
-                    Entries={Entries}
-                    connectModel={(e: any) => {
-                      e.preventDefault();
-                      handleConnectModal(
-                        latestEntry[1]?.isStatic
-                          ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
-                          : `/article?articleId=${
-                              latestEntry.length != 0 ? latestEntry[0] : '#'
-                            }`
-                      );
-                    }}
-                  />
-                </>
-              ) : (
-                <div className='d-flex justify-content-center'>
-                  <b>{t('No Article Found')}</b>
-                </div>
-              )}
+              <EntryListNewHome
+                categoryName={'Web3 '}
+                categoryId={WEB3_CATEGORY_ID}
+                connectModel={(e: any) => {
+                  e.preventDefault();
+                  handleConnectModal(
+                    latestEntry[1]?.isStatic
+                      ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
+                      : `${
+                          latestEntry.length != 0
+                            ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                            : ARTICLE_DINAMIC_PATH + '#'
+                        }`
+                  );
+                }}
+              />
+
               <div className='full-div mobile-view-display bordery text-right'>
                 <Link className='red-anchor' href='#'>
                   {t('View All News')}
-                  <i className='fa fa-angle-right'></i>
+                  <i className='fa fa-angle-right' />
                 </Link>
               </div>
             </Row>
           </div>
-          <div className='spacer-20 web-view-display'></div>
+          <div className='spacer-20 web-view-display' />
           <div className='section scroll-anime icp-leadership-pnl pmt-0 hm'>
             <Row>
               <Col
@@ -1017,21 +1089,20 @@ export default function UnAuthenticated() {
                     <Row>
                       <Col xl='9' lg='9' md='9' id='web3'>
                         <div className='flex-div align-items-center'>
-                          <h4 style={{ textTransform: 'unset' }}>
+                          <h2 style={{ textTransform: 'unset' }}>
                             {/* <Col xl='9' lg='9' md='9' sm='9' className='heding'>
                     <div className='flex-div-xs align-items-center heding'>
                       <h4> */}
                             <Image src={iconcompass} alt='Hot' /> Web 3
                             {t('Directory')}
-                          </h4>
+                          </h2>
                           <Link href='/web3-directory' className='discover-btn'>
-                            {t('View more')}{' '}
-                            <i className='fa fa-angle-right'></i>
+                            {t('View more')} <i className='fa fa-angle-right' />
                           </Link>
                         </div>
                       </Col>
                     </Row>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
                     <div className='shadow-slider'>
                       {trendingDirectriesLoading ? (
                         <Spinner className='d-flex m-auto' animation='border' />
@@ -1042,14 +1113,14 @@ export default function UnAuthenticated() {
                       )}
                     </div>
 
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
                   </div>
                   <div className='leadership-cntnr ld-cntnr hom'>
                     <div className='heding'>
-                      <h4>
+                      <h2>
                         <Image src={iconranking} alt='icon ranking' />{' '}
                         {t('Leaderboard')}
-                      </h4>
+                      </h2>
                     </div>
                     <div className='lead-cnnt'>
                       <LeadershipboardNew />
@@ -1060,12 +1131,65 @@ export default function UnAuthenticated() {
               </Col>
             </Row>
           </div>
+          <div className='section scroll-anime anime-down pmyb-0' id='news'>
+            <Row>
+              <EntryListNewHome
+                categoryName={'Crypto'}
+                categoryId={CRYPTO_CATEGORY_ID}
+                connectModel={(e: any) => {
+                  e.preventDefault();
+                  handleConnectModal(
+                    latestEntry[1]?.isStatic
+                      ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
+                      : `${
+                          latestEntry.length != 0
+                            ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                            : ARTICLE_DINAMIC_PATH + '#'
+                        }`
+                  );
+                }}
+              />
 
+              <div className='full-div mobile-view-display bordery text-right'>
+                <Link className='red-anchor' href='#'>
+                  {t('View All News')}
+                  <i className='fa fa-angle-right' />
+                </Link>
+              </div>
+            </Row>
+          </div>
+          <div className='section scroll-anime anime-down pmyb-0' id='news'>
+            <Row>
+              <EntryListNewHome
+                categoryName={'Blockchain News1'}
+                categoryId={BLOCKCHAIN_CATEGORY_ID}
+                connectModel={(e: any) => {
+                  e.preventDefault();
+                  handleConnectModal(
+                    latestEntry[1]?.isStatic
+                      ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
+                      : `${
+                          latestEntry.length != 0
+                            ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                            : ARTICLE_DINAMIC_PATH + '#'
+                        }`
+                  );
+                }}
+              />
+
+              <div className='full-div mobile-view-display bordery text-right'>
+                <Link className='red-anchor' href='#'>
+                  {t('View All News')}
+                  <i className='fa fa-angle-right' />
+                </Link>
+              </div>
+            </Row>
+          </div>
           {/* Podcast Panel */}
           <div className='section scroll-anime' id='podcast'>
             <Row>
               <Col xl='12' lg='12' md='12'>
-                <div className='spacer-40 tab-view-none'></div>
+                <div className='spacer-40 tab-view-none' />
               </Col>
               <Col xl='12' lg='12' md='12'>
                 <div className='podcast-survey-container'>
@@ -1074,8 +1198,170 @@ export default function UnAuthenticated() {
                 </div>
               </Col>
               <Col xl='12' lg='12' md='12'>
-                <div className='spacer-50 tab-view-none'></div>
+                <div className='spacer-50 tab-view-none' />
               </Col>
+            </Row>
+          </div>
+          <div className='section scroll-anime anime-down pmyb-0' id='news'>
+            <Row>
+              <EntryListNewHome
+                categoryName={'Defi'}
+                categoryId={DEFI_CATEGORY_ID}
+                connectModel={(e: any) => {
+                  e.preventDefault();
+                  handleConnectModal(
+                    latestEntry[1]?.isStatic
+                      ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
+                      : `${
+                          latestEntry.length != 0
+                            ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                            : ARTICLE_DINAMIC_PATH + '#'
+                        }`
+                  );
+                }}
+              />
+
+              <div className='full-div mobile-view-display bordery text-right'>
+                <Link className='red-anchor' href='#'>
+                  {t('View All News')}
+                  <i className='fa fa-angle-right' />
+                </Link>
+              </div>
+            </Row>
+          </div>
+          <div className='section scroll-anime anime-down pmyb-0' id='news'>
+            <Row>
+              <EntryListNewHome
+                categoryName={'Dao'}
+                categoryId={DAO_CATEGORY_ID}
+                connectModel={(e: any) => {
+                  e.preventDefault();
+                  handleConnectModal(
+                    latestEntry[1]?.isStatic
+                      ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
+                      : `${
+                          latestEntry.length != 0
+                            ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                            : ARTICLE_DINAMIC_PATH + '#'
+                        }`
+                  );
+                }}
+              />
+
+              <div className='full-div mobile-view-display bordery text-right'>
+                <Link className='red-anchor' href='#'>
+                  {t('View All News')}
+                  <i className='fa fa-angle-right' />
+                </Link>
+              </div>
+            </Row>
+          </div>
+          <div className='section scroll-anime anime-down pmyb-0' id='news'>
+            <Row>
+              <EntryListNewHome
+                categoryName={'NFT'}
+                categoryId={NFT_CATEGORY_ID}
+                connectModel={(e: any) => {
+                  e.preventDefault();
+                  handleConnectModal(
+                    latestEntry[1]?.isStatic
+                      ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
+                      : `${
+                          latestEntry.length != 0
+                            ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                            : ARTICLE_DINAMIC_PATH + '#'
+                        }`
+                  );
+                }}
+              />
+
+              <div className='full-div mobile-view-display bordery text-right'>
+                <Link className='red-anchor' href='#'>
+                  {t('View All News')}
+                  <i className='fa fa-angle-right' />
+                </Link>
+              </div>
+            </Row>
+          </div>
+          <div className='section scroll-anime anime-down pmyb-0' id='news'>
+            <Row>
+              <EntryListNewHome
+                categoryName={'Metaverse'}
+                categoryId={METAVERCE_CATEGORY_ID}
+                connectModel={(e: any) => {
+                  e.preventDefault();
+                  handleConnectModal(
+                    latestEntry[1]?.isStatic
+                      ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
+                      : `${
+                          latestEntry.length != 0
+                            ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                            : ARTICLE_DINAMIC_PATH + '#'
+                        }`
+                  );
+                }}
+              />
+
+              <div className='full-div mobile-view-display bordery text-right'>
+                <Link className='red-anchor' href='#'>
+                  {t('View All News')}
+                  <i className='fa fa-angle-right' />
+                </Link>
+              </div>
+            </Row>
+          </div>
+          <div className='section scroll-anime anime-down pmyb-0' id='news'>
+            <Row>
+              <EntryListNewHome
+                categoryName={'Blockchain Game'}
+                categoryId={BLOCKCHAIN_GAMES_CATEGORY_ID}
+                connectModel={(e: any) => {
+                  e.preventDefault();
+                  handleConnectModal(
+                    latestEntry[1]?.isStatic
+                      ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
+                      : `${
+                          latestEntry.length != 0
+                            ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                            : ARTICLE_DINAMIC_PATH + '#'
+                        }`
+                  );
+                }}
+              />
+
+              <div className='full-div mobile-view-display bordery text-right'>
+                <Link className='red-anchor' href='#'>
+                  {t('View All News')}
+                  <i className='fa fa-angle-right' />
+                </Link>
+              </div>
+            </Row>
+          </div>
+          <div className='section scroll-anime anime-down pmyb-0' id='news'>
+            <Row>
+              <EntryListNewHome
+                categoryName={'AI'}
+                categoryId={AI_CATEGORY_ID}
+                connectModel={(e: any) => {
+                  e.preventDefault();
+                  handleConnectModal(
+                    latestEntry[1]?.isStatic
+                      ? `${ARTICLE_STATIC_PATH + latestEntry[0]}`
+                      : `${
+                          latestEntry.length != 0
+                            ? ARTICLE_DINAMIC_PATH + latestEntry[0]
+                            : ARTICLE_DINAMIC_PATH + '#'
+                        }`
+                  );
+                }}
+              />
+
+              <div className='full-div mobile-view-display bordery text-right'>
+                <Link className='red-anchor' href='#'>
+                  {t('View All News')}
+                  <i className='fa fa-angle-right' />
+                </Link>
+              </div>
             </Row>
           </div>
           {/* Podcast Panel */}
@@ -1084,11 +1370,11 @@ export default function UnAuthenticated() {
           <div className='section scroll-anime stories-container pb-4'>
             <Row>
               <Col xl='12' lg='12' md='12' sm='12' className='heding'>
-                <h3>
+                <h2 className='Webstories'>
                   <Image src={hot} alt='Hot' />
                   {t('Top Webstories')}
-                </h3>
-                <div className='spacer-10'></div>
+                </h2>
+                <div className='spacer-10' />
               </Col>
               <WebstoriesSlider />
             </Row>

@@ -6,8 +6,10 @@ const connectPlugWalletSlice = (
 ) => ({
   identity: null,
   principal: '',
+  tokenSymbol: '',
   reward: null,
   balance: null,
+  tokensBalance: null,
   emailConnected: false,
   auth: {
     state: 'initializing-auth',
@@ -52,12 +54,21 @@ const connectPlugWalletSlice = (
       ...state,
       balance: input,
     })),
-
+    setTokensBalance: (input: any): void =>
+      set((state) => ({
+        ...state,
+        tokensBalance: input,
+      })),
   setPrincipal: (input: any): void =>
     set((state) => ({
       ...state,
       principal: input,
     })),
+    setTokenSymbol: (input: any): void =>
+      set((state) => ({
+        ...state,
+        tokenSymbol: input,
+      })),
 
   setUserAuth: (input: any): void =>
     set((state) => ({

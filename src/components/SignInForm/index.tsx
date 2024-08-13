@@ -39,6 +39,7 @@ import { number, object, string } from 'yup';
 import instance from '@/components/axios';
 import ChangeForm from '@/components/ChangeForm';
 import { STRONG_PASSWORD, STRONG_PASSWORD_SMS } from '@/constant/validations';
+import { EMAIL_VALIDATE } from '@/constant/regulerExpression';
 
 export default function SignInForm({
   setisRegister,
@@ -79,10 +80,7 @@ export default function SignInForm({
     email: string()
       .required(t('Email is required'))
       .trim()
-      .matches(
-        /^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[A-Za-z]+$/,
-        t('Invalid Email')
-      ),
+      .matches(EMAIL_VALIDATE, t('Invalid Email')),
     password: string()
       .min(6, STRONG_PASSWORD_SMS)
       .required(t('Password is required'))
@@ -99,7 +97,7 @@ export default function SignInForm({
 
   const otpSchema = object().shape({
     otp: number()
-      .required('OTP is required')
+      .required(t('OTP is required'))
       .test(
         'non-negative',
         'OTP must be a non-negative number',
@@ -116,19 +114,23 @@ export default function SignInForm({
   ) => {
     setIsRegistering(true);
     try {
+      let tempPath = window.location.origin;
+
       const response = await instance.post('auth/register', {
         email: values.email,
         password: values.password,
         passwordConfirm: values.confirm,
+        baseUrl: tempPath,
+        language: LANG,
       });
       // toast.success('Sign up Successful, pleasde login');
       setOtpEmail(values.email);
       setVerify(true);
-      toast.success('OTP sent to email');
+      toast.success(t('OTP sent to email'));
       actions.resetForm();
       logger(response, 'signup rep');
     } catch (error: any) {
-      toast.error(error.response.data.errorMessage);
+      toast.error(t(error.response.data.errorMessage));
       logger(error);
     }
     setIsRegistering(false);
@@ -137,8 +139,11 @@ export default function SignInForm({
   const resendOtp = async () => {
     setIsSendingOtp(true);
     try {
+      let tempPath = window.location.origin;
+
       const response = await instance.post('auth/resend-otp', {
         email: otpEmail,
+        baseUrl: tempPath,
       });
       // toast.success('Sign up Successful, pleasde login');
       // setVerify(true);
@@ -147,10 +152,10 @@ export default function SignInForm({
       setRemainingTime(30); // Reset the remaining time
       localStorage.setItem('isTimerActive', 'true');
       localStorage.setItem('remainingTime', '30');
-      toast.success('OTP sent successfully');
+      toast.success(t('OTP sent successfully'));
       // logger(response, 'signup rep');
     } catch (error) {
-      toast.error('Error while authenticating');
+      toast.error(t('Error while authenticating'));
       logger(error);
     }
     setIsSendingOtp(false);
@@ -162,16 +167,20 @@ export default function SignInForm({
   ) => {
     setIsVerifying(true);
     try {
+      let tempotp = values.otp.toString();
       const response = await instance.post('auth/verify-otp', {
         email: otpEmail,
-        otp: values.otp,
+        otp: tempotp,
       });
-      toast.success('OTP verification successful');
+      toast.success(t('OTP verification successful'));
       setVerify(false);
       actions.resetForm();
       const token = response.data.data;
-      localStorage.setItem('token', token);
+ 
 
+      localStorage.setItem('token', token);
+      localStorage.setItem('email', values.email);
+      
       setEmailConnected(true);
       handleClose();
       logger(response, 'otp verification rep');
@@ -219,7 +228,10 @@ export default function SignInForm({
         >
           {({ errors, touched, handleChange, handleBlur, isValid, dirty }) => (
             <FormikForm className='flex w-full flex-col items-center justify-center'>
-              <p>OTP has been sent to {otpEmail ?? ''} Please verify.</p>
+              <p>
+                {t('OTP has been sent to')} {otpEmail ?? ''}{' '}
+                {t('Please verify.')}
+              </p>
               <Field name='otp'>
                 {({ field, formProps }: any) => (
                   <Form.Group
@@ -229,7 +241,7 @@ export default function SignInForm({
                     {/* <Form.Label>OTP</Form.Label> */}
                     <Form.Control
                       type='number'
-                      placeholder='Enter OTP'
+                      placeholder={t('Enter OTP')}
                       value={field.value}
                       onBlur={handleBlur}
                       onChange={handleChange}
@@ -253,7 +265,7 @@ export default function SignInForm({
                   ) : isSendingOtp ? (
                     <Spinner size='sm' />
                   ) : (
-                    'Resend code'
+                    t('Resend code')
                   )}
                 </Button>
                 <Button
@@ -261,7 +273,7 @@ export default function SignInForm({
                   disabled={isVerifying}
                   type='submit'
                 >
-                  {isVerifying ? <Spinner size='sm' /> : 'Verify'}
+                  {isVerifying ? <Spinner size='sm' /> : t('Verify')}
                 </Button>
               </div>
             </FormikForm>
@@ -294,7 +306,7 @@ export default function SignInForm({
 
                     <Form.Control
                       type='email'
-                      placeholder='Email'
+                      placeholder={t('Email')}
                       value={field.value}
                       onBlur={handleBlur}
                       onChange={handleChange}
@@ -328,11 +340,11 @@ export default function SignInForm({
                         onChange={handleChange}
                         name='password'
                       />
-                      {/* <i className='fa fa-eye-slash'></i> */}
+                      {/* <i className='fa fa-eye-slash'/> */}
                       <i
                         className={showPass ? 'fa fa-eye-slash' : 'fa fa-eye'}
                         onClick={() => setShowpass((pre) => !pre)}
-                      ></i>
+                      />
                     </div>
                   </Form.Group>
                 )}
@@ -362,11 +374,11 @@ export default function SignInForm({
                         onChange={handleChange}
                         name='confirm'
                       />
-                      {/* <i className='fa fa-eye-slash'></i> */}
+                      {/* <i className='fa fa-eye-slash'/> */}
                       <i
                         className={showPass2 ? 'fa fa-eye-slash' : 'fa fa-eye'}
                         onClick={() => setShowpass2((pre) => !pre)}
-                      ></i>
+                      />
                     </div>
                   </Form.Group>
                 )}

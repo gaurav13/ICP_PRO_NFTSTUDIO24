@@ -3,8 +3,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Container, Nav, Navbar, Button } from 'react-bootstrap';
-import logo from '@/assets/Img/Logo/Logo.png';
-import logo2 from '@/assets/Img/Logo/Logo-2.png';
+import logo from '@/assets/Img/Logo/headerlogo.png';
+// import logo2 from '@/assets/Img/Logo/Logo-2.png';
+import logo2 from '@/assets/Img/Logo/headerlogo.png';
+
 import Connect from '@/components/Connect/Connect';
 import { useConnectPlugWalletStore, useThemeStore } from '@/store/useStore';
 import SocialList from '@/components/SocialList/SocialList';
@@ -13,6 +15,9 @@ import logger from '@/lib/logger';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
+import LanguageBtn from '@/components/LanguageBtn/LanguageBtn';
+import { CAMPAIGNS, EVENTS, PRESSRELEASE } from '@/constant/routes';
+
 export default function NavBarNew() {
   // Dark Theme
   const { t, changeLocale } = useLocalization(LANG);
@@ -57,50 +62,50 @@ export default function NavBarNew() {
     hackathon: string;
     campaign: string;
   } = {
-    pressRelease: '#pressRelease',
+    pressRelease: PRESSRELEASE,
     podcast: '/podcasts',
     web3: '/web3-directory',
-    expert: 'https://nftstudio24.com/experts-alliance/',
-    investor: 'https://nftstudio24.com/experts-alliance/',
-    event: '/events',
-    hackathon: 'https://nftstudio24.com/hackathon/',
-    campaign: '#campaign',
+    expert: 'https://blockza.io/experts-alliance/',
+    investor: 'https://blockza.io/experts-alliance/',
+    event: EVENTS,
+    hackathon: 'https://blockza.io/hackathon/',
+    campaign: CAMPAIGNS,
   };
   if (path == '/') {
     if (auth.state === 'initialized') {
       routes = {
-        pressRelease: '#pressRelease',
+        pressRelease: PRESSRELEASE,
         podcast: '/podcasts',
         web3: '/web3-directory',
-        expert: 'https://nftstudio24.com/experts-alliance/',
-        investor: 'https://nftstudio24.com/experts-alliance/',
-        event: '/events',
-        hackathon: 'https://nftstudio24.com/hackathon/',
-        campaign: '#campaign',
+        expert: 'https://blockza.io/experts-alliance/',
+        investor: 'https://blockza.io/experts-alliance/',
+        event: EVENTS,
+        hackathon: 'https://blockza.io/hackathon/',
+        campaign: CAMPAIGNS,
       };
     }
   } else {
     if (auth.state === 'initialized') {
       routes = {
-        pressRelease: '/?route=pressRelease',
+        pressRelease: PRESSRELEASE,
         podcast: '/podcasts',
         web3: '/web3-directory',
-        expert: 'https://nftstudio24.com/experts-alliance/',
-        investor: 'https://nftstudio24.com/experts-alliance/',
-        event: '/events',
-        hackathon: 'https://nftstudio24.com/hackathon/',
-        campaign: '/?route=campaign',
+        expert: 'https://blockza.io/experts-alliance/',
+        investor: 'https://blockza.io/experts-alliance/',
+        event: EVENTS,
+        hackathon: 'https://blockza.io/hackathon/',
+        campaign: CAMPAIGNS,
       };
     } else {
       routes = {
-        pressRelease: '/?route=pressRelease',
+        pressRelease: PRESSRELEASE,
         podcast: '/podcasts',
         web3: '/web3-directory',
-        expert: 'https://nftstudio24.com/experts-alliance/',
-        investor: 'https://nftstudio24.com/experts-alliance/',
-        event: '/events',
-        hackathon: 'https://nftstudio24.com/hackathon/',
-        campaign: '/?route=campaign',
+        expert: 'https://blockza.io/experts-alliance/',
+        investor: 'https://blockza.io/experts-alliance/',
+        event: EVENTS,
+        hackathon: 'https://blockza.io/hackathon/',
+        campaign: CAMPAIGNS,
       };
     }
   }
@@ -131,6 +136,7 @@ export default function NavBarNew() {
       toggleNavbar();
     }
   };
+
   useEffect(() => {
     if (toggle) {
       document.addEventListener('click', closeNavbar);
@@ -142,34 +148,10 @@ export default function NavBarNew() {
       document.removeEventListener('click', closeNavbar);
     };
   }, [toggle]);
-  const googleTranslateElementInit = () => {
-    new window.google.translate.TranslateElement(
-      {
-        pageLanguage: 'en',
-        layout: window.google.translate.TranslateElement.FloatPosition.TOP_LEFT,
-      },
-      'google_translate_element'
-    );
-  };
-  let once = false;
-  useEffect(() => {
-    if (!once) {
-      once = true;
-      var addScript = document.createElement('script');
-      addScript.setAttribute(
-        'src',
-        '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'
-      );
-      document.body.appendChild(addScript);
-      window.googleTranslateElementInit = googleTranslateElementInit;
-    }
-  }, []);
   let makeActiveItem = (e: any) => {
     setActiveItem(e);
   };
-  useEffect(() => {
-    logger(activeItem, 'AAAAAAAAA');
-  }, [activeItem]);
+
   useEffect(() => {
     const hash = window.location.hash;
     if (hash && hash.startsWith('#')) {
@@ -186,41 +168,23 @@ export default function NavBarNew() {
     <>
       {route !== 'super-admin' && (
         <>
-          {/* <p
-        style={
-          toggle
-            ? {
-                width: '100%',
-                height: '100%',
-                position: 'absolute',
-                top: '0px',
-                left: '0px',
-                bottom: '0px',
-                zIndex: 2,
-              }
-            : { display: 'none' }
-        }
-        onClick={() => {
-          logger('CLICKed');
-          if (toggle) {
-            toggleThemeClass();
-          }
-        }}
-      /> */}
           <Navbar
             expand='lg'
             expanded={toggle}
             id='him'
             className='bg-body-tertiary my-nav new'
             ref={navbarRef}
-          // style={{ zIndex: 1 }}
+            // style={{ zIndex: 1 }}
           >
             <div className='navbar-inner'>
               {/* <Container fluid> */}
               <Navbar.Brand>
+                <span className='d-none d-lg-block lngcontainer'>
+                  <LanguageBtn id='navbarLngBtn' />
+                </span>
                 <Link href='/'>
-                  <Image src={logo} alt='Logo' />
-                  <Image src={logo2} alt='Logo' />
+                  <Image src={logo} alt='Blockza' />
+                  <Image src={logo2} alt='Blockza' />
                 </Link>
               </Navbar.Brand>
               <div className='d-flex-mobee'>
@@ -234,8 +198,9 @@ export default function NavBarNew() {
                   <Nav.Link
                     as={Link}
                     href='/'
-                    className={`${activeItem == 'Home' ? 'active' : ''
-                      } nav-link`}
+                    className={`${
+                      activeItem == 'Home' ? 'active' : ''
+                    } nav-link`}
                     onClick={() => {
                       toggleNavbar();
                       makeActiveItem('Home');
@@ -251,8 +216,9 @@ export default function NavBarNew() {
                     as={Link}
                     href={routes.pressRelease}
                     // ref={pressReleasediv}
-                    className={`${activeItem == 'pressRelease' ? 'active' : ''
-                      } no-color`}
+                    className={`${
+                      activeItem == 'pressRelease' ? 'active' : ''
+                    } no-color`}
                     onClick={() => {
                       toggleNavbar();
                       makeActiveItem('');
@@ -279,24 +245,25 @@ export default function NavBarNew() {
                       toggleNavbar();
                       makeActiveItem('Directory');
                     }}
-                    className={`${activeItem == 'web3-directory' ? 'active' : ''
-                      }`}
+                    className={`${
+                      activeItem == 'web3-directory' ? 'active' : ''
+                    }`}
                   >
                     {/* <div className='img'>
                     <Image src={cup1} alt='Diamond' />
                     <Image src={cup2} alt='Diamond' />
                   </div> */}
-                    {t('Directory')}
-                    <span className='batch'>{t('Web3')}</span>
+                    {t('webDirectory')}
+                    <span className='batch'>{t('Web3 ')}</span>
                   </Nav.Link>
-                  <Nav.Link as={Link} href={routes.expert}>
+                   {/* <Nav.Link as={Link} href={routes.expert}>
                     {t('Experts')} <span className='blue'>{t('Alliance')}</span>
-                    {/* Expert <p>Alliance</p> */}
+                    {/* Expert <p>Alliance</p>
                   </Nav.Link>
                   <Nav.Link as={Link} href={routes.investor}>
                     {t('Investors')}{' '}
                     <span className='blue'>{t('Alliance')}</span>
-                  </Nav.Link>
+                  </Nav.Link>*/}
                   <Nav.Link
                     as={Link}
                     href={routes.event}
@@ -305,9 +272,9 @@ export default function NavBarNew() {
                   >
                     {t('Events')}
                   </Nav.Link>
-                  <Nav.Link as={Link} href={routes.hackathon}>
+                  {/* <Nav.Link as={Link} href={routes.hackathon}>
                     {t('Hackathon')}
-                  </Nav.Link>
+                  </Nav.Link> */}
                   <Nav.Link
                     as={Link}
                     href={routes.campaign}
@@ -319,7 +286,7 @@ export default function NavBarNew() {
                   {/* <SocialList /> */}
                 </Nav>
 
-                {/* <div id='google_translate_element' className='width-80'></div> */}
+                {/* <div id='google_translate_element' className='width-80'/> */}
 
                 <div className='d-flex'>
                   <Button
@@ -329,86 +296,13 @@ export default function NavBarNew() {
                       handleButtonClick(); // Call your handleButtonClick function here
                     }}
                   >
-                    <i className='fa fa-sun-o'></i>
-                    <i className='fa fa-moon-o'></i>
+                    <i className='fa fa-sun-o' />
+                    <i className='fa fa-moon-o' />
                   </Button>
-                  {/* <Nav.Link href='#;' className='link-btn empty'>
-                My Reward
-              </Nav.Link>
-              <Nav.Link href='#;' className='link-btn empty'>
-                <Image src={iconbook} alt='iconbook' />{t('guide book')}
-              </Nav.Link> */}
-                  {/* <Nav.Link href="#;" className='link-btn logedin'>
-                <div className='img-pnl'>
-                  <Image src={icongirl} alt='icongirl' />
-                </div>
-                <div className='txt-pnl'>
-                  <h6>Neha Ali</h6>
-                  <span><Image src={Infinity} alt='Infinity' /> 500</span>
-                </div>
-              </Nav.Link> */}
-                  {/* <div className='profile-btn'>
-                <NavDropdown
-                  title={
-                    <>
-                      <div className='link-btn logedin'>
-                        <div className='img-pnl'>
-                          <Image src={icongirl} alt='icongirl' />
-                        </div>
-                        <div className='txt-pnl'>
-                          <h6>Neha Ali</h6>
-                          <span>
-                            <Image src={Infinity} alt='Infinity' /> 500
-                          </span>
-                        </div>
-                      </div>
-                    </>
-                  }
-                  id='basic-nav-dropdown'
-                >
-                  <NavDropdown.Item>
-                    <Link href={'/profilen'}>
-                      <div className='d-flex'>
-                        <div>
-                          <Image src={Profileicon} alt='Profileicon' />
-                        </div>
-                        <div>
-                          <h6>Username</h6>
-                          <p>0x717d...74a</p>
-                        </div>
-                      </div>
-                    </Link>
-                  </NavDropdown.Item>
-                  <NavDropdown.Divider />
-                  <NavDropdown.Item href='#;'>
-                    <Image src={User} alt="user" /> My Profile
-                  </NavDropdown.Item>
-                  <Link href='/dashboardn' className='dropdown-item'>
-                    <Image src={cup1} alt="user" />{t('my rewards')}
-                  </Link>
-                  <Link href='/settingsn' className='dropdown-item'>
-                    <Image src={setting} alt="user" /> Settings
-                  </Link>
-                  <Link href='/settingsn' className='dropdown-item'>
-                    <Image src={feedback} alt="user" /> Feedback
-                  </Link>
-                  <NavDropdown.Divider />
-                  <NavDropdown.Item className='disconnect-btn'>
-                    <i className='fa fa-sign-out'></i> Logout
-                  </NavDropdown.Item>
-                </NavDropdown>
-              </div>
-              <Nav.Link
-                style={{ display: 'none' }}
-                href='#;'
-                className='link-btn'
-              >
-                Sign In
-              </Nav.Link> */}
+
                   <Connect hideUser />
                 </div>
               </Navbar.Collapse>
-              {/* </Container> */}
             </div>
           </Navbar>
         </>

@@ -13,11 +13,25 @@ export { idlFactory } from './comment.did.js';
 const englishCanisterId =
   process.env.CANISTER_ID_COMMENT ||
   process.env.NEXT_PUBLIC_COMMENT_CANISTER_ID;
+const staggingCanisterID =
+  process.env.CANISTER_ID_COMMENT_SG ||
+  process.env.NEXT_PUBLIC_COMMENT_SG_CANISTER_ID;
 const japaneseCanisterId =
   process.env.CANISTER_ID_COMMENT_JP ||
   process.env.NEXT_PUBLIC_COMMENT_JP_CANISTER_ID;
-export const canisterId =
-  LANG === 'jp' ? japaneseCanisterId : englishCanisterId;
+// export const canisterId =
+//   LANG === 'jp' ? japaneseCanisterId : englishCanisterId;
+
+let tempCanisterId = null;
+if (process.env.NEXT_PUBLIC_STAGGING=="true") {
+  tempCanisterId = staggingCanisterID;
+} else if (LANG == 'jp') {
+  tempCanisterId = japaneseCanisterId;
+} else if (LANG == 'en') {
+  tempCanisterId = englishCanisterId;
+}
+export const canisterId = tempCanisterId;
+
 // export const canisterId =
 //   process.env.CANISTER_ID_COMMENT || process.env.NEXT_PUBLIC_COMMENT_CANISTER_ID;
 

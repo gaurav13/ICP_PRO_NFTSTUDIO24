@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 // import { withStyles } from '@material-ui/core/styles'
 // import Dialog from '@material-ui/core/Dialog'
 // import AppBar from '@material-ui/core/AppBar'
@@ -32,7 +33,7 @@ const ImgDialog = ({ img }: any) => {
         alignItems: 'center',
       }}
     >
-      <img
+      <Image
         src={img}
         alt='Cropped'
         style={{

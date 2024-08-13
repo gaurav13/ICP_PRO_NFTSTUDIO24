@@ -29,11 +29,13 @@ export const idlFactory = ({ IDL }) => {
     'add_category' : IDL.Null,
     'editWeb3Views' : IDL.Null,
     'delete_category' : IDL.Null,
+    'verify_user' : IDL.Null,
     'verify_web3' : IDL.Null,
     'delete_event' : IDL.Null,
     'block' : IDL.Null,
     'editViews' : IDL.Null,
     'delete_pressRelease' : IDL.Null,
+    'un_verify_user' : IDL.Null,
     'add_event' : IDL.Null,
     'delete_web3' : IDL.Null,
   });
@@ -74,6 +76,12 @@ export const idlFactory = ({ IDL }) => {
     'ok' : IDL.Tuple(Comments, IDL.Text),
     'err' : IDL.Text,
   });
+  const CommentItem = IDL.Record({
+    'creation_time' : IDL.Int,
+    'content' : IDL.Text,
+    'user' : IDL.Principal,
+    'entryId' : IDL.Text,
+  });
   const anon_class_19_1 = IDL.Service({
     'addActivity' : IDL.Func(
         [UserId, IDL.Text, ActivityType, IDL.Text],
@@ -86,13 +94,25 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'addComment' : IDL.Func(
-        [InputComment, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [InputComment, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [Result_3],
         [],
       ),
     'getActivities' : IDL.Func([], [Result_2], ['query']),
+    'getActivitiesDashboard' : IDL.Func(
+        [IDL.Principal, IDL.Text],
+        [Result_2],
+        [],
+      ),
     'getAdminActivities' : IDL.Func([UserId, IDL.Text], [Result_1], []),
     'getComments' : IDL.Func([IDL.Text], [Result], ['query']),
+    'getCommentsofUser' : IDL.Func(
+        [IDL.Principal, IDL.Nat, IDL.Nat],
+        [IDL.Record({ 'entries' : IDL.Vec(CommentItem), 'amount' : IDL.Nat })],
+        ['query'],
+      ),
+    'get_comment_reward' : IDL.Func([], [IDL.Nat], ['query']),
+    'update_comment_reward' : IDL.Func([IDL.Text, IDL.Nat], [IDL.Nat], []),
   });
   return anon_class_19_1;
 };
