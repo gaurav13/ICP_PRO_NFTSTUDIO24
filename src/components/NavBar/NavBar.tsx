@@ -17,7 +17,7 @@ import Connect from '@/components/Connect/Connect';
 import { useThemeStore } from '@/store/useStore';
 import SocialList from '@/components/SocialList/SocialList';
 import { usePathname } from 'next/navigation';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 
 export default function NavBar() {
@@ -80,28 +80,6 @@ export default function NavBar() {
       document.removeEventListener('click', closeNavbar);
     };
   }, [toggle]);
-  const googleTranslateElementInit = () => {
-    new window.google.translate.TranslateElement(
-      {
-        pageLanguage: 'en',
-        layout: window.google.translate.TranslateElement.FloatPosition.TOP_LEFT,
-      },
-      'google_translate_element'
-    );
-  };
-  let once = false;
-  useEffect(() => {
-    if (!once) {
-      once = true;
-      var addScript = document.createElement('script');
-      addScript.setAttribute(
-        'src',
-        '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'
-      );
-      document.body.appendChild(addScript);
-      window.googleTranslateElementInit = googleTranslateElementInit;
-    }
-  }, []);
   return (
     <>
       {route !== 'super-admin' && (
@@ -133,13 +111,13 @@ export default function NavBar() {
             id='him'
             className='bg-body-tertiary my-nav'
             ref={navbarRef}
-          // style={{ zIndex: 1 }}
+            // style={{ zIndex: 1 }}
           >
             <Container fluid>
               <Navbar.Brand>
                 <Link href='/'>
-                  <Image src={logo} alt='Logo' />
-                  <Image src={logo2} alt='Logo' />
+                  <Image src={logo} alt='Blockza' />
+                  <Image src={logo2} alt='Blockza' />
                 </Link>
               </Navbar.Brand>
               <div className='d-flex-mobee'>
@@ -195,7 +173,7 @@ export default function NavBar() {
                   <SocialList />
                 </Nav>
 
-                <div id='google_translate_element' className='width-80'></div>
+                <div id='google_translate_element' className='width-80' />
 
                 <div className='d-flex'>
                   <Button
@@ -205,8 +183,8 @@ export default function NavBar() {
                       handleButtonClick(); // Call your handleButtonClick function here
                     }}
                   >
-                    <i className='fa fa-sun-o'></i>
-                    <i className='fa fa-moon-o'></i>
+                    <i className='fa fa-sun-o' />
+                    <i className='fa fa-moon-o' />
                   </Button>
                   {/* <Nav.Link href='#;' className='link-btn empty'>
                 My Reward
@@ -270,7 +248,7 @@ export default function NavBar() {
                   </Link>
                   <NavDropdown.Divider />
                   <NavDropdown.Item className='disconnect-btn'>
-                    <i className='fa fa-sign-out'></i> Logout
+                    <i className='fa fa-sign-out'/> Logout
                   </NavDropdown.Item>
                 </NavDropdown>
               </div>

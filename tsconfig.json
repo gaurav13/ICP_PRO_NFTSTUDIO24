@@ -33,7 +33,7 @@
     "src/lib/auth.js",
     "src/store/slices/connectPlugWalletSlice.js",
     "src/lib/auth.js"
-, "src/components/cutomeEditor/editor.tsx"  ],
+, "src/components/cutomeEditor/Editor.tsx", "src/components/CustomCountryandRegion/CountrySelect.jsx", "RedirectsRoutes.js", "src/app/connect/ledger.ts", "src/app/connect/plug.ts", "src/app/sitemap/index.js", "src/app/sitemap.xml.js", "next-sitemap.config.js"  ],
   "exclude": ["node_modules"],
   "moduleResolution": ["node_modules", ".next", "node"]
 }

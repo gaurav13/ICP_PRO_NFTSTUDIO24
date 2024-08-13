@@ -14,14 +14,59 @@ module UserType {
   type NewImageObject = ImageType.NewImageObject;
   public type UserId = ?Text;
   public type Id = Principal;
-
   public type Reward = {
     isClaimed : Bool;
     creation_time : Int;
     claimed_at : ?Int;
     amount : Nat;
   };
+  public type UsersReward = {
+    isClaimed : Bool;
+    creation_time : Int;
+    claimed_at : ?Int;
+    amount : Nat;
+    reward_type : Text;
+  };
+  public type MenualAndArtificialRewardType = {
+    isMenual : Bool;
+    creation_time : Int;
+    amount : Nat;
+    from : Id;
+    to : Id;
+
+  };
+  public type ReturnMenualAndArtificialReward = {
+    isMenual : Bool;
+    creation_time : Int;
+    amount : Nat;
+    from : Id;
+    to : Id;
+    senderName : Text;
+    receiverName : Text;
+
+  };
+  public type RewardValuesChangeRecord = {
+    rewardType : Text;
+    creation_time : Int;
+    newValue : Nat;
+    oldValue : Nat;
+    changer : Id;
+
+  };
+  public type RewardValuesChangeRecordReturn = {
+    rewardType : Text;
+    creation_time : Int;
+    newValue : Nat;
+    oldValue : Nat;
+    changer : Id;
+    changerName : Text;
+
+  };
   public type Rewards = [Reward];
+  public type UsersRewards = [UsersReward];
+  public type MenualAndArtificialRewardsType = [MenualAndArtificialRewardType];
+  public type RewardValuesChangeRecordReturnList = [(Text, RewardValuesChangeRecordReturn)];
+
   public type EntryId = Text;
   public type Role = {
     #admin;
@@ -67,9 +112,22 @@ module UserType {
     joinedFrom : Int;
     isBlocked : Bool;
     isAdminBlocked : Bool;
-        isVerified : Bool;
+    isVerified : Bool;
     isVerificationRequested : Bool;
     identificationImage : ?NewImageObject;
+
+  };
+  public type ListUserDashboard = {
+    name : ?Text;
+    email : ?Text;
+    joinedFrom : Int;
+    isBlocked : Bool;
+    isAdminBlocked : Bool;
+    isVerified : Bool;
+    isVerificationRequested : Bool;
+    identificationImage : ?NewImageObject;
+    claimedReward : Nat;
+    unclaimedReward : Nat;
   };
   public type TopWinnerUserList = {
     profileImg : ?NewImageObject;
@@ -77,7 +135,7 @@ module UserType {
     dob : ?Text;
     gender : ?Text;
     joinedFrom : Int;
-    rewards : Rewards;
+    rewards : UsersRewards;
     totalReward : Int;
   };
   public type ListAdminUser = {
@@ -89,6 +147,19 @@ module UserType {
     isAdminBlocked : Bool;
 
   };
+  public type LoginReward = {
+    date : Int;
+    reward : Nat;
+
+  };
+  public type ProfileCompleteReward = {
+    creation_time : Int;
+    reward : Nat;
+
+  };
+  public type LoginRewardRecord = [LoginReward];
+  public type EmailVerifiedReward = Principal;
+  public type EmailVerifiedRewardRecord = [EmailVerifiedReward];
   public type InputUser = {
     profileImg : ?NewImageObject;
     bannerImg : ?NewImageObject;
@@ -106,7 +177,26 @@ module UserType {
     authorTitle : Text;
     authorDescription : Text;
   };
+  public type EntryIds = [EntryId];
+
+  //   public type ProfileComplete = {
+  //   bannerImg : Nat;
+  //   profileImg : Nat;
+  //   name : Nat;
+  //   designation : Nat;
+  //   email : Nat;
+  //   website : Nat;
+  //   dob : Nat;
+  //   facebook : Nat;
+  //   twitter : Nat;
+  //   instagram : Nat;
+  //   linkedin : Nat;
+  //   authorInfo : Nat;
+  //   authorTitle : Nat;
+  //   authorDescription : Nat;
+  // };
   public type Users = [(Id, User)];
+  public type ArticleReaders = [(Id, EntryIds)];
   public type ListUsers = [(Id, ListUser)];
   public type ListAdminUsers = [(Id, ListAdminUser)];
   public type ActivityType = {
@@ -157,6 +247,14 @@ module UserType {
     owner : Principal;
     subaccount : ?SubAccount;
   };
+  public type UserCount = {
+    Users : Int;
+    verified : Int;
+    unverified : Int;
+    blocked : Int;
+    Unblocked : Int;
+  };
+
   public type TransferFromArgs = {
     spender_subaccount : ?SubAccount;
     from : Account;
@@ -170,7 +268,17 @@ module UserType {
     #Ok : Icrc1BlockIndex;
     #Err : TransferFromError;
   };
-
+  public type Comment = {
+    user : Principal;
+    content : Text;
+    creation_time : Int;
+  };
+  public type CommentItem = {
+    user : Principal;
+    content : Text;
+    creation_time : Int;
+    entryId : Text;
+  };
   public type TransferFromError = {
     #BadFee : { expected_fee : Icrc1Tokens };
     #BadBurn : { min_burn_amount : Icrc1Tokens };
@@ -182,8 +290,50 @@ module UserType {
     #TemporarilyUnavailable;
     #GenericError : { error_code : Nat; message : Text };
   };
+  public type TokenMinter = {
+    tokens : Nat;
+    creation_time : Int;
+    user : Principal;
+    name : Text;
+    wallet : Principal;
 
-  public let MASTER_WALLET = "og5g4-dvvdy-behql-zqoz5-f2qjs-x4nke-k5spr-q7ngf-7ia7a-h4jaj-yae";
-  public let PLATFORM_WALLET = "4o3sf-5uho3-wjwrb-4psji-hucud-jzdi5-mrbzs-ooom5-5cyep-fkr4m-fqe";
-  public let ADMIN_WALLET = "wxk6k-c7r5a-sqg2h-zf4hv-cuwsv-eecys-rhuvf-ihde5-lgadl-sfakr-nae";
+  };
+  public type TokenBurn = {
+    tokens : Nat;
+    creation_time : Int;
+    user : Principal;
+    name : Text;
+
+  };
+  public type Minters = [(Text, TokenMinter)];
+  public type Burners = [(Text, TokenBurn)];
+  public type TokensClaimStatus = {
+    #pending;
+    #approved;
+    #rejected
+
+  };
+  public type TokenClaimRequest = {
+    tokens : Nat;
+    creation_time : Int;
+    user : Principal;
+    transectionFee:Nat;
+    status : TokensClaimStatus
+
+  };
+  public type TokenClaimRequests = [(Text, TokenClaimRequest)];
+
+  // this is locally
+  // public let MASTER_WALLET = "ovwuo-27fz4-mzoqt-civgm-otc2n-k37td-m4d2e-n35pq-6an4y-j7q7i-5qe";
+
+  // this is for mainnet
+  public let MASTER_WALLET = "ovwuo-27fz4-mzoqt-civgm-otc2n-k37td-m4d2e-n35pq-6an4y-j7q7i-5qe";
+  public let PLATFORM_WALLET = "s6ncu-m4pe4-x7ioz-pwupz-s3lcj-643je-76psx-k3kyb-yeh2n-64bhy-fqe";
+  public let ADMIN_WALLET = "ah5hb-5wife-gghvi-mjmyg-hxha6-nani5-725xi-t2u2u-bep6q-t7qnm-oae";
+  // public let MASTER_Token_WALLET = "flcnw-pwkoi-vvs6d-pbffq-jioth-56zqj-z3egd-w2oxu-f5sbj-xytsm-6ae";
+  // local TOKEN_CANISTER_ID
+  // public let TOKEN_CANISTER_ID = "dxfxs-weaaa-aaaaa-qaapa-cai";
+  // mainnet TOKEN_CANISTER_ID
+  public let TOKEN_CANISTER_ID = "fdk2c-7qaaa-aaaal-ajiba-cai";
+
 };

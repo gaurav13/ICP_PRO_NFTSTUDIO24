@@ -18,8 +18,12 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => {
     const token = response?.data?.data?.token;
+
+
     if (token) {
       localStorage.setItem('token', token);
+ 
+
     }
     return response;
   },

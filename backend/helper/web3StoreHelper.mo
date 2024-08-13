@@ -28,6 +28,7 @@ module Web3StoreHelper {
   type Id = Principal;
   type Key = Text;
   private let MAX_LINK_CHARS = 2048;
+    private let MAX_EMAIL_CHARS = 320;
   public func companyExists(company : Text, web3Storage : Web3Storage) : Bool {
     // let users = Map.HashMap.entries<Id, User>(userStorage);
     for ((_, web3) : (Text, Web3) in web3Storage.entries()) {
@@ -90,6 +91,7 @@ module Web3StoreHelper {
 
     assert web3.twitter.size() <= MAX_LINK_CHARS;
     temptwitterLink := web3.twitter;
+    assert web3.founderEmail.size() <= MAX_EMAIL_CHARS;
 
     var web3Status : Web3Status = #un_verfied;
 
@@ -124,6 +126,9 @@ module Web3StoreHelper {
             podcastCount = isweb3.podcastCount;
             pressReleaseCount = isweb3.pressReleaseCount;
             totalCount = isweb3.totalCount;
+             isStatic=isweb3.isStatic;
+             founderEmail=isweb3.founderEmail;
+
 
           };
           let res=web3Storage.replace(web3Id, tempWeb3);
@@ -163,6 +168,9 @@ module Web3StoreHelper {
       podcastCount = 0;
       pressReleaseCount = 0;
       totalCount = 0;
+      isStatic=false;
+             founderEmail=web3.founderEmail;
+
 
     };
 
@@ -171,23 +179,9 @@ module Web3StoreHelper {
     return newweb3Storage;
 
   };
-  public func sortListByLatest(array : [(Text, Web3)]) : [(Text, Web3)] {
-    let compare = func((keyA : Text, a : Web3), (keyB : Text, b : Web3)) : Order.Order {
-      if (a.creation_time > b.creation_time) {
-        return #less;
-      } else if (a.creation_time < b.creation_time) {
-        return #greater;
-      } else {
-        return #equal;
-      };
-    };
-    // let sortedArray = Array.sort(newArr, func((keyA : Key, a : ListEntryItem), (keyB : Key, b : ListEntryItem)) { Order.fromCompare((b.creation_time - a.creation_time)) });
-    Array.sort(
-      array,
-      compare,
-    );
-  };
-  public func searchSortList(array : Map.HashMap<Key, Web3>, search : Text, startIndex : Nat, length : Nat) : {
+
+
+  public func searchSortList(array : Map.HashMap<Key, Web3>, search : Text, startIndex : Nat, length : Nat,getModificationdate:(Key,Int)->Int) : {
     web3List : [(Key, Web3)];
     amount : Nat;
   } {
@@ -195,17 +189,23 @@ module Web3StoreHelper {
     var searchedWeb3 = Map.HashMap<Key, Web3>(0, Text.equal, Text.hash);
     for ((key, entry) in array.entries()) {
       let companyName = Text.map(entry.company, Prim.charToLower);
+      let founderName = Text.map(entry.founderName, Prim.charToLower);
+
       var isTitleSearched = Text.contains(companyName, #text searchString);
-      if (isTitleSearched) {
+      var isfounderNameSearched = Text.contains(founderName, #text searchString);
+
+      if (isTitleSearched or isfounderNameSearched ) {
         searchedWeb3.put(key, entry);
       };
     };
     var searchedEntriesArray : [(Key, Web3)] = Iter.toArray(searchedWeb3.entries());
     let compare = func((keyA : Key, a : Web3), (keyB : Key, b : Web3)) : Order.Order {
+let firstItemModificationDate=getModificationdate(keyA,a.creation_time);
+let secondItemModificationDate=getModificationdate(keyB,b.creation_time);
 
-      if (a.creation_time > b.creation_time) {
+      if (firstItemModificationDate > secondItemModificationDate) {
         return #less;
-      } else if (a.creation_time < b.creation_time) {
+      } else if (firstItemModificationDate < secondItemModificationDate) {
         return #greater;
       } else {
         return #equal;
@@ -246,7 +246,7 @@ module Web3StoreHelper {
     return { web3List = paginatedArray; amount = sortedEntries.size() };
   };
   // for this type Web3List
-  public func searchSortListWeb3(array : Map.HashMap<Key, Web3List>, search : Text, startIndex : Nat, length : Nat) : {
+  public func searchSortListWeb3(array : Map.HashMap<Key, Web3List>, search : Text, startIndex : Nat, length : Nat,getModificationdate:(Key,Int)->Int) : {
     web3List : [(Key, Web3List)];
     amount : Nat;
   } {
@@ -261,10 +261,11 @@ module Web3StoreHelper {
     };
     var searchedEntriesArray : [(Key, Web3List)] = Iter.toArray(searchedWeb3.entries());
     let compare = func((keyA : Key, a : Web3List), (keyB : Key, b : Web3List)) : Order.Order {
-
-      if (a.creation_time > b.creation_time) {
+let firstItemModificationDate=getModificationdate(keyA,a.creation_time);
+let secondItemModificationDate=getModificationdate(keyB,b.creation_time);
+      if (firstItemModificationDate > secondItemModificationDate) {
         return #less;
-      } else if (a.creation_time < b.creation_time) {
+      } else if (firstItemModificationDate < secondItemModificationDate) {
         return #greater;
       } else {
         return #equal;
@@ -300,7 +301,7 @@ module Web3StoreHelper {
     };
     return { web3List = paginatedArray; amount = sortedEntries.size() };
   };
-  public func searchSortWeb3DashboardList(array : Map.HashMap<Key, Web3DashboardList>, search : Text, startIndex : Nat, length : Nat) : {
+  public func searchSortWeb3DashboardList(array : Map.HashMap<Key, Web3DashboardList>, search : Text, startIndex : Nat, length : Nat,getModificationdate:(Key,Int)->Int) : {
     web3List : [(Key, Web3DashboardList)];
     amount : Nat;
   } {
@@ -315,10 +316,11 @@ module Web3StoreHelper {
     };
     var searchedEntriesArray : [(Key, Web3DashboardList)] = Iter.toArray(searchedWeb3.entries());
     let compare = func((keyA : Key, a : Web3DashboardList), (keyB : Key, b : Web3DashboardList)) : Order.Order {
-
-      if (a.creation_time > b.creation_time) {
+let firstItemModificationDate=getModificationdate(keyA,a.creation_time);
+let secondItemModificationDate=getModificationdate(keyB,b.creation_time);
+      if (firstItemModificationDate > secondItemModificationDate) {
         return #less;
-      } else if (a.creation_time < b.creation_time) {
+      } else if (firstItemModificationDate < secondItemModificationDate) {
         return #greater;
       } else {
         return #equal;
@@ -344,7 +346,6 @@ module Web3StoreHelper {
       };
 
     } else if (size > startIndex and size < (startIndex + itemsPerPage) and size > itemsPerPage) {
-      Debug.print(debug_show (size, startIndex, amount));
       paginatedArray := Array.subArray<(Key, Web3DashboardList)>(sortedEntries, startIndex, amount);
 
     } else if (size > itemsPerPage) {
@@ -354,11 +355,14 @@ module Web3StoreHelper {
     };
     return { web3List = paginatedArray; amount = sortedEntries.size() };
   };
-  public func sortEntriesByLatest(array : [(Key, Web3)]) : [(Key, Web3)] {
+  public func sortEntriesByLatest(array : [(Key, Web3)],getModificationdate:(Key,Int)->Int) : [(Key, Web3)] {
     let compare = func((keyA : Key, a : Web3), (keyB : Key, b : Web3)) : Order.Order {
-      if (a.creation_time > b.creation_time) {
+
+      let firstItemModificationDate=getModificationdate(keyA,a.creation_time);
+let secondItemModificationDate=getModificationdate(keyB,b.creation_time);
+      if (firstItemModificationDate > secondItemModificationDate) {
         return #less;
-      } else if (a.creation_time < b.creation_time) {
+      } else if (firstItemModificationDate < secondItemModificationDate) {
         return #greater;
       } else {
         return #equal;

@@ -7,7 +7,7 @@ import { useConnectPlugWalletStore } from '@/store/useStore';
 import iconfilter from '@/assets/Img/Icons/icon-filter.png';
 import { makeEntryActor } from '@/dfx/service/actor-locator';
 import logger from '@/lib/logger';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import { Carousel, Col, Dropdown, Nav, Row, Tab } from 'react-bootstrap';
 
@@ -182,7 +182,7 @@ export default function Articles() {
                     }}
                     className='arrow-link'
                   >
-                    <i className='fa fa-angle-right'></i>
+                    <i className='fa fa-angle-right' />
                   </Link>
                 </li>
                 <li className='d-flex align-items-center'>
@@ -191,7 +191,7 @@ export default function Articles() {
                       href={'/category-detail?category=All_Categories'}
                       className='dropdown-toggle view-all mb-0'
                     >
-                      <i className='fa fa-eye'></i> View All
+                      <i className='fa fa-eye' /> View All
                     </Link>
                   </div>
                   <Dropdown>
@@ -237,7 +237,7 @@ export default function Articles() {
                           className='mt-5 text-center'
                           style={{ fontWeight: '600' }}
                         >
-                       {t('No Articles Found')}
+                          {t('No Articles Found')}
                         </p>
                       </div>
                     )}

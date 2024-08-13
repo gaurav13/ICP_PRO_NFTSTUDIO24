@@ -11,12 +11,16 @@ export default function updateReward({ identity, setReward, auth }: Props) {
   try {
     const getRewards = async () => {
       if (auth.state !== 'initialized' || !identity) return;
+let tempReward=[];
+      let tempUser  = await auth.actor.get_reward_of_user_count();
+      if(tempUser){
+        tempReward=tempUser;
+      }
 
-      let tempUser = await auth.actor.get_user_details([]);
-      const unClaimedRewards = tempUser.ok[1].rewards.filter((reward: any) => {
-        return !reward.isClaimed;
-      });
-      setReward(unClaimedRewards.length);
+      let allAmount = Number(tempReward?.all) ?? 0;
+      let claimedAmount =  Number(tempReward?.claimed) ?? 0;;
+      let unClaimedAmount =  Number(tempReward?.unclaimed) ?? 0;
+      setReward(unClaimedAmount ?? 0);
     };
     getRewards();
   } catch (error) {

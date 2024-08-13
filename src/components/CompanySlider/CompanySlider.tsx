@@ -7,6 +7,10 @@ import logger from '@/lib/logger';
 import { useRouter } from 'next/navigation';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import {
+  DIRECTORY_DINAMIC_PATH,
+  DIRECTORY_STATIC_PATH,
+} from '@/constant/routes';
 export default function DirectorySlider({
   trendingDirectries,
 }: {
@@ -121,26 +125,25 @@ export default function DirectorySlider({
                     e.preventDefault();
 
                     openArticleLink(
-                      `/directory?directoryId=${
-                        entry.length != 0 ? entry[0] : '#'
-                      }`
+                      entry[1].isStatic
+                        ? `${DIRECTORY_STATIC_PATH + entry[0]}`
+                        : `${
+                            entry.length != 0
+                              ? DIRECTORY_DINAMIC_PATH + entry[0]
+                              : DIRECTORY_DINAMIC_PATH + '#'
+                          }`
                     );
                   }}
                 >
-                  <h6>{entry[1]?.catagory ?? ''}</h6>
+                  <p>{entry[1]?.catagory ?? ''}</p>
                   <div className='top-info-pnl'>
                     <div className='img-pnl'>
-                      {/* <Image
-        src={'/images/l-b.png'}
-        width={42}
-        height={42}
-        alt='Logo'
-      /> */}
+                   
                       <Image
                         src={entry[1]?.companyLogo ?? '/images/l-b.png'}
                         width={15}
                         height={16}
-                        alt='Logo'
+                        alt='Blockza'
                       />
                       <Image
                         src={'/images/l-n.png'}
@@ -150,11 +153,11 @@ export default function DirectorySlider({
                       />
                     </div>
                     <div className='txt-pln'>
-                      <h6>
+                      <p>
                         {entry[1].company.length > 30
                           ? `${entry[1].company.slice(0, 30)}...`
                           : entry[1].company}
-                      </h6>
+                      </p>
                     </div>
                   </div>
                   <div style={{ overflow: 'hidden', height: '80px' }}>
@@ -173,7 +176,7 @@ export default function DirectorySlider({
                   src={'/images/l-b.png'}
                   width={42}
                   height={42}
-                  alt='Logo'
+                  alt='Blockza'
                 />
                 <Image
                   src={'/images/l-n.png'}
@@ -203,7 +206,7 @@ export default function DirectorySlider({
                   src={'/images/l-b.png'}
                   width={42}
                   height={42}
-                  alt='Logo'
+                  alt='Blockza'
                 />
                 <Image
                   src={'/images/l-n.png'}
@@ -233,7 +236,7 @@ export default function DirectorySlider({
                   src={'/images/l-b.png'}
                   width={42}
                   height={42}
-                  alt='Logo'
+                  alt='Blockza'
                 />
                 <Image
                   src={'/images/l-n.png'}
@@ -263,7 +266,7 @@ export default function DirectorySlider({
                   src={'/images/l-b.png'}
                   width={42}
                   height={42}
-                  alt='Logo'
+                  alt='Blockza'
                 />
                 <Image
                   src={'/images/l-n.png'}
@@ -293,7 +296,7 @@ export default function DirectorySlider({
                   src={'/images/l-b.png'}
                   width={42}
                   height={42}
-                  alt='Logo'
+                  alt='Blockza'
                 />
                 <Image
                   src={'/images/l-n.png'}

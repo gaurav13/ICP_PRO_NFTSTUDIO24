@@ -3,6 +3,8 @@ import { MAX_RESIZED_IMAGE_SIZE } from '@/constant/validations';
 import logger from '@/lib/logger';
 import FileResizer from 'react-image-file-resizer';
 import { toast } from 'react-toastify';
+import useLocalization from '@/lib/UseLocalization';
+import { LANG } from '@/constant/language';
 
 const resizeImage = async (
   file: File,
@@ -10,11 +12,14 @@ const resizeImage = async (
   maxHeight: number,
   quality: number = 80
 ): Promise<File> => {
+  // const { t } = useLocalization(LANG)
   return new Promise(async (resolve, reject) => {
+  
+
     if (!file) reject("Image file wasn't provided");
     const validType = isValidFileType(file && file.name.toLowerCase(), 'image');
     if (!validType) {
-      toast.error(t('Not a valid image type'));
+      toast.error('Not a valid image type');
       reject('Invalid image type');
       return;
     }

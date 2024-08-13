@@ -14,6 +14,7 @@ import angledown from '@/assets/Img/Icons/angle-down-solid.png';
 import angleright from '@/assets/Img/Icons/angle-right-solid.png';
 // import iconshare from '@/assets/Img/Icons/icon-share.png';
 import iconcap from '@/assets/Img/Icons/icon-cap.png';
+import { CATEGORY_PATH, SURVEY, TAKEQUIZPAGE } from '@/constant/routes';
 import {
   Button,
   Col,
@@ -23,7 +24,6 @@ import {
   Spinner,
   Dropdown,
 } from 'react-bootstrap';
-import logger from '@/lib/logger';
 import parse from 'html-react-parser';
 import promotedIcon from '@/assets/Img/promoted-icon.png';
 import girl from '@/assets/Img/user-img.png';
@@ -45,9 +45,11 @@ import {
   makeDIP721Canister,
   makeEntryActor,
   makeLedgerCanister,
+  makeUserActor,
 } from '@/dfx/service/actor-locator';
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 import {
+  commentTime,
   formatLikesCount,
   isUserConnected,
   utcToLocal,
@@ -72,7 +74,7 @@ import { ARTICLE_FEATURED_IMAGE_ASPECT, profileAspect } from '@/constant/sizes';
 import CommentBox from '@/components/CommentBox/CommentBox';
 import ConnectModal from '@/components/Modal';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
-import { Date_m_d_y_h_m } from '@/constant/DateFormates';
+import { Date_m_d_y_h_m, dateTranslate } from '@/constant/DateFormates';
 import TwitterSVGIcon from '@/components/twitterIconSVG/TwitterSVGIcon';
 import { TAG_CONTENT_ROUTE } from '@/constant/routes';
 import iconmessage from '@/assets/Img/Icons/icon-comment.png';
@@ -86,6 +88,7 @@ import {
   WhatsappShareButton,
 } from 'next-share';
 import TwitterShareButton2 from '@/components/TwitterBtn/TwitterBtn';
+import logger from '@/lib/logger';
 function VoteButton({
   isLiking,
   isLiked,
@@ -120,9 +123,8 @@ function VoteButton({
       {!isFooter ? (
         <>
           <h6
-            className={` ${disabled ? 'disabled' : ''}  ${
-              isLiked ? ' liked' : ''
-            }`}
+            className={` ${disabled ? 'disabled' : ''}  ${isLiked ? ' liked' : ''
+              }`}
             onClick={likeEntryMiddleWare}
             style={{
               pointerEvents: disabled ? 'none' : 'all',
@@ -139,11 +141,11 @@ function VoteButton({
                 width={25}
               />
             ) : (
-              // <i className='fa fa-like'></i>
+              // <i className='fa fa-like'/>
               // <i
               //   className='fa-solid  fa-thumbs-up my-fa'
               //   style={{ fontSize: 20, height: 25, width: 25, maxWidth: 25 }}
-              // ></i>
+              // />
               <Image
                 src={'/images/like.svg'}
                 alt='Icon Thumb'
@@ -154,7 +156,7 @@ function VoteButton({
               // <i
               //   className='fa-regular  fa-thumbs-up  my-fa'
               //   style={{ fontSize: 20, height: 25, width: 25, maxWidth: 25 }}
-              // ></i>
+              // />
             )}{' '}
             {parseInt(entry?.likes ?? '0') + tempLike}
           </h6>
@@ -164,7 +166,9 @@ function VoteButton({
             href='#'
             onClick={(e: any) => {
               e.preventDefault();
-              commmentField.focus();
+
+              commmentField?.current.focus();
+              logger(commmentField?.current,"asdsadsadasdasd")
             }}
           >
             <h6>
@@ -246,10 +250,10 @@ function MintButton({
         <Button
           onClick={mintNft}
           disabled={isMinted || isMinting}
-          className='blue-button'
+          className='yellow-button black'
         >
           {isMinting ? (
-            <Spinner size='sm'></Spinner>
+            <Spinner size='sm' />
           ) : isMinted ? (
             t('minted')
           ) : (
@@ -286,13 +290,16 @@ export default function NFTArticlePost({
   const searchParams = new URLSearchParams(urlparama);
   const CommentRoute = searchParams.get('route');
   const pathName = usePathname();
-
   const [showModal, setShowModal] = useState(false);
   const [heading, setheading] = useState<any[]>([]);
   const [userImage, setuserImage] = useState('');
   const [hashTags, setHashTags] = useState('');
+  const [quizId, setQuizId] = useState<any>(null);
+  const [surveyId, setSurveyId] = useState<any>(null);
+  const [reward, setRewardperuser] = useState<any>(null);
 
   const [showContent, setShowContent] = useState(true);
+  const [isOldReaderLoading, setIsOldReaderLoading] = useState(false);
 
   const [promotionValues, setPromotionValues] = useState({
     icp: 0,
@@ -304,7 +311,6 @@ export default function NFTArticlePost({
 
   const { entry, user, userImg, featuredImage, userId, articleId, getEntry } =
     article;
-  logger(article, 'ENTRY THAT WE GOT');
 
   const {
     auth,
@@ -337,21 +343,26 @@ export default function NFTArticlePost({
   const [entrytype, setEntrytype] = useState('article');
   const [commentCount, setCommentCount] = useState(0);
   const [shareUrl, setSocialLink] = useState('#');
-  const title = 'NFTStudio24';
+  const title = 'BlockZa';
   const statusString = Object.keys(entry.status)[0];
   const isPending = statusString == 'pending';
   const isRejected = statusString == 'rejected';
   const formikRef = useRef<FormikProps<FormikValues>>(null);
   const commmentField = useRef<any>(null);
+  let [commentVal, setCommentVal] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const path = usePathname();
   const myDivRef = useRef<HTMLDivElement | null>(null);
   const initialPromoteVales = {
     ICP: 0,
   };
+
   const promotionSchema = object().shape({
     ICP: number().min(1, 'ICP cannot be less than 1'),
   });
+  const [isRewarded, setIsRewarded] = useState(true);
+  const myTagsRef = useRef<HTMLUListElement | null>(null);
 
   const router = useRouter();
   const handleShow = () => {
@@ -368,6 +379,12 @@ export default function NFTArticlePost({
       icp: 0,
     });
   };
+
+  const entryActor = makeEntryActor({
+    agentOptions: {
+      identity,
+    },
+  });
   const handleConnectModal = () => {
     // e.preventDefault();
     setShowConnectModal(true);
@@ -391,7 +408,6 @@ export default function NFTArticlePost({
 
     likeEntry()
       .then((res: any) => {
-        logger('tried to start update');
         updateReward({ identity, auth, setReward });
         if (res[1]) {
           setIsLiked(true);
@@ -405,7 +421,6 @@ export default function NFTArticlePost({
         setTempLike(0);
         setIsLiking(false);
       });
-    // logger(result, 'LIKED THE DAMN ENTRY ');
   };
   const getComments = async () => {
     const commentsActor = makeCommentActor({
@@ -420,7 +435,6 @@ export default function NFTArticlePost({
     }
     if (comments.err) {
       setArticleComments([]);
-      logger(comments, 'THEM DOMMENTS');
     }
     setUserArticleCommentsLoading(false);
     if (userArticleComments.length > 10) {
@@ -429,6 +443,68 @@ export default function NFTArticlePost({
       setloadMoreComments(userArticleComments);
     }
   };
+  const sendcomment = async (e: any) => {
+    e.preventDefault();
+    if (!isUserConnected(auth, handleConnectModal)) return;
+    setIsCommenting(true);
+    if (commentVal.trim().length < 1) {
+      return toast.error(t("Comment can't be empty."));
+    }
+   
+    try {
+      if (isPending) {
+        return toast.error(
+          ` ${t('You can not add comment on pending')} ${entrytype}.`
+        );
+      }
+      if (isRejected) {
+        return toast.error(
+          ` ${t('You can not add comment on rejected')} ${entrytype}.`
+        );
+      }
+      if (commentVal.trim().length > 400) {
+        return toast.error(t('Comment can not be more then 400 characters.'));
+      }
+      const commentsActor = makeCommentActor({
+        agentOptions: {
+          identity,
+        },
+      });
+      const addedComment = await commentsActor.addComment(
+        commentVal,
+        userCanisterId,
+        entryCanisterId,
+        articleId,
+        entry.title,
+        entrytype
+      );
+      const user = await auth.actor.get_user_details([principal]);
+      // const dateNow = moment.utc().format('MMMM Do, YYYY');
+      const newComment = {
+        creation_time: utcToLocal('', Date_m_d_y_h_m),
+        user: user.ok[1],
+        content: commentVal,
+        userId: principal,
+      };
+      if (addedComment.ok) {
+        setIsCommenting(false);
+        setcountcomments((pre: any) => pre + 1);
+        setCommentVal('');
+        toast.success(t('Comment added successfully.'));
+      } else {
+        setIsCommenting(false);
+        toast.error(t('Something went wrong.'));
+      }
+      setUserArticleComments((prev: any) => {
+        return [newComment, ...prev];
+      });
+
+      handleCommented();
+    } catch (err) {
+      handleCommented();
+    }
+  };
+
   const handleCommented = () => {
     setIsCommenting(false);
     setCurrentComment('');
@@ -444,11 +520,6 @@ export default function NFTArticlePost({
       },
     });
 
-    const entryActor = makeEntryActor({
-      agentOptions: {
-        identity,
-      },
-    });
     let metadata = {
       purpose: {
         Rendered: null,
@@ -493,7 +564,6 @@ export default function NFTArticlePost({
         let minted = await entryActor.mintEntry(articleId, userCanisterId);
         setIsMinting(false);
         setIsMinted(true);
-        logger(minted);
       } else if (receipt.Err) {
         setIsMinting(false);
 
@@ -507,11 +577,7 @@ export default function NFTArticlePost({
   };
   const handleIsMinted = async () => {
     setIsMinting(true);
-    const entryActor = makeEntryActor({
-      agentOptions: {
-        identity,
-      },
-    });
+
     let minted = await entryActor.mintEntry(articleId, userCanisterId);
     setIsMinting(false);
     setIsMinted(true);
@@ -520,13 +586,17 @@ export default function NFTArticlePost({
     try {
       if (!isUserConnected(auth, handleConnectModal)) return;
       if (isPending) {
-        return toast.error(` You can't add comment on pending ${entrytype}.`);
+        return toast.error(
+          ` ${t('You can not add comment on pending')} ${entrytype}.`
+        );
       }
       if (isRejected) {
-        return toast.error(` You can't add comment on rejected ${entrytype}.`);
+        return toast.error(
+          ` ${t('You can not add comment on rejected')} ${entrytype}.`
+        );
       }
       if (currentComment.trim().length > 400) {
-        return toast.error("Comment can't be more then 400 characters.");
+        return toast.error(t('Comment can not be more then 400 characters.'));
       }
       setIsCommenting(true);
       const commentsActor = makeCommentActor({
@@ -537,6 +607,7 @@ export default function NFTArticlePost({
       const addedComment = await commentsActor.addComment(
         currentComment,
         userCanisterId,
+        entryCanisterId,
         articleId,
         entry.title,
         entrytype
@@ -553,10 +624,8 @@ export default function NFTArticlePost({
         return [newComment, ...prev];
       });
 
-      logger(addedComment, 'Domment added');
       handleCommented();
     } catch (err) {
-      logger(err, 'ERR');
       handleCommented();
     }
   };
@@ -570,10 +639,10 @@ export default function NFTArticlePost({
         const user = await auth.actor.get_user_details([userId]);
         const creatDate = comment.creation_time.toString();
 
-        const stillUtc = moment.utc(parseInt(creatDate)).toDate();
+        let tempCreation = commentTime(creatDate);
         const newComment = {
           creation_time: utcToLocal(creatDate, Date_m_d_y_h_m),
-          newCreation: moment(stillUtc).local().fromNow(),
+          newCreation: tempCreation,
           user: user.ok[1],
           userId: userId,
           content: comment.content,
@@ -594,13 +663,8 @@ export default function NFTArticlePost({
   };
 
   const handlePromote = async () => {
-    const entryActor = makeEntryActor({
-      agentOptions: {
-        identity,
-      },
-    });
     let rewardConfig = await entryActor.get_reward();
-    logger(rewardConfig);
+
     let reward = parseFloat(rewardConfig.master);
     let platform = parseFloat(rewardConfig.platform);
     let admin = parseFloat(rewardConfig.admin);
@@ -610,7 +674,6 @@ export default function NFTArticlePost({
     // let gasInICP = gasFee * 5;
     // let gasInE8S = gasInICP * E8S;
     // let promotedICP = promotionE8S + gasInE8S;
-    logger({ promotionE8S });
     // let promotedICP = (reward / 100) * (promotionValues.icp * E8S);
 
     const article = {
@@ -642,8 +705,7 @@ export default function NFTArticlePost({
     entryActor
       .insertEntry(article, userCanisterId, true, articleId, commentCanisterId)
       .then((res: any) => {
-        logger(res, 'draft Published successfully');
-        toast.success('Your article has been promoted successfuly');
+        toast.success(t('Your article has been promoted successfuly'));
         updateBalance({ identity, auth, setBalance });
         setIsArticleSubmitting(false);
         getEntry();
@@ -655,7 +717,6 @@ export default function NFTArticlePost({
         window.scrollTo(0, 0);
       })
       .catch((err: string) => {
-        logger(err);
         // setIsArticleSubmitting(false);
 
         setIsArticleSubmitting(false);
@@ -664,11 +725,7 @@ export default function NFTArticlePost({
   const handleTransaction = async () => {
     try {
       setIsArticleSubmitting(true);
-      const defaultEntryActor = makeEntryActor({
-        agentOptions: {
-          identity,
-        },
-      });
+
       let ledgerActor = await makeLedgerCanister({
         agentOptions: {
           identity,
@@ -682,9 +739,9 @@ export default function NFTArticlePost({
       let balance = await ledgerActor.account_balance({
         account: acc.bytes,
       });
-      logger(balance, 'weeeee');
-      let rewardConfig = await defaultEntryActor.get_reward();
-      logger(rewardConfig);
+
+      let rewardConfig = await entryActor.get_reward();
+
       let promotion = parseFloat(rewardConfig.master);
       let platform = parseFloat(rewardConfig.platform);
       let admin = parseFloat(rewardConfig.admin);
@@ -706,17 +763,20 @@ export default function NFTArticlePost({
       let gasInE8S = gasInICP * E8S;
       let requiredICP = balanceICP + gasInICP;
       let approvingPromotionE8S = promotionE8S + gasInE8S;
-      logger({ balance, balanceICP });
       if (balance.e8s < approvingPromotionE8S) {
         setConfirmTransaction(false);
         setIsArticleSubmitting(false);
         return toast.error(
-          `Insufficient balance to promote. Current Balance: ${balanceICP}`
+          `${t(
+            'Insufficient balance to promote. Current Balance'
+          )} ${balanceICP} ${t(
+            t('please transfer assets to your wallet to promote article')
+          )}`
         );
       } else {
       }
 
-      if (!entryCanisterId) return toast.error('Error in transaction');
+      if (!entryCanisterId) return toast.error(t('Error in transaction'));
       let entryPrincipal = Principal.fromText(entryCanisterId);
       let approval = await ledgerActor.icrc2_approve({
         amount: approvingPromotionE8S,
@@ -736,7 +796,6 @@ export default function NFTArticlePost({
           handlePromote();
         }, 100);
       }
-      logger(approval, 'APPPPPROVEEEE');
     } catch (e) {
       console.error(e);
       setIsArticleSubmitting(false);
@@ -753,44 +812,22 @@ export default function NFTArticlePost({
       for (const childNode of node.children) {
         if (childNode.type === 'text') {
           headingText += childNode.data;
-        } else if (childNode.type === 'tag' && childNode.name === 'strong') {
+        } else if (
+          childNode.type === 'tag' &&
+          (childNode.name === 'strong' || childNode.name === 'span')
+        ) {
           headingText += extractHeadingText(childNode);
         }
       }
-      logger(headingText, 'returnd lot');
 
       return headingText.trim();
     } else if (node.data) {
-      logger('returend lot-');
-
       return node.data.trim();
     } else {
-      logger('returend lot-------');
-
       return '';
     }
   }
-  // const parseOptions = {
-  //   replace: (node: any) => {
-  //     if (node.name === 'h2' || node.name === 'h3') {
-  //       const headingText = node.children[0].data;
-  //       logger(node, 'DA NODEEEE');
 
-  //       const headingId = createHeadingId(headingText);
-  //       node.attribs.id = headingId;
-  //       if (node.attribs.style && typeof node.attribs.style === 'string') {
-  //         delete node.attribs.style;
-  //       }
-  //       let newH1 = React.createElement(node.name, node.attribs, [
-  //         React.createElement('span', { key: 'headingText' }, headingText),
-  //       ]);
-  //       // setheading((prev: any) => [...prev, newH1]);
-  //       return newH1;
-  //     }
-
-  //     return undefined;
-  //   },
-  // };
   const parseOptions = {
     replace: (node: any) => {
       if (node.name === 'h2' || node.name === 'h3') {
@@ -798,7 +835,6 @@ export default function NFTArticlePost({
         const headingId = createHeadingId(headingText);
 
         node.attribs.id = headingId;
-        logger({ node, headingId, headingText }, 'DA NODEEEE IDDDD');
         if (node.attribs.style && typeof node.attribs.style === 'string') {
           delete node.attribs.style;
         }
@@ -815,7 +851,6 @@ export default function NFTArticlePost({
 
   const smoothScroll = (targetId: any) => {
     const targetElement = document.getElementById(targetId);
-    logger({ targetElement, targetId }, 'targetElement');
 
     if (targetElement) {
       window.scrollTo({
@@ -861,16 +896,12 @@ export default function NFTArticlePost({
     // if (!myDivRef.current) return;
     const tempDiv = myDivRef?.current;
     const hierarchy2: any[] = [];
-    logger(tempDiv, 'dsdffsdfsfsadf');
     tempDiv?.childNodes.forEach((node) => {
       if (node instanceof HTMLElement) {
-        logger(node.innerText, 'htmlnode');
-
         if (node.tagName === 'H2') {
           // Found an H2 heading, update currentH2
           // let temph2 = node.lastChild;
           // if (temph2 instanceof Element) {
-          //   logger(temph2.textContent, 'htmlnode');
 
           //   let tempObj = {
           //     text: temph2.textContent,
@@ -928,13 +959,8 @@ export default function NFTArticlePost({
     if (headings.length == 0) {
       return null;
     }
-    logger(headings, 'headings');
     return headings.map((item: any, outerIndex: any) => {
       // const headingLevel = headings[level];
-      logger(
-        { activeSection, item: createHeadingId(item.text) },
-        'sdafsadf324'
-      );
       // console.log(headingLevel, level, headings, 'hehehe');
       return (
         <li key={outerIndex} className={'no-style'}>
@@ -949,7 +975,6 @@ export default function NFTArticlePost({
                   updatedAdminMenuShows[outerIndex] =
                     !updatedAdminMenuShows[outerIndex];
                   setAdminMenuShows(updatedAdminMenuShows);
-                  logger('most', 'inerr');
                 }}
                 style={{
                   height: '16px',
@@ -962,9 +987,8 @@ export default function NFTArticlePost({
                 onClick={() => {
                   handleNavigationClick(item.text);
                 }}
-                className={` ${
-                  activeSection === createHeadingId(item.text) ? 'activeHD' : ''
-                } mb-0`}
+                className={` ${activeSection === createHeadingId(item.text) ? 'activeHD' : ''
+                  } mb-0`}
               >
                 {item.text}
               </p>
@@ -983,14 +1007,13 @@ export default function NFTArticlePost({
                       }}
                       key={index}
 
-                      // className={headingLevel.length > 1 ? 'no-style' : ''}
+                    // className={headingLevel.length > 1 ? 'no-style' : ''}
                     >
                       <p
-                        className={` ${
-                          activeSection === createHeadingId(e.text)
+                        className={` ${activeSection === createHeadingId(e.text)
                             ? 'activeHD'
                             : ''
-                        } mb-0`}
+                          } mb-0`}
                       >
                         <span> - </span>
                         {e.text}
@@ -1006,13 +1029,12 @@ export default function NFTArticlePost({
   };
   let copyToClipboard = (e: any, link: string) => {
     e.preventDefault();
-    let newPath = path.split('/');
+    let newPath = path?.split('/');
     // newPath = newPath + link;
     // const currentURL = window.location.href.split('/');
     // const fetched = currentURL[2] + '/';
-    // logger(currentURL, 'PEPEPEPEPEP');
     let location = window.navigator.clipboard.writeText(window.location.href);
-    toast.success('URL copied to clipboard');
+    toast.success(t('URL copied to clipboard'));
   };
   useEffect(() => {
     if (entry?.likedUsers && identity && entry?.minters) {
@@ -1022,7 +1044,6 @@ export default function NFTArticlePost({
       entry?.likedUsers.map((likedUser: any) => {
         const likedUserText = likedUser.toString();
         likedarray.push(likedUserText);
-        // logger(likedUserText,"likedUserText")
         if (identity._principal) {
           if (likedUserText === identity?._principal.toString()) {
             setIsLiked(true);
@@ -1049,7 +1070,6 @@ export default function NFTArticlePost({
       // headingsHierarchy.map((d: any) => {
       //   console.log(d, 'it tried');
       // });
-      logger(_headingsHierarchys, 'dfgdfgdfg');
     }
   }, [auth, entry]);
   useEffect(() => {
@@ -1062,7 +1082,6 @@ export default function NFTArticlePost({
       const tempFun = async () => {
         const newComments = await getUserComments();
         setUserArticleComments(newComments);
-        logger(newComments, 'WE GOT THEM COMMENTS');
       };
       setUserArticleCommentsLoading(false);
 
@@ -1073,12 +1092,12 @@ export default function NFTArticlePost({
   }, [articleComments]);
   useEffect(() => {
     if (entry) {
-      let entrytype = 'article';
+      let entrytype = t('article');
       if (entry?.isPodcast) {
-        entrytype = 'podcast';
+        entrytype = t('podcast');
       }
       if (entry?.pressRelease) {
-        entrytype = 'pressRelease';
+        entrytype = t('pressRelease');
       }
       setEntrytype(entrytype);
     }
@@ -1116,22 +1135,17 @@ export default function NFTArticlePost({
     e.preventDefault();
     const currentURL = window.location.href;
     window.navigator.clipboard.writeText(currentURL);
-    toast.success('URL copied to clipboard');
+    toast.success(t('URL copied to clipboard'));
   };
   useEffect(() => {
     if (entry) {
-      logger(featuredImage, 'featuredImage');
       const stringsArray = entry.tags;
       const hashtagString = stringsArray.map((str: any) => `#${str}`).join(' ');
       setHashTags(hashtagString);
     }
   }, [entry]);
   useEffect(() => {
-    logger('outercomment');
-
     if (CommentRoute == 'comments') {
-      logger('innercomment');
-
       // var targetElement = document.getElementById('commentbox');
       var targetElement = document.getElementById('commentbox');
       if (targetElement) {
@@ -1149,7 +1163,6 @@ export default function NFTArticlePost({
 
       sections.forEach((section) => {
         const sectionElement = document.getElementById(section);
-        logger(section, 'sectionElement');
 
         if (sectionElement) {
           const sectionTop = sectionElement.getBoundingClientRect().top;
@@ -1167,7 +1180,6 @@ export default function NFTArticlePost({
   }, [articleIdList]);
 
   useEffect(() => {
-    logger(headingsHierarchy, 'IT TRIED ss');
     if (headingsHierarchy) {
       let idsArray = getTextValues(headingsHierarchy);
       idsArray.forEach((hId) => {
@@ -1180,11 +1192,92 @@ export default function NFTArticlePost({
         }
       }
       setArticleIdList(idsArray);
-      logger(idsArray, 'aand it tried');
     } else {
-      logger("it didn't even trie it tried");
     }
   }, [headingsHierarchy]);
+  const entryActorDefault = makeEntryActor({
+    agentOptions: {
+      identity,
+    },
+  });
+  let getQuizOfEntry = async (articleId: any) => {
+    let quiz = await entryActorDefault.getOnlyActiveQuizOfArticle(articleId);
+    logger(quiz,"jgsdjhfgjhsadgfasdfasdfasdf")
+
+    if (quiz && quiz.length != 0) {
+      setQuizId(quiz[0]);
+      // setRewardperuser(quiz[1])
+    } else {
+      setQuizId(null);
+    }
+  };
+  let getSurveyOfEntry = async (articleId: any) => {
+    let survey = await entryActorDefault.getOnlyActiveSurveyOfArticle(
+      articleId
+    );
+    if (survey && survey.length != 0) {
+      setSurveyId(survey[0]);
+    } else {
+      setSurveyId(null);
+    }
+  };
+  useEffect(() => {
+    if (articleId ) {
+      getQuizOfEntry(articleId);
+      getSurveyOfEntry(articleId);
+      if(identity){
+
+        isAlreadyRead();
+      }
+    }
+  }, [articleId, identity]);
+  async function completeReadArticle() {
+    const userActor = makeUserActor({
+      agentOptions: {
+        identity,
+      },
+    });
+    if (countApiCall == 1) {
+      let quiz = await userActor.addReaderOfEntry(articleId, entryCanisterId);
+
+    }
+  }
+  var countApiCall = 0;
+  const handleScroll = () => {
+    if (isRewarded) return;
+    const decEnd = myTagsRef.current;
+    if (decEnd) {
+      let divBottom = decEnd.getBoundingClientRect().top;
+      let scrollBottom = divBottom - window.innerHeight;
+
+      if (scrollBottom <= 0) {
+        if (articleId && !isOldReaderLoading && !isRewarded) {
+          setIsRewarded(true);
+          countApiCall += 1;
+          setIsOldReaderLoading(true);
+          completeReadArticle();
+        }
+      }
+    }
+  };
+  async function isAlreadyRead() {
+    const userActor = makeUserActor({
+      agentOptions: {
+        identity,
+      },
+    });
+    let quiz = await userActor.isAlreadyReadTheEntry(articleId);
+    setIsRewarded(quiz);
+  }
+
+  useEffect(() => {
+    if (!isRewarded) {
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
+  }, [isRewarded]);
+
+
   return (
     <>
       <Row>
@@ -1211,9 +1304,9 @@ export default function NFTArticlePost({
                     >
                       {t('All Content')}{' '}
                       {showContent ? (
-                        <i className='fa fa-angle-down'></i>
+                        <i className='fa fa-angle-down' />
                       ) : (
-                        <i className='fa fa-angle-right'></i>
+                        <i className='fa fa-angle-right' />
                       )}
                     </Dropdown.Toggle>
                   </Dropdown>
@@ -1228,7 +1321,7 @@ export default function NFTArticlePost({
                 </div>
               )}
 
-            <div id='comments'></div>
+            <div id='comments' />
             <div className='comment-card web-view-display' id='commentbox'>
               <div className='card-header'>
                 <span style={{ maxHeight: 18 }}>
@@ -1303,25 +1396,21 @@ export default function NFTArticlePost({
                   value={currentComment}
                   onChange={(e) => setCurrentComment(e.target.value)}
                   // value={commentVal}
-                  // ref={inputRef}
+                  ref={commmentField}
+             
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       addComment();
                     }
                   }}
-                  // onChange={(e) => setCommentVal(e.target.value)}
+                // onChange={(e) => setCommentVal(e.target.value)}
                 />
               </div>
               <div className='d-flex justify-content-end'>
                 <Button
                   disabled={isCommenting || currentComment.length <= 0}
                   onClick={addComment}
-                  className='reg-btn blue-btn'
-                  style={{
-                    borderRadius: 0,
-                    padding: '2px 10px',
-                    fontWeight: 'normal',
-                  }}
+                  className='reg-btn blue-btn font-weight-normal pdng brder0'
                 >
                   {isCommenting ? (
                     <Spinner animation='border' size='sm' />
@@ -1342,7 +1431,7 @@ export default function NFTArticlePost({
           <div className='article-detail-pnl new '>
             {entry ? (
               <>
-                <h3 className='blue-title'>{entry?.title ?? ''}</h3>
+                <h1 className='blue-title'>{entry?.title ?? ''}</h1>
                 <div className='top-img new'>
                   {/* <Image src={post1} alt='Post' /> */}
                   <div
@@ -1360,15 +1449,17 @@ export default function NFTArticlePost({
                             <div>
                               <p className='m-0'>
                                 {isPending &&
-                                  'Your Article will be reviewed soon'}
+                                  t('Your Article will be reviewed soon')}
                                 {isRejected &&
-                                  'Your Article Review has been rejected'}
+                                  t('Your Article Review has been rejected')}
                               </p>
                             </div>
                           }
                         >
                           <p className={`${statusString} status`}>
-                            {statusString}
+                            {/* {statusString} */}
+                            {isPending && t('Pending')}
+                            {isRejected && t('Rejected')}
                           </p>
                         </Tippy>
                       </div>
@@ -1384,7 +1475,7 @@ export default function NFTArticlePost({
                       className='me-2 '
                     />{' '} */}
                         <p className='mb-0' style={{ fontWeight: '600' }}>
-                        {t("Promoted Article")}
+                          {t('Promoted Article')}
                         </p>
                       </div>
                     )}
@@ -1402,60 +1493,92 @@ export default function NFTArticlePost({
                           fill={true}
                           alt={`${entry.caption}`}
                         />
-                        <div
-                          className='btnnn'
-                          style={{
-                            position: 'absolute',
-                            right: '15px',
-                            bottom: '0px',
-                            zIndex: '5',
-                          }}
-                        >
-                          {!(
-                            statusString == 'pending' ||
-                            statusString == 'rejected'
-                          ) && (
-                            <div className='d-flex'>
-                              {!entry.isPromoted &&
-                                !entry.pressRelease &&
-                                !entry.isPodcast &&
-                                identity &&
-                                identity._principal &&
-                                identity._principal.toString() === userId && (
-                                  <div>
-                                    <Button
-                                      className='blue-button btn btn-primary'
-                                      onClick={handleShow}
-                                    >
-                                      {t(' Promote Article')}
-                                    </Button>
-                                  </div>
-                                )}
-                              {auth.state === 'initialized' &&
-                                !entry.pressRelease &&
-                                !entry.isPodcast && (
-                                  <MintButton
-                                    isMinted={isMinted}
-                                    isMinting={isMinting}
-                                    mintNft={mintNft}
-                                    entry={entry}
-                                    commentsLength={userArticleComments.length}
-                                    tempLike={tempLike}
-                                  />
-                                )}
-                            </div>
-                          )}
-                        </div>
                       </div>
                     </Tippy>
                   </div>
                 </div>
+                <div
+                  className='btnnn'
+                  style={{
+                    position: 'relative',
+                    right: '15px',
+                    bottom: '0px',
+                    zIndex: '5',
+                  }}
+                  
+                >
+        
+                  {!(
+                    statusString == 'pending' || statusString == 'rejected'
+                  ) && (
+                      <div className='d-flex justify-content-end'>
+                        {!entry.isPromoted &&
+                          !entry.pressRelease &&
+                          !entry.isPodcast &&
+                          identity &&
+                          identity._principal &&
+                          identity._principal.toString() === userId && (
+                            <div>
+                              <Button
+                                className='yellow-button btn promotebtn'
+                                onClick={handleShow}
+                              >
+                                {t(' Promote Article')}
+                              </Button>
+                            </div>
+                          )}
+                        {auth.state === 'initialized' &&
+                          !entry.pressRelease &&
+                          !entry.isPodcast && (
+                            <MintButton
+                              isMinted={isMinted}
+                              isMinting={isMinting}
+                              mintNft={mintNft}
+                              entry={entry}
+                              commentsLength={userArticleComments.length}
+                              tempLike={tempLike}
+                            />
+                          )}
+                      </div>
+                    )}
+                                 <div className='d-flex justify-content-end'>
 
+{quizId && (
+  <div>
+    <Button
+     
+      className='rounded-0 fill dropdown-toggle btn btn-success mb-1 quizandsurveybtns'
+      onClick={() => {
+        if (!isUserConnected(auth, handleConnectModal)) return;
+        router.push(`${TAKEQUIZPAGE+quizId}`);
+      }}
+    >
+      Take Quiz
+    </Button>
+  </div>
+)}
+
+{surveyId && (
+  <div>
+    <Button
+    
+      className='ms-3 fill rounded-0 dropdown-toggle btn btn-success mb-1 quizandsurveybtns'
+      onClick={() => {
+        if (!isUserConnected(auth, handleConnectModal)) return;
+        router.push(`${SURVEY}?id=${surveyId}`);
+      }}
+    >
+      Take Survey
+    </Button>
+  </div>
+)}
+</div>
+                </div>
                 {/* Shery */}
                 {articleHeadingsHierarchy &&
                   articleHeadingsHierarchy.length != 0 && (
                     <div className='mobile-view-display w-100'>
-                      <div className='spacer-20'></div>
+                      <div className='spacer-20' />
                       <Dropdown
                         onClick={() => setShowContent((pre) => !pre)}
                         className='mb-2'
@@ -1465,11 +1588,11 @@ export default function NFTArticlePost({
                           className='fill'
                           id='dropdown-basic'
                         >
-                          All Content{' '}
+                          {t('All Content')}{' '}
                           {showContent ? (
-                            <i className='fa fa-angle-down'></i>
+                            <i className='fa fa-angle-down' />
                           ) : (
-                            <i className='fa fa-angle-right'></i>
+                            <i className='fa fa-angle-right' />
                           )}
                         </Dropdown.Toggle>
                       </Dropdown>
@@ -1485,52 +1608,7 @@ export default function NFTArticlePost({
                   )}
 
                 <div className='post-info-head web-view-display'>
-                  {/* <div className='user-inf-cntnr'>
-                <Link href={`/profile?userId=${userId}`}>
-                  <div className='img-pnl'>
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: '45px',
-                        margin: '0 auto',
-                        height: '45px',
-                      }}
-                    >
-                      <Image
-                        src={userImg ? userImg : girl}
-                        className='backend-img'
-                        fill={true}
-                        alt='Profileicon'
-                      />
-                    </div>
-                  </div>
-                </Link>
-                <div className='txt-pnl'>
-                  <h6>
-                    <Link href={`/profile?userId=${userId}`}>
-                      By {user?.name[0] ?? ''}{' '}
-                    </Link>
-                   
-                    {entry?.isPromoted && (
-                      <Button>
-                        <Image src={iconcap} alt='Cap' /> {t('Expert')}
-                      </Button>
-                    )}
-                  </h6>
-                  <p>
-                    {user?.designation[0] ?? ''}
-                  </p>
-                  <span className='small'>
-                    {' '}
-                    {user
-                      ? utcToLocal(
-                          entry.creation_time.toString(),
-                          'MMMM Do, YYYY, HH:mm '
-                        )
-                      : 'Oct 19, 2023, 23:35'}
-                  </span>
-                </div>
-              </div> */}
+                 
                 </div>
 
                 <div className='text-detail-pnl'>
@@ -1543,7 +1621,7 @@ export default function NFTArticlePost({
                     {parse(entry?.description ?? '', parseOptions)}
                   </div>
 
-                  <ul className='hash-list'>
+                  <ul className='hash-list' ref={myTagsRef}>
                     {entry?.tags.map((tag: any, index: number) => (
                       <li
                         key={index}
@@ -1556,6 +1634,36 @@ export default function NFTArticlePost({
                       </li>
                     )) ?? ''}
                   </ul>
+                  <div className='d-flex justify-content-end'>
+
+                    {quizId && (
+                      <div>
+                        <Button
+                          className=' rounded-0 fill dropdown-toggle btn btn-success mb-1 quizandsurveybtns'
+                          onClick={() => {
+                            if (!isUserConnected(auth, handleConnectModal)) return;
+                            router.push(`${TAKEQUIZPAGE+quizId}`);
+                          }}
+                        >
+                          Take Quiz
+                        </Button>
+                      </div>
+                    )}
+
+                    {surveyId && (
+                      <div>
+                        <Button
+                          className='ms-3 fill rounded-0 dropdown-toggle btn btn-success mb-1 quizandsurveybtns'
+                          onClick={() => {
+                            if (!isUserConnected(auth, handleConnectModal)) return;
+                            router.push(`${SURVEY}?id=${surveyId}`);
+                          }}
+                        >
+                          Take Survey
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                   <div className='mobile-view-display w-100'>
                     <CommentBox
                       entryId={articleId}
@@ -1605,14 +1713,14 @@ export default function NFTArticlePost({
                                 alt='Comment'
                                 style={{ height: 18, width: 18, maxWidth: 18 }}
                               />
-                              {parseInt(`${commentCount}` ?? '0')}
+                              {parseInt(`${commentCount}`)}
                             </h6>
                           </Link>
                         </li>
                       </ul>
                     </div>
                   )}
-                  <div className='count-top'></div>
+                  <div className='count-top' />
 
                   {!(isPending || isRejected) && (
                     <>
@@ -1620,7 +1728,7 @@ export default function NFTArticlePost({
                         {/* <div className='d-flex gap-3'> */}
                         <h6>
                           <div className='viewbox py-1'>
-                            <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
+                            <i className='fa fa-eye fill blue-icon fa-lg me-1' />
                             {t('Views')}
                             <span className='mx-1'>|</span>
                             {formatLikesCount(parseInt(entry?.views))}
@@ -1633,7 +1741,7 @@ export default function NFTArticlePost({
                           entry={entry}
                           commentsLength={commentCount}
                           tempLike={tempLike}
-                          commmentField={commmentField?.current}
+                          commmentField={commmentField}
                         />
                         <h6
                           onClick={(e) =>
@@ -1644,18 +1752,77 @@ export default function NFTArticlePost({
                           {t('Share')}
                         </h6>
                       </div>
+                      <div
+            className='footer_pnl_article_detail count-description-pnl pt-2 pb-2'
+           
+          >
+            <div
+              className=''
+              style={{
+                aspectRatio: profileAspect,
+                position: 'relative',
+                width: '55px',
+              }}
+            >
+              <Image
+                src={userImage != '' ? userImage : girl}
+                alt='notice'
+                fill
+                className='rounded-circle userImg'
+              />
+            </div>
+            <div className='txt-pnl'>
+              <input
+                type='text'
+                placeholder={t('share your opinion')}
+                value={commentVal}
+                ref={inputRef}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    sendcomment(e);
+                  }
+                }}
+                onChange={(e) => setCommentVal(e.target.value)}
+              />
+              {commentVal.length > 0 ? (
+                <ul>
+                  <li>
+                    {isCommenting ? (
+                      <Spinner animation='border' size='sm' />
+                    ) : (
+                      <Link href='#' onClick={sendcomment}>
+                        <i className='fa fa-send' />
+                      </Link>
+                    )}
+                  </li>
+                </ul>
+              ) : (
+                <ul>
+                  <li>
+                    <Link
+                      href='#'
+                      style={{ pointerEvents: 'none' }}
+                      className='disabled'
+                    >
+                      <i className='fa fa-send' />
+                    </Link>
+                  </li>
+                </ul>
+              )}
+            </div>
+          </div>
                       <div className='text-center'>
                         <ul className='mobile-view-display-inline-flex comment-social-list'>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-facebook'></i>
+                              <i className='fa fa-facebook'/>
                             </Link> */}
                             <FacebookShareButton
                               url={shareUrl}
                               quote={title}
                               hashtag={hashTags}
                             >
-                              <i className='fa fa-facebook'></i>
+                              <i className='fa fa-facebook' />
                             </FacebookShareButton>
                           </li>
                           <li>
@@ -1679,44 +1846,44 @@ export default function NFTArticlePost({
                           </li>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-pinterest'></i>
+                              <i className='fa fa-pinterest'/>
                             </Link> */}
                             <PinterestShareButton
                               url={shareUrl}
                               media={featuredImage}
                               description={title}
                             >
-                              <i className='fa fa-pinterest'></i>
+                              <i className='fa fa-pinterest' />
                             </PinterestShareButton>
                           </li>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-instagram'></i>
+                              <i className='fa fa-instagram'/>
                             </Link> */}
                             <InstagramShareButton url={featuredImage} />
                           </li>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-telegram'></i>
+                              <i className='fa fa-telegram'/>
                             </Link> */}
                             <TelegramShareButton url={shareUrl} title={title}>
-                              <i className='fa fa-telegram'></i>
+                              <i className='fa fa-telegram' />
                             </TelegramShareButton>
                           </li>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-linkedin'></i>
+                              <i className='fa fa-linkedin'/>
                             </Link> */}
                             <LinkedinShareButton url={window.location.origin}>
-                              <i className='fa fa-linkedin'></i>
+                              <i className='fa fa-linkedin' />
                             </LinkedinShareButton>
                           </li>
                           <li>
                             {/* <Link href='#' target='_blank'>
-                              <i className='fa fa-whatsapp'></i>
+                              <i className='fa fa-whatsapp'/>
                             </Link> */}
                             <WhatsappShareButton url={shareUrl} title={title}>
-                              <i className='fa fa-whatsapp'></i>
+                              <i className='fa fa-whatsapp' />
                             </WhatsappShareButton>
                           </li>
                         </ul>
@@ -1724,31 +1891,36 @@ export default function NFTArticlePost({
                     </>
                   )}
                 </div>
-                <div className='footer-comment-pnl'>
-                  <ul>
-                    <VoteButton
-                      isLiked={isLiked}
-                      isLiking={isLiking}
-                      handleLikeEntry={handleLikeEntry}
-                      entry={entry}
-                      commentsLength={commentCount}
-                      tempLike={tempLike}
-                      isFooter={true}
-                    />
+                {!(isPending || isRejected) && (
+                  <div className='footer-comment-pnl'>
+                    <ul>
+                      <VoteButton
+                        isLiked={isLiked}
+                        isLiking={isLiking}
+                        handleLikeEntry={handleLikeEntry}
+                        entry={entry}
+                        commentsLength={commentCount}
+                        tempLike={tempLike}
+                        isFooter={true}
+                      />
 
-                    <li>
-                      <Link
-                        href='#'
-                        onClick={(e) => {
-                          e.preventDefault();
-                          copyToClipboard(e, `article?articleId=${articleId}`);
-                        }}
-                      >
-                        <Image src={iconshare} alt='Icon Share' /> Share
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
+                      <li>
+                        <Link
+                          href='#'
+                          onClick={(e) => {
+                            e.preventDefault();
+                            copyToClipboard(
+                              e,
+                              `article?articleId=${articleId}`
+                            );
+                          }}
+                        >
+                          <Image src={iconshare} alt='Icon Share' /> Share
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </>
             ) : (
               <div className='d-flex justify-content-center my-4'>
@@ -1763,26 +1935,28 @@ export default function NFTArticlePost({
           {confirmTransaction ? (
             <>
               <div className='flex-div connect-heading-pnl mb-3'>
-                {/* <i className='fa fa-question-circle-o'></i> */}
-                <p></p>
-                <p className='text-bold h5 fw-bold m-0'>{t('Confirm Transaction')}</p>
-                {/* <i onClick={handleModalClose} className='fa fa-close'></i> */}
+                {/* <i className='fa fa-question-circle-o'/> */}
+                <p />
+                <p className='text-bold h5 fw-bold m-0'>
+                  {t('Confirm Transaction')}
+                </p>
+                {/* <i onClick={handleModalClose} className='fa fa-close'/> */}
                 <i
                   style={{
                     cursor: 'pointer',
                   }}
                   onClick={handleModalClose}
                   className='fa fa-close'
-                ></i>
+                />
                 {/* <Button
           className='close-btn'
-        ></Button> */}
+        /> */}
               </div>
               <div>
                 <p className='text-secondary'>
                   {t('Are you sure you want to promote your article for ')}{' '}
                   {(promotionValues.icp + gasFee * 2 + gasFee / 5).toFixed(6)}{' '}
-                  {t('icp token')}?
+                  {t('Blockza tokens')}?
                 </p>
                 <p className=' d-flex  justify-content-between mb-0'>
                   <span>{t('Transaction fee:')}</span>{' '}
@@ -1808,7 +1982,7 @@ export default function NFTArticlePost({
                     backgroundColor: 'gray',
                     width: '100%',
                   }}
-                ></div>
+                />
                 <p className=' d-flex justify-content-between mt-1 mb-0'>
                   <span> </span>{' '}
                   <span className='text-secondary'>
@@ -1822,9 +1996,9 @@ export default function NFTArticlePost({
                   className='publish-btn w-100 mt-2 py-2'
                   disabled={isArticleSubmitting}
                   onClick={handleTransaction}
-                  // type='submit'
+                // type='submit'
                 >
-                  {isArticleSubmitting ? <Spinner size='sm' /> : 'Confirm'}
+                  {isArticleSubmitting ? <Spinner size='sm' /> : t('Confirm')}
                 </Button>
               </div>
             </>
@@ -1839,7 +2013,6 @@ export default function NFTArticlePost({
                   icp: values.ICP,
                   // likes: values.likesCount,
                 });
-                logger(values, 'SAT VALUES');
                 setConfirmTransaction(true);
                 // formikRef.current?.handleSubmit();
                 // await uploadEntry(values, actions);
@@ -1848,7 +2021,7 @@ export default function NFTArticlePost({
               {({ errors, touched, handleChange }) => (
                 <FormikForm
                   className='flex w-full flex-col items-center justify-center'
-                  // onChange={(e) => handleImageChange(e)}
+                // onChange={(e) => handleImageChange(e)}
                 >
                   <Field name='icp'>
                     {({ field, formProps }: any) => (
@@ -1864,7 +2037,7 @@ export default function NFTArticlePost({
                             }}
                             onClick={handleModalClose}
                             className='fa fa-close'
-                          ></i>
+                          />
                         </div>
 
                         <Form.Control

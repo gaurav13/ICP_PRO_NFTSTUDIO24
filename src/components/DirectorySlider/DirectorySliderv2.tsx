@@ -7,14 +7,18 @@ import tempimg from '@/assets/Img/banner-1.png';
 import logger from '@/lib/logger';
 import { useRouter } from 'next/navigation';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import {
+  DIRECTORY_DINAMIC_PATH,
+  DIRECTORY_STATIC_PATH,
+} from '@/constant/routes';
 export default React.memo(function DirectorySlider({
   relatedDirectory,
-  isDirectory
+  isDirectory,
 }: {
   relatedDirectory: any;
-  isDirectory?: boolean
+  isDirectory?: boolean;
 }) {
   const router = useRouter();
   var Directory = {
@@ -43,21 +47,21 @@ export default React.memo(function DirectorySlider({
       {
         breakpoint: 2300,
         settings: {
-          slidesToShow: 3,
-          slidesToScroll: 3,
+          slidesToShow: 4,
+          slidesToScroll: 4,
           infinite: false,
         },
       },
       {
         breakpoint: 1900,
         settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
+          slidesToShow: 3,
+          slidesToScroll: 3,
           infinite: false,
         },
       },
       {
-        breakpoint: 1600,
+        breakpoint: 1500,
         settings: {
           slidesToShow: 2,
           slidesToScroll: 2,
@@ -67,8 +71,8 @@ export default React.memo(function DirectorySlider({
       {
         breakpoint: 1400,
         settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
+          slidesToShow: 2,
+          slidesToScroll: 2,
           infinite: false,
         },
       },
@@ -117,15 +121,23 @@ export default React.memo(function DirectorySlider({
         <Slider {...Directory}>
           {relatedDirectory.map((entry: any) => {
             return (
-              <div className='Post-padding' key={entry[0]}>
+              <div
+                className='Post-padding d-flex justify-content-center'
+                key={entry[0]}
+              >
                 <Link
                   href='#'
                   onClick={(e) => {
                     e.preventDefault();
 
                     openArticleLink(
-                      `/directory?directoryId=${entry.length != 0 ? entry[0] : '#'
-                      }`
+                      entry[1].isStatic
+                        ? `${DIRECTORY_STATIC_PATH + entry[0]}`
+                        : `${
+                            entry.length != 0
+                              ? DIRECTORY_DINAMIC_PATH + entry[0]
+                              : DIRECTORY_DINAMIC_PATH + '#'
+                          }`
                     );
                   }}
                   className='Product-post direc'
@@ -136,14 +148,14 @@ export default React.memo(function DirectorySlider({
                   src={'/images/b-b.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='Blockza'
                 /> */}
                       <Image
                         src={entry[1]?.companyBanner ?? tempimg}
                         alt='founder image'
                         height={100}
                         width={100}
-                        style={{ height: '100%', width: '100%' }}
+                        className='h-100-w-auto customeImg'
                       />
                     </div>
                     <div className='text-pnl'>
@@ -153,16 +165,16 @@ export default React.memo(function DirectorySlider({
                             src={entry[1]?.companyLogo ?? '/images/l-b.png'}
                             width={15}
                             height={16}
-                            alt='Logo'
+                            alt='Blockza'
                           />
                         </div>
                         <div className='heading-txt-pnl'>
-                          <h3>
+                          <h3 className='mw-180'>
                             {entry[1]?.company.length > 15
                               ? `${entry[1]?.company.slice(0, 15)}...`
                               : entry[1]?.company ?? ''}
                           </h3>
-                          <p style={{ minHeight: 84 }}>
+                          <p style={{ minHeight: 84 }} className='mw-180'>
                             {entry[1]?.shortDescription.length > 50
                               ? `${entry[1]?.shortDescription.slice(0, 50)}...`
                               : entry[1]?.shortDescription ?? ''}
@@ -171,7 +183,8 @@ export default React.memo(function DirectorySlider({
                       </div>
                       <ul>
                         <li>
-                          {formatLikesCount(Number(entry[1]?.totalCount)) ?? 0}<span>{t('Posts')}</span>
+                          {formatLikesCount(Number(entry[1]?.totalCount)) ?? 0}
+                          <span>{t('Posts')}</span>
                         </li>
                         <li>
                           {formatLikesCount(Number(entry[1]?.views)) ?? 0}
@@ -184,7 +197,10 @@ export default React.memo(function DirectorySlider({
                       </ul>
                     </div>
                   </div>
-                  <div className='txt-pnl' style={{ height: '135px' }}>
+                  <div
+                    className='txt-pnl mx-width-405'
+                    style={{ height: '135px' }}
+                  >
                     <p style={{ overflow: 'hidden', height: '40px' }}>
                       <i>
                         {/* {entry[1]?.founderDetail.length > 50
@@ -202,8 +218,8 @@ export default React.memo(function DirectorySlider({
                       />
 
                       <div>
-                        <h5>{entry[1]?.founderName ?? ''}</h5>
-                        <p>Founder</p>
+                        <h5>{entry[1]?.founderName?.slice(0, 19) ?? ''}</h5>
+                        <p>{t('Founder')}</p>
                       </div>
                     </div>
                   </div>
@@ -211,274 +227,6 @@ export default React.memo(function DirectorySlider({
               </div>
             );
           })}
-
-          {/* <div className='Post-padding'>
-          <Link
-            href='https://nftstudio24.com/news/cryptopedia/blockchain-news/'
-            className='Product-post direc'
-          >
-            <div className='Product-post-inner'>
-              <div className='img-pnl'>
-                <Image
-                  src={'/images/b-s.png'}
-                  width={213}
-                  height={133}
-                  alt='Logo'
-                />
-              </div>
-              <div className='text-pnl'>
-                <div className='d-flex'>
-                  <div className='logo-img'>
-                    <Image
-                      src={'/images/ls.png'}
-                      width={20}
-                      height={20}
-                      alt='Logo'
-                    />
-                  </div>
-                  <div className='heading-txt-pnl'>
-                    <h3>Solana</h3>
-                    <p style={{ minHeight: 84 }}>
-                      Solana Blockchain Enables OpenAI’s ChatGPT Plugin for
-                      Enhanced User...
-                    </p>
-                  </div>
-                </div>
-                <ul>
-                  <li>
-                    3<span>Posts</span>
-                  </li>
-                  <li>
-                    350
-                    <span>Reviews</span>
-                  </li>
-                  <li>
-                    2950
-                    <span>{t('Upvotes')}s</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className='txt-pnl'>
-              <p>
-                The general population should exercise caution while using...
-              </p>
-              <div className='img-pl'>
-                <Image
-                  src={'/images/l-n.png'}
-                  width={20}
-                  height={20}
-                  alt='Girl'
-                />
-
-                <div>
-                  <h5>NFTStudio 24</h5>
-                  <p>Founder</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-        <div className='Post-padding'>
-          <Link
-            href='https://nftstudio24.com/news/cryptopedia/blockchain-news/'
-            className='Product-post direc'
-          >
-            <div className='Product-post-inner'>
-              <div className='img-pnl'>
-                <Image
-                  src={'/images/b-e.png'}
-                  width={213}
-                  height={133}
-                  alt='Logo'
-                />
-              </div>
-              <div className='text-pnl'>
-                <div className='d-flex'>
-                  <div className='logo-img'>
-                    <Image
-                      src={'/images/l-e.png'}
-                      width={20}
-                      height={20}
-                      alt='Logo'
-                    />
-                  </div>
-                  <div className='heading-txt-pnl'>
-                    <h3>Etherium</h3>
-                    <p style={{ minHeight: 84 }}>
-                      Crypto ETF Expert Predicts All Spot Bitcoin ETF
-                      Applications...
-                    </p>
-                  </div>
-                </div>
-                <ul>
-                  <li>
-                    4<span>Posts</span>
-                  </li>
-                  <li>
-                    123
-                    <span>Reviews</span>
-                  </li>
-                  <li>
-                    1356
-                    <span>{t('Upvotes')}s</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className='txt-pnl'>
-              <p>
-                The general population should exercise caution while using...
-              </p>
-              <div className='img-pl'>
-                <Image
-                  src={'/images/l-n.png'}
-                  width={20}
-                  height={20}
-                  alt='Girl'
-                />
-
-                <div>
-                  <h5>NFTStudio 24</h5>
-                  <p>Founder</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-        <div className='Post-padding'>
-          <Link
-            href='https://nftstudio24.com/news/cryptopedia/blockchain-news/'
-            className='Product-post direc'
-          >
-            <div className='Product-post-inner'>
-              <div className='img-pnl'>
-                <Image
-                  src={'/images/b-a.png'}
-                  width={213}
-                  height={133}
-                  alt='Logo'
-                />
-              </div>
-              <div className='text-pnl'>
-                <div className='d-flex'>
-                  <div className='logo-img'>
-                    <Image
-                      src={'/images/l-a.png'}
-                      width={20}
-                      height={20}
-                      alt='Logo'
-                    />
-                  </div>
-                  <div className='heading-txt-pnl'>
-                    <h3>Aptos</h3>
-                    <p style={{ minHeight: 84 }}>
-                      Aptos Ventures Abroad: Navigating Global Markets in the
-                      Web3 and...
-                    </p>
-                  </div>
-                </div>
-                <ul>
-                  <li>
-                    4<span>Posts</span>
-                  </li>
-                  <li>
-                    123
-                    <span>Reviews</span>
-                  </li>
-                  <li>
-                    1356
-                    <span>{t('Upvotes')}s</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className='txt-pnl'>
-              <p>
-                The general population should exercise caution while using...
-              </p>
-              <div className='img-pl'>
-                <Image
-                  src={'/images/l-n.png'}
-                  width={20}
-                  height={20}
-                  alt='Girl'
-                />
-
-                <div>
-                  <h5>NFTStudio 24</h5>
-                  <p>Founder</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-        <div className='Post-padding'>
-          <Link
-            href='https://nftstudio24.com/news/cryptopedia/blockchain-news/'
-            className='Product-post direc'
-          >
-            <div className='Product-post-inner'>
-              <div className='img-pnl'>
-                <Image
-                  src={'/images/b-a.png'}
-                  width={213}
-                  height={133}
-                  alt='Logo'
-                />
-              </div>
-              <div className='text-pnl'>
-                <div className='d-flex'>
-                  <div className='logo-img'>
-                    <Image
-                      src={'/images/l-a.png'}
-                      width={20}
-                      height={20}
-                      alt='Logo'
-                    />
-                  </div>
-                  <div className='heading-txt-pnl'>
-                    <h3>Aptos</h3>
-                    <p style={{ minHeight: 84 }}>
-                      Aptos Ventures Abroad: Navigating Global Markets in the
-                      Web3 and...
-                    </p>
-                  </div>
-                </div>
-                <ul>
-                  <li>
-                    4<span>Posts</span>
-                  </li>
-                  <li>
-                    123
-                    <span>Reviews</span>
-                  </li>
-                  <li>
-                    1356
-                    <span>{t('Upvotes')}s</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className='txt-pnl'>
-              <p>
-                The general population should exercise caution while using...
-              </p>
-              <div className='img-pl'>
-                <Image
-                  src={'/images/l-n.png'}
-                  width={20}
-                  height={20}
-                  alt='Girl'
-                />
-                <div>
-                  <h5>NFTStudio 24</h5>
-                  <p>Founder</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div> */}
         </Slider>
       ) : (
         <h6 className='text-center'>{t('No Related Company found')}</h6>

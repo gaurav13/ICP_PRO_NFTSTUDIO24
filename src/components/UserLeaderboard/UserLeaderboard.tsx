@@ -7,7 +7,7 @@ import icontest from '@/assets/Img/Icons/icon-test.png';
 import iconcheck from '@/assets/Img/Icons/icon-check.png';
 import tempuserImg from '@/assets/Img/user-img.png';
 import { Button, Col, Container, Row } from 'react-bootstrap';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import { profileAspect } from '@/constant/sizes';
 import logger from '@/lib/logger';
@@ -25,7 +25,7 @@ export default function UserLeaderboard({
   return (
     <>
       <Container className='leader-board achiv bg-white'>
-        <div className='spacer-10'></div>
+        <div className='spacer-10' />
         <Row>
           <Col xl='12' className='py-2'>
             {t('my rewards')}
@@ -35,7 +35,7 @@ export default function UserLeaderboard({
               <Image src={iconcoin} alt='coin' />
               <div>
                 <b>{t('Total NS24')}</b>
-                <h1>{formatLikesCount(totallReward)}</h1>
+                <h1>{formatLikesCount(totallReward) ?? 0}</h1>
               </div>
             </div>
           </Col>
@@ -68,11 +68,11 @@ export default function UserLeaderboard({
                   />
                 </div>
                 <h5>{t('MEMBER')}</h5>
-                <h6>{t('NFTStudio24 Badge')}</h6>
+                <h6>{t('Blockza Badge')}</h6>
                 <p>
                   <i>
                     {t(
-                      'This Member badge represents a unique registeration on NFTStudio24'
+                      'This Member badge represents a unique registeration on Blockza'
                     )}
                   </i>
                 </p>
@@ -87,14 +87,14 @@ export default function UserLeaderboard({
 
               <Button className='myBgclor'>
                 {' '}
-                <i className='fa fa-share'></i>
+                <i className='fa fa-share' />
               </Button>
             </div>
           </Col>
           <Col xl='12' className='py-3 text-center'>
             <p className='m-0'>
               <b>
-                {t('More Information')} <i className='fa fa-caret-down'></i>
+                {t('More Information')} <i className='fa fa-caret-down' />
               </b>
             </p>
           </Col>

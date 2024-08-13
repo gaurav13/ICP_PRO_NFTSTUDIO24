@@ -22,26 +22,23 @@ export default function Sidebar() {
   const handleTabChange = (tab: string) => {
     logger(tab);
     setTab(tab);
-  }
+  };
 
   return (
     <>
       {/* <div className={toggle ? "sidebar active" : "sidebar"} onClickOutside={(e) => toggleHandle(e)}> */}
       <div className='sidebar' onClick={toggleHandle}>
         <button className='toggler'>
-          <div>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
+          <p className='m-0'>
+            <span />
+            <span />
+            <span />
+          </p>
         </button>
         <ul>
           {sidebarItems.map(({ icon, name, route }) => {
-           
-            
             return (
               <li className={tab === route ? 'active' : 'pointer'} key={name}>
-               
                 <Link href={`${route}`} onClick={() => handleTabChange(route)}>
                   <div className='img-pnl'>
                     <Image src={icon} alt='Entires icon' />

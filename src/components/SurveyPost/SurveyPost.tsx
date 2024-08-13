@@ -9,15 +9,16 @@ import iconcap from '@/assets/Img/Icons/icon-cap.png';
 import iconshare from '@/assets/Img/Icons/icon-share.png';
 import infinite from '@/assets/Img/Icons/infinity.png';
 import icpimage from '@/assets/Img/coin-image.png';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { SURVEY_ROUTE } from '@/constant/routes';
 
 export default function SurveyPost() {
   const { t, changeLocale } = useLocalization(LANG);
   return (
     <>
-      <div className='servey-post position-relative'>
-        <h2 className='comingsoonlb'>{t('Comming Soon')}</h2>
+      <div className='servey-post position-relative pannelRes'>
+        {/* <h2 className='comingsoonlb'>{t('Comming Soon')}</h2> */}
 
         <div className='servey-post-inner'>
           <div className='servey-post-head'>
@@ -27,11 +28,11 @@ export default function SurveyPost() {
               </div>
               <div className='txt-pnl'>
                 <h6>
-                  Dev Singh
+                  {t('surveyer name')}
                   {/* <Link href="#"><Image src={iconcap} alt="Cap" />Expert</Link> */}
                 </h6>
                 <p>
-                  {t('content by')} <span>NFTStudio24</span>
+                  {t('content by')} <span>BlockZa</span>
                 </p>
               </div>
             </div>
@@ -43,10 +44,10 @@ export default function SurveyPost() {
           </div>
           <div className='servey-post-body'>
             <Image src={survey} alt='Survey' />
-            <p>{t('NFTStudio24 Survey')}</p>
+            <p>{t('Blockza Survey')}</p>
             <h3>{t('Major Attractions in Web3')}</h3>
             <h4>
-              <Image src={icpimage} alt='infinite' /> +500 NS24
+              <Image src={icpimage} alt='infinite' /> +500 BlockZa
             </h4>
             <ul>
               <li>
@@ -57,10 +58,8 @@ export default function SurveyPost() {
               </li>
             </ul>
             <Link
-              href='#'
-              style={{
-                pointerEvents: 'none',
-              }}
+              href={SURVEY_ROUTE}
+          
               className='servey-btn'
             >
               {t('Do Survey')}

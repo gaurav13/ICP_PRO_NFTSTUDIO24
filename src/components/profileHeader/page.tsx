@@ -2,6 +2,7 @@
 import Button from '@/components/buttons/Button';
 import ButtonLink from '@/components/links/ButtonLink';
 import * as React from 'react';
+import Image from 'next/image';
 
 export default function ProfileHeader() {
   const [tab, setTab] = React.useState('entries');
@@ -36,11 +37,11 @@ export default function ProfileHeader() {
       </div>
       <div className=' w-full bg-gray-100'>
         <div className='mx-auto h-full w-full max-w-screen-2xl'>
-          <div className='aspect-custom max-h-80 w-full bg-blue-500'></div>
+          <div className='aspect-custom max-h-80 w-full bg-blue-500' />
           <div className='relative aspect-video max-h-80 w-full bg-white'>
             <div className='profile-position absolute'>
               <div className='conatiner flex flex-col items-center'>
-                <img
+                <Image
                   src='https://mirror-media.imgix.net/publication-images/EOShsg30kAZB-qeyLW6t7.jpg?h=797&w=1280'
                   className='box-content h-16 w-16 rounded-full border-4 border-white  md:h-20 md:w-20 md:border-4 lg:h-28 lg:w-28 lg:border-8'
                   alt=''
@@ -60,11 +61,10 @@ export default function ProfileHeader() {
               </div>
             </div>
             <div className='absolute bottom-0 flex w-full justify-center gap-4 '>
-              {['entries', 'collections'].map((x,index) => {
+              {['entries', 'collections'].map((x, index) => {
                 return (
-                  
                   <p
-                  key={index}
+                    key={index}
                     className={
                       tab === x
                         ? 'cursor-pointer border-b-2 border-b-blue-500 pb-2 font-semibold text-blue-500'
@@ -74,7 +74,7 @@ export default function ProfileHeader() {
                   >
                     {x.slice(0, 1).toUpperCase() + x.slice(1, x.length)}
                   </p>
-                  );
+                );
               })}
               {/* <p
                 className={
