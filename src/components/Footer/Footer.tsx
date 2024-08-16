@@ -11,10 +11,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import TwitterSVGIcon from '@/components/twitterIconSVG/TwitterSVGIcon';
 import logger from '@/lib/logger';
 import {
+  CAMPAIGNS,
   CAREERS,
   CATEGORY_PATH,
   CONTACT_US,
@@ -28,6 +29,7 @@ import {
   PRESSRELEASE,
   PRIVACY_POLICY,
   QUIZ,
+  QUIZ_ROUTE,
   TERMSOFUSE,
 } from '@/constant/routes';
 import ScrollToTopbtn from '@/components/ScrollToTopBtn/ScrollToTopbtn';
@@ -77,7 +79,10 @@ export default function Footer() {
     disclaimer: DISCLAIMER,
     quiz: QUIZ,
   };
-
+  let router=useRouter()
+let openLinkfn=(l:string)=>{
+  router.push(l)
+}
   return (
     <>
       {route !== 'super-admin' && (
@@ -88,7 +93,7 @@ export default function Footer() {
                 <Col xl='3' lg='12' md='12'>
                   <div className='mobile-scl-cntnr'>
                     <div>
-                      <Link href='#;' className='footer-logo'>
+                      <Link href='/' className='footer-logo'>
                         <Image src={Footerlogo} alt='Blockza' />
                       </Link>
                       <div className='blue-text'>
@@ -416,11 +421,11 @@ export default function Footer() {
             )}
             <div className={`footer-scroller ${isDetailPage ? 'trans' : ''}`}>
               <ul>
-                <li>
+              <li onClick={()=>openLinkfn("/")}>
                   <Image src={mobile1} alt='Mobile' />
                   <p>{t('Home')} </p>
                 </li>
-                <li>
+                <li onClick={()=>openLinkfn(CAMPAIGNS)}>
                   <Image src={mobile2} alt='Mobile' />
                   <p>{t('Campaigns')}</p>
                 </li>
@@ -430,11 +435,12 @@ export default function Footer() {
                     <Image src={mobile3} alt='Mobile' />
                   </div>
                 </li>
-                <li>
+                <li onClick={()=>openLinkfn(QUIZ_ROUTE)}>
                   <Image src={mobile4} alt='Mobile' />
                   <p>{t('earn')}</p>
                 </li>
-                <li>
+            
+                <li onClick={()=>openLinkfn(CONTACT_US)}>
                   <Image src={mobile5} alt='Mobile' />
                   <p>{t('join us')}</p>
                 </li>
