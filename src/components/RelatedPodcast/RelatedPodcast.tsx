@@ -8,7 +8,9 @@ import { makeEntryActor, makeUserActor } from '@/dfx/service/actor-locator';
 import { getImage, iframeimgThumbnail } from '@/components/utils/getImage';
 import { ARTICLE_FEATURED_IMAGE_ASPECT } from '@/constant/sizes';
 import useSearchParamsHook from '@/components/utils/searchParamsHook';
-import { Podcast_STATIC_PATH } from '@/constant/routes';
+import { Podcast_DINAMIC_PATH, Podcast_STATIC_PATH } from '@/constant/routes';
+import useLocalization from "@/lib/UseLocalization"
+import { LANG } from '@/constant/language';
 interface MyComponentProps {
   catagorytype: string[];
 }
@@ -19,10 +21,13 @@ let RelatedPodcast: React.FC<MyComponentProps> = ({ catagorytype }) => {
   const urlparama = useSearchParamsHook();
   const searchParams = new URLSearchParams(urlparama);
   const podcastId = searchParams.get('podcastId');
+  const [isLoading, setIsLoading] = useState(true);
+
   const { identity } = useConnectPlugWalletStore((state) => ({
     identity: state.identity,
   }));
   const getEntriesList = async (selectedCategory?: string) => {
+    setIsLoading(true)
     const categ = selectedCategory;
     const entryActor = makeEntryActor({
       agentOptions: {
@@ -34,7 +39,12 @@ let RelatedPodcast: React.FC<MyComponentProps> = ({ catagorytype }) => {
         identity,
       },
     });
-    const resp = await entryActor.getPodcastList(categ, false, '', 0, 4);
+    //  dataType for below function 
+// 1 =pressRelease
+// 2 =podcast
+// 3 =article
+
+    const resp = await entryActor.getUniqueDataList(categ, false, '', 0, 4,2);
     const tempList = resp.entries;
     let filterd = tempList.filter((e: any) => e[0] != podcastId);
     let tempentries = [];
@@ -47,18 +57,8 @@ let RelatedPodcast: React.FC<MyComponentProps> = ({ catagorytype }) => {
       // setEntriesByCategory(filterd);
     }
     if (tempentries.length != 0) {
-      for (let entry = 0; entry < tempentries.length; entry++) {
-        let newUser = null;
-        var authorId = tempentries[entry][1].user.toString();
-        newUser = await userAcotr.get_user_details([authorId]);
-        if (newUser.ok) {
-          tempentries[entry][1].userName = newUser.ok[1].name;
-          // entriesList[entry][1].image = await updateImg(
-          //   entriesList[entry][1].image
-        }
-        setEntriesByCategory(tempentries);
-      }
-      logger(tempList, 'podcastList');
+      setEntriesByCategory(tempentries);
+      setIsLoading(false)
       return tempList;
     }
   };
@@ -67,9 +67,10 @@ let RelatedPodcast: React.FC<MyComponentProps> = ({ catagorytype }) => {
       getEntriesList(catagorytype[0]);
     }
   }, [catagorytype, podcastId]);
+  const { t, changeLocale } = useLocalization(LANG);
   return (
     <>
-      {entriesByCategory.length == 0 && (
+      {entriesByCategory.length == 0 && !isLoading && (
         <div className=''>
           <p className='fs-5 text-center'>No related Podcast</p>
         </div>
@@ -92,7 +93,7 @@ let RelatedPodcast: React.FC<MyComponentProps> = ({ catagorytype }) => {
               <div className='related-post-inner'>
                 <div className='img-pnl'>
                   <Link
-                    href={entry[1]?.isStatic?`${Podcast_STATIC_PATH+entry[0]}`:`/podcast?podcastId=${entry[0]}`}
+                    href={entry[1]?.isStatic?`${Podcast_STATIC_PATH+entry[0]}`:`${Podcast_DINAMIC_PATH+entry[0]}`}
                     className='img-wrapper'
                     style={{ aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT }}
                   >
@@ -110,7 +111,7 @@ let RelatedPodcast: React.FC<MyComponentProps> = ({ catagorytype }) => {
                 </div>
                 <div className='txt-pnl'>
                   <Link
-                    href={entry[1]?.isStatic?`${Podcast_STATIC_PATH+entry[0]}`:`/podcast?podcastId=${entry[0]}`}
+                    href={entry[1]?.isStatic?`${Podcast_STATIC_PATH+entry[0]}`:`${Podcast_DINAMIC_PATH+entry[0]}`}
                     className='rmLine'
                   >
                     {entry[1].title}
@@ -120,7 +121,7 @@ let RelatedPodcast: React.FC<MyComponentProps> = ({ catagorytype }) => {
                       href={`/profile?userId=${entry[1].user.toString()}`}
                       className='rmLine'
                     >
-                      by {entry[1].userName}
+                    {t('By')} {entry[1].userName}
                     </Link>
                   </span>
                   <span>{dateformat(entry[1].creation_time)}</span>

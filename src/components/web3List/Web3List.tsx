@@ -5,8 +5,12 @@ import tempimg from '@/assets/Img/banner-1.png';
 import React from 'react';
 import logger from '@/lib/logger';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import {
+  DIRECTORY_DINAMIC_PATH,
+  DIRECTORY_STATIC_PATH,
+} from '@/constant/routes';
 
 export default function Web3ListbyCategoryId({
   relatedDirectory,
@@ -20,7 +24,7 @@ export default function Web3ListbyCategoryId({
   let openArticleLink = (entryLink: any) => {
     router.push(entryLink);
   };
-  logger(relatedDirectory, 'relatedDirectory22435');
+
   return (
     <>
       {relatedDirectory.map((entry: any) => {
@@ -40,7 +44,13 @@ export default function Web3ListbyCategoryId({
                 e.preventDefault();
 
                 openArticleLink(
-                  `/directory?directoryId=${entry.length != 0 ? entry[0] : '#'}`
+                  entry[1].isStatic
+                    ? `${DIRECTORY_STATIC_PATH + entry[0]}`
+                    : `${
+                        entry.length != 0
+                          ? DIRECTORY_DINAMIC_PATH + entry[0]
+                          : DIRECTORY_DINAMIC_PATH + '#'
+                      }`
                 );
               }}
               className='Product-post direc '
@@ -51,7 +61,7 @@ export default function Web3ListbyCategoryId({
                   src={'/images/b-b.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='Blockza'
                 /> */}
                   <Image
                     src={entry[1]?.companyBanner ?? tempimg}
@@ -73,7 +83,7 @@ export default function Web3ListbyCategoryId({
                         src={entry[1]?.companyLogo ?? '/images/l-b.png'}
                         width={15}
                         height={16}
-                        alt='Logo'
+                        alt='Blockza'
                       />
                     </div>
                     <div className='heading-txt-pnl'>
@@ -124,7 +134,7 @@ export default function Web3ListbyCategoryId({
 
                   <div>
                     <h5>{entry[1]?.founderName ?? ''}</h5>
-                    <p>Founder</p>
+                    <p>{t('Founder')}</p>
                   </div>
                 </div>
               </div>

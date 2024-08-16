@@ -1,15 +1,16 @@
 import React from 'react';
-import bgimg from '@/assets/Img/Posts/bg-post.png';
-import sublogo from '@/assets/Img/Logo/sub-logo.png';
-import girl from '@/assets/Img/Icons/icon-girl.png';
 import Link from 'next/link';
 import Image from 'next/image';
 import Slider from 'react-slick';
 import logger from '@/lib/logger';
-import { ARTICLE_FEATURED_IMAGE_ASPECT, profileAspect } from '@/constant/sizes';
+import { profileAspect } from '@/constant/sizes';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import {
+  DIRECTORY_DINAMIC_PATH,
+  DIRECTORY_STATIC_PATH,
+} from '@/constant/routes';
 export default function ProductSlider({
   trendingDirectries,
 }: {
@@ -38,8 +39,9 @@ export default function ProductSlider({
           infinite: false,
         },
       },
+
       {
-        breakpoint: 1600,
+        breakpoint: 1400,
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
@@ -47,15 +49,15 @@ export default function ProductSlider({
         },
       },
       {
-        breakpoint: 1400,
+        breakpoint: 1330,
         settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
+          slidesToShow: 4,
+          slidesToScroll: 4,
           infinite: false,
         },
       },
       {
-        breakpoint: 1199,
+        breakpoint: 1200,
         settings: {
           slidesToShow: 3,
           slidesToScroll: 3,
@@ -71,10 +73,10 @@ export default function ProductSlider({
         },
       },
       {
-        breakpoint: 575,
+        breakpoint: 576,
         settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
+          slidesToShow: 2,
+          slidesToScroll: 2,
           infinite: false,
         },
       },
@@ -88,28 +90,30 @@ export default function ProductSlider({
         {trendingDirectries.length != 0 &&
           trendingDirectries.map((item: any) => {
             return (
-              <div className='Post-padding' key={item[0]}>
+              <div
+                className='Post-padding d-flex justify-content-center'
+                key={item[0]}
+              >
                 <Link
-                  href={`/directory?directoryId=${item[0]}`}
+                  href={
+                    item[1].isStatic
+                      ? `${DIRECTORY_STATIC_PATH + item[0]}`
+                      : `${DIRECTORY_DINAMIC_PATH + item[0]}`
+                  }
                   className='Product-post'
                 >
                   <div className='Product-post-inner'>
-                    <div
-                      className='img-pnl'
-                      style={{
-                        aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
-                        width: '100%',
-                        position: 'relative',
-                      }}
-                    >
+                    <div className='img-pnl'>
                       <Image
                         src={
                           item[1].companyBanner
                             ? item[1].companyBanner
                             : '/images/b-b.png'
                         }
-                        fill
-                        alt='Logo'
+                        height={100}
+                        width={100}
+                        className='h-100 w-100'
+                        alt='Blockza'
                       />
                     </div>
                     <div className='text-pnl'>
@@ -130,7 +134,7 @@ export default function ProductSlider({
                                 : '/images/l-b.png'
                             }
                             fill
-                            alt='Logo'
+                            alt='Blockza'
                           />
                         </div>
                         <div className='heading-txt-pnl'>
@@ -147,26 +151,19 @@ export default function ProductSlider({
                           <i>{item[1].founderDetail ?? ''}</i>
                         </p>
                         <div className='img-pl'>
-                          <div
-                            style={{
-                              aspectRatio: profileAspect,
-                              width: '40px',
-                              height: '40px',
-                              position: 'relative',
-                            }}
-                          >
-                            <Image
-                              src={
-                                item[1].founderImage
-                                  ? item[1].founderImage
-                                  : '/images/l-n.png'
-                              }
-                              fill
-                              alt='Girl'
-                            />
-                          </div>
+                          
+                          <Image
+                       src={
+                        item[1].founderImage
+                          ? item[1].founderImage
+                          : '/images/l-n.png'
+                      }
+                        width={20}
+                        height={20}
+                        alt='Girl'
+                      />
 
-                          <h5 className='ms-2'>{item[1].founderName ?? ''}</h5>
+                          <h5 className='ms-2 mx40'>{item[1].founderName ?? ''}</h5>
                         </div>
                       </div>
                       <ul>
@@ -189,199 +186,6 @@ export default function ProductSlider({
               </div>
             );
           })}
-
-        {/* <div className='Post-padding'>
-          <Link
-            href='https://nftstudio24.com/news/cryptopedia/blockchain-news/'
-            className='Product-post'
-          >
-            <div className='Product-post-inner'>
-              <div className='img-pnl'>
-                <Image
-                  src={'/images/b-s.png'}
-                  width={213}
-                  height={78}
-                  alt='Logo'
-                />
-              </div>
-              <div className='text-pnl'>
-                <div className='d-flex'>
-                  <div className='logo-img'>
-                    <Image
-                      src={'/images/ls.png'}
-                      width={20}
-                      height={20}
-                      alt='Logo'
-                    />
-                  </div>
-                  <div className='heading-txt-pnl'>
-                    <h3>Solana</h3>
-                    <p style={{ minHeight: 84 }}>
-                      Solana Blockchain Enables OpenAI’s ChatGPT Plugin for
-                      Enhanced User...
-                    </p>
-                  </div>
-                </div>
-                <div className='txt-pnl'>
-                  <p>
-                    The general population should exercise caution while
-                    using...
-                  </p>
-                  <div className='img-pl'>
-                    <Image
-                      src={'/images/l-n.png'}
-                      width={20}
-                      height={20}
-                      alt='Girl'
-                    />
-                    <h5>NFTStudio 24</h5>
-                  </div>
-                </div>
-                <ul>
-                  <li>
-                    3<span>Posts</span>
-                  </li>
-                  <li>
-                    350
-                    <span>Reviews</span>
-                  </li>
-                  <li>
-                    2950
-                    <span>{t('Upvotes')}s</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </Link>
-        </div>
-        <div className='Post-padding'>
-          <Link
-            href='https://nftstudio24.com/news/cryptopedia/blockchain-news/'
-            className='Product-post'
-          >
-            <div className='Product-post-inner'>
-              <div className='img-pnl'>
-                <Image
-                  src={'/images/b-e.png'}
-                  width={213}
-                  height={78}
-                  alt='Logo'
-                />
-              </div>
-              <div className='text-pnl'>
-                <div className='d-flex'>
-                  <div className='logo-img'>
-                    <Image
-                      src={'/images/l-e.png'}
-                      width={20}
-                      height={20}
-                      alt='Logo'
-                    />
-                  </div>
-                  <div className='heading-txt-pnl'>
-                    <h3>Etherium</h3>
-                    <p style={{ minHeight: 84 }}>
-                      Crypto ETF Expert Predicts All Spot Bitcoin ETF
-                      Applications...
-                    </p>
-                  </div>
-                </div>
-                <div className='txt-pnl'>
-                  <p>
-                    The general population should exercise caution while
-                    using...
-                  </p>
-                  <div className='img-pl'>
-                    <Image
-                      src={'/images/l-n.png'}
-                      width={20}
-                      height={20}
-                      alt='Girl'
-                    />
-                    <h5>NFTStudio 24</h5>
-                  </div>
-                </div>
-                <ul>
-                  <li>
-                    4<span>Posts</span>
-                  </li>
-                  <li>
-                    123
-                    <span>Reviews</span>
-                  </li>
-                  <li>
-                    1356
-                    <span>{t('Upvotes')}s</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </Link>
-        </div>
-        <div className='Post-padding'>
-          <Link
-            href='https://nftstudio24.com/news/cryptopedia/blockchain-news/'
-            className='Product-post'
-          >
-            <div className='Product-post-inner'>
-              <div className='img-pnl'>
-                <Image
-                  src={'/images/b-a.png'}
-                  width={213}
-                  height={78}
-                  alt='Logo'
-                />
-              </div>
-              <div className='text-pnl'>
-                <div className='d-flex'>
-                  <div className='logo-img'>
-                    <Image
-                      src={'/images/l-a.png'}
-                      width={20}
-                      height={20}
-                      alt='Logo'
-                    />
-                  </div>
-                  <div className='heading-txt-pnl'>
-                    <h3>Aptos</h3>
-                    <p style={{ minHeight: 84 }}>
-                      Aptos Ventures Abroad: Navigating Global Markets in the
-                      Web3 and...
-                    </p>
-                  </div>
-                </div>
-                <div className='txt-pnl'>
-                  <p>
-                    The general population should exercise caution while
-                    using...
-                  </p>
-                  <div className='img-pl'>
-                    <Image
-                      src={'/images/l-n.png'}
-                      width={20}
-                      height={20}
-                      alt='Girl'
-                    />
-                    <h5>NFTStudio 24</h5>
-                  </div>
-                </div>
-                <ul>
-                  <li>
-                    4<span>Posts</span>
-                  </li>
-                  <li>
-                    123
-                    <span>Reviews</span>
-                  </li>
-                  <li>
-                    1356
-                    <span>{t('Upvotes')}s</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </Link>
-        </div> */}
       </Slider>
     </>
   );

@@ -11,7 +11,7 @@ export default function ChangeForm({
 }) {
   const { t, changeLocale } = useLocalization(LANG);
   return isRegister ? (
-    <p>
+    <p className={LANG=="jp"?"jpFont":""}>
       {t('Already have an account?')}{' '}
       <span
         className='focused-text simple-anchor'
@@ -21,7 +21,7 @@ export default function ChangeForm({
       </span>
     </p>
   ) : (
-    <p>
+    <p className={LANG=="jp"?"jpFont":""}>
       {t('Do not have an account?')}{' '}
       <span
         className='focused-text simple-anchor'

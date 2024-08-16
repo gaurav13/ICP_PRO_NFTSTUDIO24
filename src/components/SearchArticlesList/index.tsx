@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { Row, Col, Table, Form, Button, Spinner } from 'react-bootstrap';
 import Image from 'next/image';
 import Link from 'next/link';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import loader from '@/assets/Img/Icons/icon-loader.png';
 import arrows from '@/assets/Img/Icons/icon-arrows.png';
@@ -25,22 +25,14 @@ import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 
 // import { usePopper } from 'react-popper';
 
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-
 export default function SearchArticlesList({
   views,
   isCompany,
-  isAdmin
+  isAdmin,
 }: {
   views?: boolean;
   isCompany?: boolean;
-  isAdmin?:boolean
+  isAdmin?: boolean;
 }) {
   const [entriesList, setEntriesList] = useState([]);
   const { t, changeLocale } = useLocalization(LANG);
@@ -85,7 +77,7 @@ export default function SearchArticlesList({
     },
   });
 
-  let itemsPerPage = 8;
+  let itemsPerPage = 20;
   const endOffset = itemOffset + itemsPerPage;
   const entrySizeMap: EntrySizeMap = {
     All: 'all',
@@ -112,16 +104,14 @@ export default function SearchArticlesList({
         if (entry[1].image) {
           image = getImage(entry[1].image[0]);
         }
-        if(entry[1].isPodcast){
-if(entry[1].podcastImg.length !=0){
-  image = getImage(entry[1].podcastImg[0]);
-
-}else{
-  image = iframeimgThumbnail(entry[1].podcastVideoLink);
-
-}
+        if (entry[1].isPodcast) {
+          if (entry[1].podcastImg.length != 0) {
+            image = getImage(entry[1].podcastImg[0]);
+          } else {
+            image = iframeimgThumbnail(entry[1].podcastVideoLink);
+          }
         }
-        logger(entry,"entry42342")
+        logger(entry, 'entry42342');
         let categoryNames = await Promise.all(
           entry[1].category?.map(async (categoryId: string) => {
             let resp = await entryActorDefault.get_category(categoryId);
@@ -133,10 +123,21 @@ if(entry[1].podcastImg.length !=0){
             return categoryName;
           })
         );
+        let isQuizId = null;
+        let quiz = await entryActorDefault.getQuizIdsList_Of_article(entry[0]);
+        if (quiz && quiz.length != 0) {
 
+          isQuizId=quiz[0];
+        }
+        let isSurveyId = null;
+        let survey = await entryActorDefault.getSurveyIdsList_Of_article(entry[0]);
+        if (survey && survey.length != 0) {
+
+          isSurveyId=quiz[0];
+        }
         const userId = entry[1].user.toString();
 
-        const user = await userActor.get_user_details([userId]);
+        // const user = await userActor.get_user_details([userId]);
         // let
         let newItem = {
           entryId: entry[0],
@@ -153,12 +154,14 @@ if(entry[1].podcastImg.length !=0){
           pressRelease: entry[1].pressRelease,
           views: entry[1].views,
           categoriesId: entry[1].category,
-          isPodcast:entry[1].isPodcast,
-          isStatic:entry[1].isStatic, 
+          isPodcast: entry[1].isPodcast,
+          isStatic: entry[1].isStatic,
+          isQuizId,
+          isSurveyId,
         };
-        if (user.ok) {
-          newItem.userName = user.ok[1].name ?? entry[1].userName;
-        }
+        // if (user.ok) {
+        //   newItem.userName = user.ok[1].name ?? entry[1].userName;
+        // }
         return newItem;
       })
     );
@@ -295,6 +298,7 @@ if(entry[1].podcastImg.length !=0){
         views: tempEntriesList[entry][1].views,
         isWeb3: true,
         categoriesId: [tempEntriesList[entry][1]?.catagory],
+        isStatic: tempEntriesList[entry][1].isStatic,
       };
       refindDate.push(tempEntry);
     }
@@ -424,10 +428,9 @@ if(entry[1].podcastImg.length !=0){
       filter();
     }
   };
-let refetchfn=()=>{
-  filter()
-
-}
+  let refetchfn = () => {
+    filter();
+  };
   useEffect(() => {
     async function getData() {
       const _categories = await getCategories(identity);
@@ -496,7 +499,7 @@ let refetchfn=()=>{
                           className='default-btn'
                           onClick={() => router.push('/add-article')}
                         >
-                          <i className='fa fa-plus'></i> Create
+                          <i className='fa fa-plus'/> Create
                         </Button>
                       )} */}
                     </div>
@@ -519,11 +522,11 @@ let refetchfn=()=>{
                               filter(true);
                             }}
                           >
-                            <i className='fa fa-xmark mx-1'></i>
+                            <i className='fa fa-xmark mx-1' />
                           </button>
                         )}
                         <button onClick={() => filter()}>
-                          <i className='fa fa-search'></i>
+                          <i className='fa fa-search' />
                         </button>
                       </div>
                     </div>
@@ -534,11 +537,11 @@ let refetchfn=()=>{
                   <div className='full-div d-flex justify-content-center d-sm-inline-block'>
                     <ul className='filter-list'>
                       {/* <li>
-                              <Form.Select aria-label='All Dates'>
-                                <option>All Dates</option>
-                                <option value='1'>All Dates</option>
-                                <option value='2'>All Dates</option>
-                                <option value='3'>All Dates</option>
+                              <Form.Select aria-label='{t('All Dates')}'>
+                                <option>{t('All Dates')}</option>
+                                <option value='1'>{t('All Dates')}</option>
+                                <option value='2'>{t('All Dates')}</option>
+                                <option value='3'>{t('All Dates')}</option>
                               </Form.Select>
                             </li> */}
                       <li>

@@ -1,4 +1,8 @@
+import useLocalization from '@/lib/UseLocalization';
+import { LANG } from '@/constant/language';
+
 const ConnectPlugWallet = async () => {
+  const { t, changeLocale } = useLocalization(LANG);
   if (!window.ic) {
     return {
       success: false,
@@ -8,7 +12,7 @@ const ConnectPlugWallet = async () => {
   }
   const connected = await window.ic.plug.isConnected();
   if (connected) {
-    return { success: true, msg: 'Already Connected', alreadyConnected: true };
+    return { success: true, msg: t('Already Connected'), alreadyConnected: true };
   } else {
     const whitelist = [process.env.NEXT_PUBLIC_ENTRY_CANISTER_ID];
 
@@ -23,13 +27,13 @@ const ConnectPlugWallet = async () => {
 
       return {
         success: true,
-        msg: 'Connected Successfully',
+        msg: t('Connected Successfully'),
         alreadyConnected: false,
       };
     } catch {
       return {
         success: false,
-        msg: 'Failed to Connect Plug Wallet',
+        msg: t('Failed to Connect Plug Wallet'),
         alreadyConnected: false,
       };
     }

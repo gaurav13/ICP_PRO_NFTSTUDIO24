@@ -14,6 +14,7 @@ import { getImage } from '@/components/utils/getImage';
 import { Spinner } from 'react-bootstrap';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import { ARTICLE_DINAMIC_PATH } from '@/constant/routes';
 export default function FeaturedSlider() {
   let [promotedArticle, setPromotedArticle] = useState([]);
   let [isloaded, setIsloaded] = useState(true);
@@ -34,20 +35,7 @@ export default function FeaturedSlider() {
       identity,
     },
   });
-  // const responsive = {
-  //   desktop: {
-  //     breakpoint: { max: 3000, min: 992 },
-  //     items: 2
-  //   },
-  //   tablet: {
-  //     breakpoint: { max: 991, min: 767 },
-  //     items: 2
-  //   },
-  //   mobile: {
-  //     breakpoint: { max: 767, min: 0 },
-  //     items: 1
-  //   }
-  // };
+
   var Featued = {
     dots: false,
     infinite: true,
@@ -89,31 +77,7 @@ export default function FeaturedSlider() {
       },
     ],
   };
-  //   useEffect(() => {
-  //     async function getFeaturedEntries() {
-  //       try {
 
-  //         let entrylist = await entryActor.getPromotedEntries(10);
-  // if(entrylist.length !=0){
-
-  //         for (let entry = 0; entry < entrylist.length; entry++) {
-  //           let id=entrylist[entry][1].user.toString();
-
-  //          let user=await getUser(id);
-  //          logger(user,"ttt")
-  //         //  entrylist[entry][1].newuser=user
-
-  //         }
-  //         setPromotedArticle(entrylist)
-  //         logger(entrylist[0][1].user.toString(), 'proooo');
-  //       }
-  //       } catch (error) {
-  //         console.error(error, 'proooo');
-  //       }
-  //     }
-
-  //     getFeaturedEntries();
-  //   }, []);
   async function getFeaturedEntries() {
     try {
       let entrylist = await entryActor.getPromotedEntries(10);
@@ -183,7 +147,7 @@ export default function FeaturedSlider() {
                       className='img-pnl d-flex align-items-center bg-dark'
                       style={{ height: '192px' }}
                     >
-                      <Link href={`/article?articleId=${entry[0]}`}>
+                      <Link href={`${ARTICLE_DINAMIC_PATH + entry[0]}`}>
                         <Image
                           src={entry[1].image ? entry[1].image : post1}
                           alt='Post'
@@ -200,21 +164,21 @@ export default function FeaturedSlider() {
                       </h5>
                       <p className='d-flex'>
                         <span>
-                          {/* <Image src={logo} alt='logo' /> */}
+                          {/* <Image src={logo} alt='Blockza' /> */}
                           <Link
                             href={`/profile?userId=${entry[1].user.toString()}`}
                             className='mylink'
                           >
                             <Image
                               src={entry[1].userImg ? entry[1].userImg : logo}
-                              alt='logo'
+                              alt='Blockza'
                               className='myimg'
                               height={100}
                               width={100}
                             />
                           </Link>
                         </span>{' '}
-                        Created by{' '}
+                        {t('Created by')}{' '}
                         <b>
                           <Link
                             href={`/profile?userId=${entry[1].user.toString()}`}
@@ -224,7 +188,7 @@ export default function FeaturedSlider() {
                           </Link>
                         </b>
                       </p>
-                      <Link href={`/article?articleId=${entry[0]}`}>
+                      <Link href={`${ARTICLE_DINAMIC_PATH + entry[0]}`}>
                         View Article
                       </Link>
                     </div>
@@ -233,81 +197,6 @@ export default function FeaturedSlider() {
               </div>
             );
           })}
-          {/* <div className='Post-padding'>
-          <div className='Featured-Post'>
-            <div className='Featured-Post-inner'>
-              <div className='img-pnl'>
-                <Link href='/'>
-                  <Image src={post2} alt='Post' />
-                </Link>
-              </div>
-              <div className='txt-pnl'>
-                <h5>
-                  {t('How Party Degen climbed the top ranking on OpenSea in 6 days')}
-                </h5>
-                <p>
-                  <span>
-                    <Image src={logo} alt='logo' />
-                  </span>{' '}
-                  {t('Campaing of')} <b>NFTStudio24</b>
-                </p>
-                <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div> */}
-          {/* <div className='Post-padding'>
-          <div className='Featured-Post'>
-            <div className='Featured-Post-inner'>
-              <div className='img-pnl'>
-                <Link href='/'>
-                  <Image src={post1} alt='Post' />
-                </Link>
-              </div>
-              <div className='txt-pnl'>
-                <h5>
-                    {t('All You Need to Know about Superlative Secret Society NFT...')}
-                </h5>
-                <p>
-                  <span>
-                    <Image src={logo} alt='logo' />
-                  </span>{' '}
-                  {t('Campaing of')} <b>NFTStudio24</b>
-                </p>
-                <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className='Post-padding'>
-          <div className='Featured-Post'>
-            <div className='Featured-Post-inner'>
-              <div className='img-pnl'>
-                <Link href='/'>
-                  <Image src={post2} alt='Post' />
-                </Link>
-              </div>
-              <div className='txt-pnl'>
-                <h5>
-                  {t('How Party Degen climbed the top ranking on OpenSea in 6 days')}
-                </h5>
-                <p>
-                  <span>
-                    <Image src={logo} alt='logo' />
-                  </span>{' '}
-                  {t('Campaing of')} <b>NFTStudio24</b>
-                </p>
-                <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div> */}
         </Slider>
       )}
     </>

@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import 'slick-carousel/slick/slick.css';
 import post1 from '@/assets/Img/Posts/Post-1.png';
-import post2 from '@/assets/Img/Posts/Post-2.png';
-import logo from '@/assets/Img/Logo/Footer-logo.png';
-import box from '@/assets/Img/Icons/icon-giftbox.png';
 import Slider from 'react-slick';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -11,13 +8,8 @@ import { useConnectPlugWalletStore } from '@/store/useStore';
 import { makeEntryActor, makeUserActor } from '@/dfx/service/actor-locator';
 import logger from '@/lib/logger';
 import { getImage, iframeimgThumbnail } from '@/components/utils/getImage';
-import generalpost1 from '@/assets/Img/event-5.png';
 import iconmessage from '@/assets/Img/Icons/icon-comment.png';
-import iconthumb from '@/assets/Img/Icons/icon-thumb.png';
-import generalpost2 from '@/assets/Img/event-6.png';
-import parse from 'html-react-parser';
 import iconcoin from '@/assets/Img/coin-image.png';
-import { Spinner } from 'react-bootstrap';
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 import { canisterId as commentCanisterId } from '@/dfx/declarations/comment';
 import { ARTICLE_FEATURED_IMAGE_ASPECT, profileAspect } from '@/constant/sizes';
@@ -29,12 +21,12 @@ import {
 import { toast } from 'react-toastify';
 import ConnectModal from '@/components/Modal';
 import { fromNullable } from '@dfinity/utils';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { Podcast_STATIC_PATH } from '@/constant/routes';
+import { Podcast_DINAMIC_PATH, Podcast_STATIC_PATH } from '@/constant/routes';
 
 function NewsItem({ entry }: any) {
-  let [likeCount, setLikeCount] = useState(0 ?? entry.likes);
+  let [likeCount, setLikeCount] = useState<number>(entry.likes ?? 0);
   const [showConnectModal, setShowConnectModal] = useState(false);
   let [isliked, setIsLiked] = useState(false);
 
@@ -113,7 +105,11 @@ function NewsItem({ entry }: any) {
               width: '100%',
               aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
             }}
-            href={entry?.isStatic?`${Podcast_STATIC_PATH+entry.entryId}`:`/podcast?podcastId=${entry.entryId}`}
+            href={
+              entry?.isStatic
+                ? `${Podcast_STATIC_PATH + entry.entryId}`
+                : `${Podcast_DINAMIC_PATH + entry.entryId}`
+            }
           >
             <div>
               <Image
@@ -125,14 +121,20 @@ function NewsItem({ entry }: any) {
             </div>
           </Link>
           <div className='txt-pnl'>
-            <Link href={entry?.isStatic?`${Podcast_STATIC_PATH+entry.entryId}`:`/podcast?podcastId=${entry[0]}`}>
+            <Link
+              href={
+                entry?.isStatic
+                  ? `${Podcast_STATIC_PATH + entry.entryId}`
+                  : `${Podcast_DINAMIC_PATH + entry[0]}`
+              }
+            >
               <h6>
                 {entry?.title.length > 50
                   ? `${entry?.title.slice(0, 50)}...`
                   : entry?.title}
               </h6>
             </Link>
-            <p style={{ maxHeight: "48px", overflowY: 'hidden' }}>
+            <p style={{ maxHeight: '48px', overflowY: 'hidden' }}>
               {entry ? entry.seoExcerpt : ''}
             </p>
             <ul className='thumb-list flex'>
@@ -142,12 +144,15 @@ function NewsItem({ entry }: any) {
                 className='mr-0'
               >
                 <a
-                  href={`${entry
-                    ? entry.entryId
-                      ? entry?.isStatic?`${Podcast_STATIC_PATH+entry.entryId}`:`/podcast?podcastId=${entry.entryId}`
-                      : '#'
-                    : `#`
-                    }`}
+                  href={`${
+                    entry
+                      ? entry.entryId
+                        ? entry?.isStatic
+                          ? `${Podcast_STATIC_PATH + entry.entryId}`
+                          : `${Podcast_DINAMIC_PATH + entry.entryId}`
+                        : '#'
+                      : `#`
+                  }`}
                   className='mr-3'
                   style={{ pointerEvents: 'none' }}
                 >
@@ -171,34 +176,45 @@ function NewsItem({ entry }: any) {
                   {formatLikesCount(likeCount) ?? 0}
                 </a>
                 {/* <a style={{ pointerEvents: 'none' }}>
-                <i className='fa fa-eye blue-icon fa-lg me-1'></i>
+                <i className='fa fa-eye blue-icon fa-lg me-1'/>
                 {'  '}
                 {entry[1]?.views ? entry[1]?.views : 0}
               </a> */}
 
                 <a
-                  href={`${entry
-                    ? entry.entryId
-                      ? entry?.isStatic?`${Podcast_STATIC_PATH+entry.entryId}?route=comments`:`/podcast?podcastId=${entry.entryId}&route=comments`
-                      : '#'
-                    : `#`
-                    }`}
+                  href={`${
+                    entry
+                      ? entry.entryId
+                        ? entry?.isStatic
+                          ? `${
+                              Podcast_STATIC_PATH + entry.entryId
+                            }?route=comments`
+                          : `${
+                              Podcast_DINAMIC_PATH + entry.entryId
+                            }&route=comments`
+                        : '#'
+                      : `#`
+                  }`}
                 >
                   <Image src={iconmessage} alt='Icon Comment' /> {t('Comments')}
                 </a>
                 <Link
-                  href={entry?.isStatic?`${Podcast_STATIC_PATH+entry.entryId}`:`/podcast?podcastId=${entry.entryId}`}
+                  href={
+                    entry?.isStatic
+                      ? `${Podcast_STATIC_PATH + entry.entryId}`
+                      : `${Podcast_DINAMIC_PATH + entry.entryId}`
+                  }
                   className='ms-1'
                 >
                   <div className='viewbox'>
-                    <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
+                    <i className='fa fa-eye fill blue-icon fa-lg me-1' />
                     {t('Views')} <span className='mx-1'>|</span>
                     {entry.views ? entry.views : 0}
                   </div>
                 </Link>
               </li>
               <li>
-                <Image src={iconcoin} alt='Icon Comment' /> +500 NS24
+                <Image src={iconcoin} alt='Icon Comment' /> +500 BlockZa
               </li>
             </ul>
           </div>
@@ -284,7 +300,19 @@ export default function PodcastHomeSlider({ catagory }: { catagory?: string }) {
         identity,
       },
     });
-    const resp = await entryActor.getPodcastList(catagory, false, '', 0, 6);
+    //  dataType for below function
+    // 1 =pressRelease
+    // 2 =podcast
+    // 3 =article
+
+    const resp = await entryActor.getUniqueDataList(
+      catagory,
+      false,
+      '',
+      0,
+      6,
+      2
+    );
 
     const tempList = resp.entries;
     return tempList;
@@ -311,8 +339,8 @@ export default function PodcastHomeSlider({ catagory }: { catagory?: string }) {
 
         const userId = entry[1].user.toString();
 
-        const user = await userActor.get_user_details([userId]);
-        let date = utcToLocal(entry[1].creation_time.toString(), 'MMM d, YYYY');
+        // const user = await userActor.get_user_details([userId]);
+        let date = utcToLocal(entry[1].creation_time.toString(), 'MMM D, YYYY');
 
         let newItem = {
           title: entry[1].title,
@@ -334,11 +362,11 @@ export default function PodcastHomeSlider({ catagory }: { catagory?: string }) {
           podcastVideoLink: entry[1].podcastVideoLink,
           seoExcerpt: entry[1].seoExcerpt,
           likedUsers: entry[1].likedUsers,
-          isStatic:entry[1].isStatic, 
+          isStatic: entry[1].isStatic,
         };
-        if (user.ok) {
-          newItem.userName = user.ok[1].name ?? entry[1].userName;
-        }
+        // if (user.ok) {
+        //   newItem.userName = user.ok[1].name ?? entry[1].userName;
+        // }
         return newItem;
       })
     );
@@ -390,7 +418,8 @@ export default function PodcastHomeSlider({ catagory }: { catagory?: string }) {
         </Slider>
       ) : (
         <p>
-         {t('No Podcast Found')}{categoryName ? `on ${categoryName} category` : ''}
+          {t('No Podcast Found')}
+          {categoryName ? `${t('ON')} ${categoryName} ${t('Category')}` : ''}
         </p>
       )}
     </>

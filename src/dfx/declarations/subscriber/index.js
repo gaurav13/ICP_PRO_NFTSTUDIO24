@@ -13,11 +13,24 @@ export { idlFactory } from './subscriber.did.js';
 const englishCanisterId =
   process.env.CANISTER_ID_SUBSCRIBER ||
   process.env.NEXT_PUBLIC_SUBSCRIBER_CANISTER_ID;
+const staggingCanisterID =
+  process.env.CANISTER_ID_SUBSCRIBER_SG ||
+  process.env.NEXT_PUBLIC_SUBSCRIBER_SG_CANISTER_ID;
 const japaneseCanisterId =
   process.env.CANISTER_ID_SUBSCRIBER_JP ||
   process.env.NEXT_PUBLIC_SUBSCRIBER_JP_CANISTER_ID;
-export const canisterId =
-  LANG === 'jp' ? japaneseCanisterId : englishCanisterId;
+
+let tempCanisterId = null;
+if (process.env.NEXT_PUBLIC_STAGGING=="true") {
+  tempCanisterId = staggingCanisterID;
+} else if (LANG == 'jp') {
+  tempCanisterId = japaneseCanisterId;
+} else if (LANG == 'en') {
+  tempCanisterId = englishCanisterId;
+}
+export const canisterId = tempCanisterId;
+// export const canisterId =
+//   LANG === 'jp' ? japaneseCanisterId : englishCanisterId;
 // export const canisterId =
 //   process.env.CANISTER_ID_SUBSCRIBER ||
 //   process.env.NEXT_PUBLIC_SUBSCRIBER_CANISTER_ID;

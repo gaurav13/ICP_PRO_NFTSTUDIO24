@@ -68,7 +68,20 @@
     min-height: unset;
     width: 50px;
   }
-
+  @media (max-width: 991px) {
+    &.active {
+      padding-top: 0px;
+      .sidebar-inner {
+        padding-top: 0;
+        ul {
+          padding-top: 25px;
+          li button {
+            padding: 8px 14px;
+          }
+        }
+      }
+    }
+  }
   .sidebar-inner {
     min-height: 100vh;
     background: $white;
@@ -175,7 +188,7 @@
       }
     }
 
-    div {
+    p {
       width: 100%;
       position: relative;
       height: 100%;
@@ -283,17 +296,28 @@
           align-items: center;
           max-width: 80%;
           border: none;
+          text-align: center !important;
+          &.width-btn {
+            max-width: 100%;
+          }
+
+          .japnes-btn {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            margin-right: 17px;
+          }
 
           &:disabled {
             opacity: 1;
           }
 
-          span {
+          span:not(.japnes-btn) {
             width: auto;
             background-color: $blue;
             display: inline-flex;
             align-items: center;
-            margin-right: 20px;
+
             padding: 8px 12px 8px 12px;
             @include bd-radius(25px 0 0 25px);
 
@@ -379,11 +403,13 @@
           @include trans1;
           color: $blue;
         }
+
         svg {
           fill: $blue;
           position: relative;
           top: 4px;
         }
+
         .img-pnl {
           width: 24px;
           height: auto;
@@ -429,6 +455,7 @@
         &:hover {
           // opacity: 1;
           color: $white;
+
           svg {
             fill: $white;
           }
@@ -562,12 +589,15 @@
     ul.new {
       width: 240px;
     }
+
     span {
       width: 100%;
       left: 0;
+
       &:before {
         display: none !important;
       }
+
       @media (max-width: 575px) {
         .toggler {
           top: -25px;
@@ -577,6 +607,7 @@
     }
   }
 }
+
 .sidebar-home.dark .sidebar-inner,
 .sidebar-home.dark {
   background-color: $darker;
@@ -879,11 +910,13 @@
     // display: none;
   }
 }
+
 .sidebar-home.new ul li a.connect-btn,
 .sidebar-home.new ul li button.connect-btn {
   &:hover {
     color: #000000 !important;
   }
+
   &:before {
     display: none !important;
     color: #000000 !important;
@@ -898,4 +931,12 @@
   -ms-transition: all 0s ease-in-out;
   -o-transition: all 0s ease-in-out;
   transition: all 0s ease-in-out;
+}
+.fontFix {
+  font-size: 13px !important;
+}
+.scroll{
+  overflow-y: scroll;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  
 }

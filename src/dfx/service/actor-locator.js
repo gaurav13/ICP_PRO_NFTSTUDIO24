@@ -27,6 +27,10 @@ import {
   createActor as createDIP721Canister,
   canisterId as DIP721CanisterId,
 } from '@/dfx/declarations/DIP721';
+import {
+  createActor as createTokenCanister,
+  canisterId as TokenCanisterId,
+} from '@/dfx/declarations/token_canister';
 export const makeActor = (canisterId, createActor, options) => {
   const NFTCanisterId =
     process.env.CANISTER_ID_NFTSTUDIO24 ||
@@ -68,6 +72,13 @@ export function makeLedgerCanister(options) {
   return makeActor(
     icpLedgerCanisterCanisterId,
     createIcpLedgerCanister,
+    options
+  );
+}
+export function makeTokenCanister(options) {
+  return makeActor(
+    TokenCanisterId,
+    createTokenCanister,
     options
   );
 }
