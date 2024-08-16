@@ -29,14 +29,18 @@ export interface Wallet {
 export interface ConnectStore {
   identity: any;
   principal: string;
+  tokenSymbol: string;
   auth: Auth;
   userAuth: UserAuth;
   balance: number;
+  tokensBalance: number;
   reward: number;
   setIdentity: (input: string) => void;
   setReward: (input: number) => void;
   setBalance: (input: number) => void;
+  setTokensBalance: (input: number) => void;
   setPrincipal: (input: string) => void;
+  setTokenSymbol: (input: string) => void;
   setAuth: (input: Auth) => void;
   setUserAuth: (input: UserAuth) => void;
 }
@@ -44,16 +48,20 @@ export interface ConnectStore {
 export interface ConnectPlugWalletSlice {
   identity: any;
   principal: string;
+  tokenSymbol: string;
   auth: Auth;
   userAuth: UserAuth;
   balance: number;
+  tokensBalance: number;
   reward: number;
   emailConnected: boolean;
   setIdentity: (input: any) => void;
   setEmailConnected: (input: boolean) => void;
   setPrincipal: (input: string) => void;
+  setTokenSymbol: (input: string) => void;
   setReward: (input: number) => void;
   setBalance: (input: number) => void;
+  setTokensBalance: (input: number) => void;
   setAuth: (input: Auth) => void;
   setUserAuth: (input: UserAuth) => void;
 }

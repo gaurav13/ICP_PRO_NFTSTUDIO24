@@ -1,6 +1,6 @@
 'use client';
 // import * as React from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import News1 from '@/assets/Img/sidebar-icons/news-1.png';
@@ -55,9 +55,18 @@ import authMethods from '@/lib/auth';
 import logger from '@/lib/logger';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import {
+  ALL_ARTICLES,
+  CAREERS,
+  CATEGORY_PATH,
+  CONTACT_US,
+} from '@/constant/routes';
+import LanguageBtn from '@/components/LanguageBtn/LanguageBtn';
+import ConfirmationModel from '@/components/Modal/ConfirmationModel';
 
 export default function NewSidebarHome() {
   const { t, changeLocale } = useLocalization(LANG);
+
   const [isThemeActive, setIsThemeActive] = useState(false);
   const [show, setShow] = useState(false);
 
@@ -69,6 +78,7 @@ export default function NewSidebarHome() {
   const router = useRouter();
   const location = usePathname();
   const path = usePathname();
+  const [loginModalShow, setLoginModalShow] = React.useState(false);
 
   const route = location.split('/')[1];
   const sidebarRef = React.useRef<HTMLElement | null>();
@@ -87,7 +97,7 @@ export default function NewSidebarHome() {
   const handleConnectClose = () => {
     setIsConnectLoading(false);
   };
-
+  const sectionRef = useRef<any>(null);
   const methods = authMethods({
     useConnectPlugWalletStore,
     setIsLoading: setIsConnectLoading,
@@ -127,73 +137,70 @@ export default function NewSidebarHome() {
     advertise: string;
     contact: string;
   } = {
-    latest: 'https://nftstudio24.com/news/',
+    latest: 'https://blockza.io/news/',
     web3: '#web3',
     blockchain: '#blockchain',
-    crypto: 'https://nftstudio24.com/news/cryptopedia/',
-    defi: 'https://nftstudio24.com/?s=defi',
-    dao: 'https://nftstudio24.com/?s=dao',
-    nft: 'https://nftstudio24.com/news/latest-nft-news/',
-    metaverse: 'https://nftstudio24.com/news/latest-nft-news/virtual-land/',
-    games: 'https://nftstudio24.com/news/latest-nft-news/metaverse-nft-games/',
-    ai: 'https://nftstudio24.com/?s=AI',
-    career: 'https://nftstudio24.com/careers/',
-    advertise: 'https://nftstudio24.com/advertise-with-us/',
-    contact: 'https://nftstudio24.com/contact-us/',
+    crypto: 'https://blockza.io/news/cryptopedia/',
+    defi: 'https://blockza.io/?s=defi',
+    dao: 'https://blockza.io/?s=dao',
+    nft: 'https://blockza.io/news/latest-nft-news/',
+    metaverse: 'https://blockza.io/news/latest-nft-news/virtual-land/',
+    games: 'https://blockza.io/news/latest-nft-news/metaverse-nft-games/',
+    ai: 'https://blockza.io/?s=AI',
+    career: CAREERS,
+    advertise: 'https://blockza.io/advertise-with-us/',
+    contact: CONTACT_US,
   };
   if (path !== '/') {
     if (auth.state === 'initialized') {
       routes = {
-        latest: 'https://nftstudio24.com/news/',
+        latest: 'https://blockza.io/news/',
         web3: '/?route=blockchain',
         blockchain: '/?route=blockchain',
-        crypto: 'https://nftstudio24.com/news/cryptopedia/',
-        defi: 'https://nftstudio24.com/?s=defi',
-        dao: 'https://nftstudio24.com/?s=dao',
-        nft: 'https://nftstudio24.com/news/latest-nft-news/',
-        metaverse: 'https://nftstudio24.com/news/latest-nft-news/virtual-land/',
-        games:
-          'https://nftstudio24.com/news/latest-nft-news/metaverse-nft-games/',
-        ai: 'https://nftstudio24.com/?s=AI',
-        career: 'https://nftstudio24.com/careers/',
-        advertise: 'https://nftstudio24.com/advertise-with-us/',
-        contact: 'https://nftstudio24.com/contact-us/',
+        crypto: 'https://blockza.io/news/cryptopedia/',
+        defi: 'https://blockza.io/?s=defi',
+        dao: 'https://blockza.io/?s=dao',
+        nft: 'https://blockza.io/news/latest-nft-news/',
+        metaverse: 'https://blockza.io/news/latest-nft-news/virtual-land/',
+        games: 'https://blockza.io/news/latest-nft-news/metaverse-nft-games/',
+        ai: 'https://blockza.io/?s=AI',
+        career: CAREERS,
+        advertise: 'https://blockza.io/advertise-with-us/',
+        contact: CONTACT_US,
       };
     } else {
       routes = {
-        latest: 'https://nftstudio24.com/news/',
+        latest: 'https://blockza.io/news/',
         web3: '/?route=web3',
         blockchain: '/?route=blockchain',
-        crypto: 'https://nftstudio24.com/news/cryptopedia/',
-        defi: 'https://nftstudio24.com/?s=defi',
-        dao: 'https://nftstudio24.com/?s=dao',
-        nft: 'https://nftstudio24.com/news/latest-nft-news/',
-        metaverse: 'https://nftstudio24.com/news/latest-nft-news/virtual-land/',
-        games:
-          'https://nftstudio24.com/news/latest-nft-news/metaverse-nft-games/',
-        ai: 'https://nftstudio24.com/?s=AI',
-        career: 'https://nftstudio24.com/careers/',
-        advertise: 'https://nftstudio24.com/advertise-with-us/',
-        contact: 'https://nftstudio24.com/contact-us/',
+        crypto: 'https://blockza.io/news/cryptopedia/',
+        defi: 'https://blockza.io/?s=defi',
+        dao: 'https://blockza.io/?s=dao',
+        nft: 'https://blockza.io/news/latest-nft-news/',
+        metaverse: 'https://blockza.io/news/latest-nft-news/virtual-land/',
+        games: 'https://blockza.io/news/latest-nft-news/metaverse-nft-games/',
+        ai: 'https://blockza.io/?s=AI',
+        career: CAREERS,
+        advertise: 'https://blockza.io/advertise-with-us/',
+        contact: CONTACT_US,
       };
     }
   } else {
     if (auth.state === 'initialized') {
       routes = {
-        latest: 'https://nftstudio24.com/news/',
+        latest: 'https://blockza.io/news/',
         web3: '#blockchain',
         blockchain: '#blockchain',
-        crypto: 'https://nftstudio24.com/news/cryptopedia/',
-        defi: 'https://nftstudio24.com/?s=defi',
-        dao: 'https://nftstudio24.com/?s=dao',
-        nft: 'https://nftstudio24.com/news/latest-nft-news/',
-        metaverse: 'https://nftstudio24.com/news/latest-nft-news/virtual-land/',
-        games:
-          'https://nftstudio24.com/news/latest-nft-news/metaverse-nft-games/',
-        ai: 'https://nftstudio24.com/?s=AI',
-        career: 'https://nftstudio24.com/careers/',
-        advertise: 'https://nftstudio24.com/advertise-with-us/',
-        contact: 'https://nftstudio24.com/contact-us/',
+        crypto: 'https://blockza.io/news/cryptopedia/',
+        defi: 'https://blockza.io/?s=defi',
+        dao: 'https://blockza.io/?s=dao',
+        nft: 'https://blockza.io/news/latest-nft-news/',
+        metaverse: 'https://blockza.io/news/latest-nft-news/virtual-land/',
+        games: 'https://blockza.io/news/latest-nft-news/metaverse-nft-games/',
+        ai: 'https://blockza.io/?s=AI',
+        career: CAREERS,
+        advertise: 'https://blockza.io/advertise-with-us/',
+        contact: CONTACT_US,
       };
     }
   }
@@ -206,6 +213,7 @@ export default function NewSidebarHome() {
   // Dark Theme
 
   const connect = async () => {
+    setLoginModalShow(false);
     setIsConnectLoading(true);
     const login = await methods.login();
   };
@@ -229,24 +237,20 @@ export default function NewSidebarHome() {
 
   const [isSubMenuVisible, setSubMenuVisibility] = useState(false);
 
-  const toggleSubMenu = () => {
+  const toggleSubMenu = (e: any) => {
+    e.preventDefault();
     setSubMenuVisibility((prevVisibility) => !prevVisibility);
   };
-
-  const handleBodyClick = (event: MouseEvent) => {
-    const excludeClass = 'exclude-from-closing';
-
-    if (
-      isSubMenuVisible &&
-      !(event.target as HTMLElement).closest(`.${excludeClass}`)
-    ) {
-      setSubMenuVisibility(false);
-    }
-  };
   useEffect(() => {
-    document.body.addEventListener('click', handleBodyClick);
+    const handleClickOutside = (event: any) => {
+      if (sectionRef.current && !sectionRef.current.contains(event.target)) {
+        setSubMenuVisibility(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
     return () => {
-      document.body.removeEventListener('click', handleBodyClick);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, []);
 
@@ -268,7 +272,9 @@ export default function NewSidebarHome() {
 
     setTab(currentTab);
   }, []);
-
+  let confirmationModelOpen = () => {
+    setLoginModalShow(true);
+  };
   return (
     route != 'blocked' &&
     route != 'super-admin' && (
@@ -279,40 +285,51 @@ export default function NewSidebarHome() {
         >
           <div className='sidebar-inner '>
             <button className='toggler' onClick={toggleHandle}>
-              <div>
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
+              <p className='m-0'>
+                <span />
+                <span />
+                <span />
+              </p>
             </button>
-            <ul>
+            <ul ref={sectionRef}>
               <li>
                 <Button
-                  onClick={connect}
-                  className='connect-btn'
+                  onClick={confirmationModelOpen}
+                  className={`connect-btn `}
                   disabled={isConnectLoading || connected}
                 >
                   <span>
-                    <Image src={iconlogo} alt='Logo' />
+                    <Image src={iconlogo} alt='Blockza' />
                   </span>
                   {isConnectLoading ? (
-                    <Spinner size='sm' className='ms-4 text-primary' />
+                    <span className='japnes-btn'>
+                      <Spinner size='sm' className='text-primary ' />
+                    </span>
                   ) : connected ? (
-                    t('Connected')
+                    <span className='japnes-btn'>{t('Connected')}</span>
                   ) : (
-                    t('Connect')
+                    <span
+                      className={`japnes-btn ${LANG === 'jp' ? 'fontFix' : ''}`}
+                    >
+                      {LANG === 'en' ? 'Connect' : 'Wallet Connect'}
+                    </span>
                   )}
                 </Button>
               </li>
               <li>
+                <div className='sidebarLng'>
+                  <LanguageBtn id='sidebarLngBtn' />
+                </div>
+              </li>
+              <li>
                 <Link
                   className={location === '/allarticlesss' ? 'active' : ''}
-                  href={routes.latest}
+                  href={CATEGORY_PATH.LATEST_NEW}
                 >
                   <div className='img-pnl'>
                     <svg
                       version='1.1'
-                      id='Capa_1'
+                      id='Capa_2'
                       xmlns='http://www.w3.org/2000/svg'
                       x='0px'
                       y='0px'
@@ -350,10 +367,10 @@ export default function NewSidebarHome() {
                     onClick={(e: any) => {
                       e.preventDefault();
                       settoggle(false);
-                      router.push('/articles');
+                      router.push(ALL_ARTICLES);
                     }}
-                    className={location === '/articles' ? 'active' : ''}
-                    href='/articles'
+                    className={location === ALL_ARTICLES ? 'active' : ''}
+                    href={ALL_ARTICLES}
                   >
                     <div className='img-pnl'>
                       <Image src={Articles1} alt='Articles' />
@@ -369,14 +386,14 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.web3);
+                    router.push(CATEGORY_PATH.WEB3);
                   }}
-                  href={routes.web3}
+                  href={CATEGORY_PATH.WEB3}
                 >
                   <div className='img-pnl'>
                     <svg
                       id='Icons'
-                      enable-background='new 0 0 128 128'
+                      enableBackground='new 0 0 128 128'
                       viewBox='0 0 128 128'
                       xmlns='http://www.w3.org/2000/svg'
                     >
@@ -386,7 +403,7 @@ export default function NewSidebarHome() {
                       />
                     </svg>
                   </div>
-                  Web3
+                  {t('Web3 ')}
                 </Link>
               </li>
               <li>
@@ -394,9 +411,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.blockchain);
+                    router.push(CATEGORY_PATH.BLOCKCHAIN_NEWS);
                   }}
-                  href={routes.blockchain}
+                  href={CATEGORY_PATH.BLOCKCHAIN_NEWS}
                 >
                   <div className='img-pnl'>
                     <svg
@@ -419,9 +436,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.crypto);
+                    router.push(CATEGORY_PATH.CRYPTO);
                   }}
-                  href={routes.crypto}
+                  href={CATEGORY_PATH.CRYPTO}
                 >
                   <div className='img-pnl'>
                     <Image src={crypto2} alt='Crypto Icon' />
@@ -435,9 +452,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.defi);
+                    router.push(CATEGORY_PATH.DEFI);
                   }}
-                  href={routes.defi}
+                  href={CATEGORY_PATH.DEFI}
                 >
                   <div className='img-pnl'>
                     <svg
@@ -522,9 +539,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.dao);
+                    router.push(CATEGORY_PATH.DAO);
                   }}
-                  href={routes.dao}
+                  href={CATEGORY_PATH.DAO}
                 >
                   <div className='img-pnl'>
                     <svg
@@ -552,14 +569,14 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.nft);
+                    router.push(CATEGORY_PATH.NFT);
                   }}
-                  href={routes.nft}
+                  href={CATEGORY_PATH.NFT}
                 >
                   <div className='img-pnl'>
                     <svg
                       id='svg2581'
-                      enable-background='new 0 0 100 100'
+                      enableBackground='new 0 0 100 100'
                       viewBox='0 0 100 100'
                     >
                       <path
@@ -612,9 +629,9 @@ export default function NewSidebarHome() {
                   onClick={(e: any) => {
                     e.preventDefault();
                     settoggle(false);
-                    router.push(routes.metaverse);
+                    router.push(CATEGORY_PATH.METAVERCE);
                   }}
-                  href={routes.metaverse}
+                  href={CATEGORY_PATH.METAVERCE}
                 >
                   <div className='img-pnl'>
                     <svg
@@ -642,7 +659,7 @@ export default function NewSidebarHome() {
                   className='exclude-from-closing'
                 >
                   <div className='img-pnl'>
-                    <i className='fa fa-ellipsis-h'></i>
+                    <i className='fa fa-ellipsis-h' />
                   </div>{' '}
                   {t('More')}
                 </Link>
@@ -654,14 +671,14 @@ export default function NewSidebarHome() {
                       onClick={(e: any) => {
                         e.preventDefault();
                         settoggle(false);
-                        router.push(routes.games);
+                        router.push(CATEGORY_PATH.BLOCKCHAIN_GAMES);
                       }}
-                      href={routes.games}
+                      href={CATEGORY_PATH.BLOCKCHAIN_GAMES}
                     >
                       <div className='img-pnl'>
                         <svg
                           id='Layer_1'
-                          enable-background='new 0 0 512 512'
+                          enableBackground='new 0 0 512 512'
                           viewBox='0 0 512 512'
                         >
                           <path
@@ -679,14 +696,14 @@ export default function NewSidebarHome() {
                       onClick={(e: any) => {
                         e.preventDefault();
                         settoggle(false);
-                        router.push(routes.ai);
+                        router.push(CATEGORY_PATH.AI);
                       }}
-                      href={routes.ai}
+                      href={CATEGORY_PATH.AI}
                     >
                       <div className='img-pnl'>
                         <svg
                           version='1.1'
-                          id='Capa_1'
+                          id='Capa_3'
                           xmlns='http://www.w3.org/2000/svg'
                           x='0px'
                           y='0px'
@@ -823,9 +840,9 @@ export default function NewSidebarHome() {
           </div>
           {/* {location === '/' && (
             <div className='trending-side-panel'>
-              <div className='spacer-20'></div>
+              <div className='spacer-20'/>
               <h4>
-                trending Stories <i className='fa fa-angle-down'></i>
+                trending Stories <i className='fa fa-angle-down'/>
               </h4>
               <ArticlesPost />
             </div>
@@ -836,10 +853,10 @@ export default function NewSidebarHome() {
         <Modal show={show} centered onHide={handleClose}>
           <Modal.Body>
             <div className='flex-div connect-heading-pnl'>
-              <i className='fa fa-question-circle-o'></i>
+              <i className='fa fa-question-circle-o' />
               <p>{t('Connect Wallet')}</p>
               <Button className='close-btn' onClick={handleClose}>
-                <i className='fa fa-close'></i>
+                <i className='fa fa-close' />
               </Button>
             </div>
             <div className='full-div'>
@@ -860,6 +877,12 @@ export default function NewSidebarHome() {
             </div>
           </Modal.Body>
         </Modal>
+        <ConfirmationModel
+          show={loginModalShow}
+          handleClose={() => setLoginModalShow(false)}
+          handleConfirm={connect}
+        />
+
         {/* Connect Modal */}
       </>
     )

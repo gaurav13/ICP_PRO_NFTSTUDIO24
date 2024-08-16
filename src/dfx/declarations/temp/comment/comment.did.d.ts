@@ -41,17 +41,25 @@ export type AdminActivityType = { 'reject' : null } |
   { 'add_category' : null } |
   { 'editWeb3Views' : null } |
   { 'delete_category' : null } |
+  { 'verify_user' : null } |
   { 'verify_web3' : null } |
   { 'delete_event' : null } |
   { 'block' : null } |
   { 'editViews' : null } |
   { 'delete_pressRelease' : null } |
+  { 'un_verify_user' : null } |
   { 'add_event' : null } |
   { 'delete_web3' : null };
 export interface Comment {
   'creation_time' : bigint,
   'content' : string,
   'user' : Principal,
+}
+export interface CommentItem {
+  'creation_time' : bigint,
+  'content' : string,
+  'user' : Principal,
+  'entryId' : string,
 }
 export type Comments = Array<Comment>;
 export type InputComment = string;
@@ -71,11 +79,18 @@ export interface anon_class_19_1 {
     boolean
   >,
   'addComment' : ActorMethod<
-    [InputComment, string, string, string, string],
+    [InputComment, string, string, string, string, string],
     Result_3
   >,
   'getActivities' : ActorMethod<[], Result_2>,
+  'getActivitiesDashboard' : ActorMethod<[Principal, string], Result_2>,
   'getAdminActivities' : ActorMethod<[UserId, string], Result_1>,
   'getComments' : ActorMethod<[string], Result>,
+  'getCommentsofUser' : ActorMethod<
+    [Principal, bigint, bigint],
+    { 'entries' : Array<CommentItem>, 'amount' : bigint }
+  >,
+  'get_comment_reward' : ActorMethod<[], bigint>,
+  'update_comment_reward' : ActorMethod<[string, bigint], bigint>,
 }
 export interface _SERVICE extends anon_class_19_1 {}

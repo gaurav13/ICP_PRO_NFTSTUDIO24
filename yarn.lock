@@ -3565,7 +3565,7 @@ core-js-compat@^3.31.0, core-js-compat@^3.33.1:
   dependencies:
     browserslist "^4.22.1"
 
-core-js@^3:
+core-js@^3, core-js@^3.28.0:
   version "3.36.0"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.36.0.tgz#e752fa0b0b462a0787d56e9d73f80b0f7c0dde68"
   integrity sha512-mt7+TUBbTFg5+GngsAxeKBTl5/VS0guFeJacYge9OmHb+m058UwwIm41SE9T4Den7ClatV57B6TYTuJ0CX1MAw==
@@ -3955,6 +3955,11 @@ dot-prop@^5.1.0:
   integrity sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==
   dependencies:
     is-obj "^2.0.0"
+
+dotenv@^16.4.5:
+  version "16.4.5"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.4.5.tgz#cdd3b3b604cb327e286b4762e13502f717cb099f"
+  integrity sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==
 
 eastasianwidth@^0.2.0:
   version "0.2.0"
@@ -6060,12 +6065,27 @@ jest@^27.5.1:
     import-local "^3.0.2"
     jest-cli "^27.5.1"
 
-jodit-react@^4.0.15:
-  version "4.0.15"
-  resolved "https://registry.yarnpkg.com/jodit-react/-/jodit-react-4.0.15.tgz#183161d36177e0173b0e77f22c4491fd963b04f4"
-  integrity sha512-wcqz71yI8K2/ZIK9rMfUTRpRHZqe2Far+sd+waswADJkslxfnBhFZg/vz+9WIqT3lq42KbdZsqogMPU1JW9SrQ==
+jodit-pro-react@^4.1.13:
+  version "4.1.13"
+  resolved "https://registry.yarnpkg.com/jodit-pro-react/-/jodit-pro-react-4.1.13.tgz#da854e61768ae62206492c6cd34816a4c0de3b22"
+  integrity sha512-q/9zjV5U94tW/nES2tG/GfZUx7gQkWHrmy2Ewlk0QZMc77zk0LeJfLcxeuHSe/MwagvlNzHWh7ohNPEs+L8qWA==
   dependencies:
-    jodit "^4.0.18"
+    prop-types "^15.8.1"
+
+jodit-react@^1.3.39:
+  version "1.3.39"
+  resolved "https://registry.yarnpkg.com/jodit-react/-/jodit-react-1.3.39.tgz#9a2e0518fb53d89884ec115e17b9f3e35f0de44a"
+  integrity sha512-uZSRadPlgvcB6Wn54RGZ6XQEN+JHj0dB1SI4OH42yTC5WTeoYavksUwzCgFuQF4+janjSCxn0CXNqzd0MJEhVw==
+  dependencies:
+    jodit "^3.20.2"
+
+jodit@^3.20.2:
+  version "3.24.9"
+  resolved "https://registry.yarnpkg.com/jodit/-/jodit-3.24.9.tgz#575a0218996f31003c230f81db0f056132dea9b5"
+  integrity sha512-t2d73v7GFbGI08ZzdCTwrzi8ZtoOG4icGzD6IIN2e+ghlpUKYxcHZ/Rmy6/mc6055172z+tv7QSr9BcOz6IOFQ==
+  dependencies:
+    autobind-decorator "^2.4.0"
+    core-js "^3.28.0"
 
 jodit@^4.0.18:
   version "4.0.18"
@@ -7181,6 +7201,11 @@ react-clock@^4.5.0:
     clsx "^2.0.0"
     get-user-locale "^2.2.1"
     prop-types "^15.6.0"
+
+react-content-shimmer@^2.2.6:
+  version "2.2.6"
+  resolved "https://registry.yarnpkg.com/react-content-shimmer/-/react-content-shimmer-2.2.6.tgz#4e251469bc4d39ef33ef8ea2e3b248192781ff1f"
+  integrity sha512-MBDLQL0vXXSuUKXRwyBKSi/745IrHqw/UkFGodNLw9dgl1cYHPMlJ/Gx2bGHpgpPz6oyIYphRhpcAdb1PKAyYw==
 
 react-country-region-selector@^3.6.1:
   version "3.6.1"

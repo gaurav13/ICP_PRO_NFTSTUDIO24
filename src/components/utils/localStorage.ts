@@ -2,6 +2,11 @@ const getToken = () => {
   return localStorage.getItem('token');
 };
 let openLink=(link:any)=>{
-  window.open(link)
+  window.open(link);
+
 }
-export { getToken,openLink };
+let openLinkInCurrentTab=(link:any)=>{
+  window.open(link,"_self");
+  
+}
+export { getToken,openLink ,openLinkInCurrentTab};

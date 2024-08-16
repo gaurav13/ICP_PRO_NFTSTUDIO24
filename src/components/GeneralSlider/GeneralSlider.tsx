@@ -83,7 +83,7 @@ export default function GeneralSlider() {
                 </a>
               </li>
               <li>
-                <Image src={iconcoin} alt='Icon Comment' /> +500 NS24
+                <Image src={iconcoin} alt='Icon Comment' /> +500 BlockZa
               </li>
             </ul>
           </div>
@@ -116,7 +116,7 @@ export default function GeneralSlider() {
                 </a>
               </li>
               <li>
-                <Image src={iconcoin} alt='Icon Comment' /> +500 NS24
+                <Image src={iconcoin} alt='Icon Comment' /> +500 BlockZa
               </li>
             </ul>
           </div>
@@ -149,7 +149,7 @@ export default function GeneralSlider() {
                 </a>
               </li>
               <li>
-                <Image src={iconcoin} alt='Icon Comment' /> +500 NS24
+                <Image src={iconcoin} alt='Icon Comment' /> +500 BlockZa
               </li>
             </ul>
           </div>
@@ -182,7 +182,7 @@ export default function GeneralSlider() {
                 </a>
               </li>
               <li>
-                <Image src={iconcoin} alt='Icon Comment' /> +500 NS24
+                <Image src={iconcoin} alt='Icon Comment' /> +500 BlockZa
               </li>
             </ul>
           </div>

@@ -13,6 +13,10 @@ import { formatLikesCount } from '@/components/utils/utcToLocal';
 import tempimg from '@/assets/Img/banner-1.png';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
+import {
+  DIRECTORY_DINAMIC_PATH,
+  DIRECTORY_STATIC_PATH,
+} from '@/constant/routes';
 export default function Web3HomeSlider({ category }: { category?: any }) {
   const { t, changeLocale } = useLocalization(LANG);
   let [trendingDirectries, setTrendingDirectries] = useState([]);
@@ -176,21 +180,25 @@ export default function Web3HomeSlider({ category }: { category?: any }) {
                     e.preventDefault();
 
                     openArticleLink(
-                      `/directory?directoryId=${
-                        entry.length != 0 ? entry[0] : '#'
-                      }`
+                      entry[1].isStatic
+                        ? `${DIRECTORY_STATIC_PATH + entry[0]}`
+                        : `${
+                            entry.length != 0
+                              ? DIRECTORY_DINAMIC_PATH + entry[0]
+                              : DIRECTORY_DINAMIC_PATH + '#'
+                          }`
                     );
                   }}
                   className='Product-post direc'
                   style={{ maxWidth: '370px' }}
                 >
                   <div className='Product-post-inner'>
-                    <div className='img-pnl'>
+                    <div className='img-pnl homeslider'>
                       {/* <Image
                   src={'/images/b-b.png'}
                   width={213}
                   height={133}
-                  alt='Logo'
+                  alt='Blockza'
                 /> */}
                       <Image
                         src={entry[1]?.companyBanner ?? tempimg}
@@ -207,7 +215,7 @@ export default function Web3HomeSlider({ category }: { category?: any }) {
                             src={entry[1]?.companyLogo ?? '/images/l-b.png'}
                             width={15}
                             height={16}
-                            alt='Logo'
+                            alt='Blockza'
                           />
                         </div>
                         <div className='heading-txt-pnl'>
@@ -248,7 +256,7 @@ export default function Web3HomeSlider({ category }: { category?: any }) {
                         {entry[1]?.founderDetail}
                       </i>
                     </p>
-                    <div className='img-pl'>
+                    <div className='img-pnl'>
                       <Image
                         src={entry[1]?.founderImage ?? '/images/l-n.png'}
                         width={20}
@@ -258,7 +266,7 @@ export default function Web3HomeSlider({ category }: { category?: any }) {
 
                       <div>
                         <h5>{entry[1]?.founderName ?? ''}</h5>
-                        <p>Founder</p>
+                        <p>{t('Founder')}</p>
                       </div>
                     </div>
                   </div>
@@ -269,8 +277,8 @@ export default function Web3HomeSlider({ category }: { category?: any }) {
         </Slider>
       ) : (
         <h6 className='text-center'>
-         {t('No Related Company found')}{' '}
-          {categoryName ? `on ${categoryName} category` : ''}
+          {t('No Related Company found')}{' '}
+          {categoryName ? `${t('ON')} ${categoryName} ${t('Category')}` : ''}
         </h6>
       )}
     </>

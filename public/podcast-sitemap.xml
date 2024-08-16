@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="/page_sitemap.xsl"?>
+ <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+ 
+           <url>
+		       <loc>https://pro.blockza.io/podcast/1719995399237598951</loc>
+		       <lastmod>2024-08-08T01:12:22+00:00</lastmod>
+	         </url>
+           
+           <url>
+		       <loc>https://pro.blockza.io/podcast/1719993886744025733</loc>
+		       <lastmod>2024-08-08T01:12:14+00:00</lastmod>
+	         </url>
+           
+           <url>
+		       <loc>https://pro.blockza.io/podcast/1719993454421352405</loc>
+		       <lastmod>2024-08-08T01:12:06+00:00</lastmod>
+	         </url>
+           
+           <url>
+		       <loc>https://pro.blockza.io/podcast/1719997847099735726</loc>
+		       <lastmod>2024-08-08T01:11:54+00:00</lastmod>
+	         </url>
+           
+           <url>
+		       <loc>https://pro.blockza.io/podcast/1719997454685974149</loc>
+		       <lastmod>2024-08-08T01:11:47+00:00</lastmod>
+	         </url>
+           
+           <url>
+		       <loc>https://pro.blockza.io/podcast/1719997088588414679</loc>
+		       <lastmod>2024-08-08T01:11:20+00:00</lastmod>
+	         </url>
+           
+           <url>
+		       <loc>https://pro.blockza.io/podcast/1719996972688009708</loc>
+		       <lastmod>2024-08-05T08:30:38+00:00</lastmod>
+	         </url>
+           </urlset>

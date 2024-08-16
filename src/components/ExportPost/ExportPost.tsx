@@ -20,7 +20,7 @@ import Tippy from '@tippyjs/react';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { ARTICLE_STATIC_PATH } from '@/constant/routes';
+import { ARTICLE_DINAMIC_PATH, ARTICLE_STATIC_PATH, QUIZ_ROUTE } from '@/constant/routes';
 
 export default function ExportPost({
   entry,
@@ -98,7 +98,13 @@ export default function ExportPost({
         <div
           className='img-pnl'
           style={{ cursor: 'pointer' }}
-          onClick={() => router.push(entry?.isStatic ? `${ARTICLE_STATIC_PATH + entryId}` : `/article?articleId=${entryId}`)}
+          onClick={() =>
+            router.push(
+              entry?.isStatic
+                ? `${ARTICLE_STATIC_PATH + entryId}`
+                : `${ARTICLE_DINAMIC_PATH + entryId}`
+            )
+          }
         >
           {/* <Image src={Post} alt='Post' /> */}
           <div
@@ -119,7 +125,7 @@ export default function ExportPost({
               <div className='promotedlable'>
                 <PromotedSVG />{' '}
                 <p className='mb-0' style={{ fontWeight: '600' }}>
-                {t("Promoted Article")}
+                  {t('Promoted Article')}
                 </p>
               </div>
             )}
@@ -167,7 +173,7 @@ export default function ExportPost({
               <div className='txet-pnl'>
                 <h6>
                   <Link href={`/profile?userId=${authorId}`}>
-                    By {user?.name[0] ?? ''}{' '}
+                    {t('By')} {user?.name[0] ?? ''}{' '}
                     <p className='m-0'>{user?.designation[0] ?? ''}</p>
                   </Link>
                   {/* <Button>
@@ -187,7 +193,13 @@ export default function ExportPost({
           </p> */}
           <div className='cut'>
             <h2
-              onClick={() => router.push(entry?.isStatic ? `${ARTICLE_STATIC_PATH + entryId}` : `/article?articleId=${entryId}`)}
+              onClick={() =>
+                router.push(
+                  entry?.isStatic
+                    ? `${ARTICLE_STATIC_PATH + entryId}`
+                    : `${ARTICLE_DINAMIC_PATH + entryId}`
+                )
+              }
               style={{ cursor: 'pointer' }}
             >
               {entry?.pressRelease && (
@@ -209,14 +221,18 @@ export default function ExportPost({
               dangerouslySetInnerHTML={{ __html: entry?.description ?? '' }}
             /> */}
             {parse(entry?.description ?? '')}
-            <div style={{ minHeight: 300 }}></div>
+            <div style={{ minHeight: 300 }} />
           </div>
           <Link
-            href={entry?.isStatic ? `${ARTICLE_STATIC_PATH + entryId}` : `/article?articleId=${entryId}`}
+            href={
+              entry?.isStatic
+                ? `${ARTICLE_STATIC_PATH + entryId}`
+                : `${ARTICLE_DINAMIC_PATH + entryId}`
+            }
             // onClick={(e) => e.preventDefault()}
             className='show-more-link'
           >
-            {t('show more')} <i className='fa fa-caret-down'></i>
+            {t('show more')} <i className='fa fa-caret-down' />
           </Link>
           <div className='count-description-pnl'>
             <div className='flex-wali-div'>
@@ -228,7 +244,7 @@ export default function ExportPost({
                   <div>{parseInt(entry?.likes ?? '0')}</div>
                 </li>
               </ul> */}
-              {/* <div></div> */}
+              {/* <div/> */}
               <h6
                 className='me-2'
                 style={{
@@ -240,7 +256,7 @@ export default function ExportPost({
                 }}
               >
                 <div className='viewbox'>
-                  <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
+                  <i className='fa fa-eye fill blue-icon fa-lg me-1' />
                   {t('Views')} <span className='mx-1'>|</span>
                   {formatLikesCount(parseInt(entry?.views)) ?? 0}
                 </div>
@@ -292,8 +308,10 @@ export default function ExportPost({
                 // style={{ cursor: 'pointer' }}
                 // onClick={() => router.push('/nft-article-quiz')}
                 >
-                  <Link href={entry?.isStatic ? `${ARTICLE_STATIC_PATH + entryId}` : `/article?articleId=${entryId}`}>
-                    {t('take quiz')} <i className='fa fa-angle-right'></i>
+                  <Link
+                    href={QUIZ_ROUTE }
+                  >
+                    {t('take quiz')} <i className='fa fa-angle-right' />
                   </Link>
                 </li>
               </ul>

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import { Row, Col, Dropdown, Spinner } from 'react-bootstrap';
 import 'react-toastify/dist/ReactToastify.css';
@@ -63,6 +63,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import ConnectModal from '@/components/Modal';
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 import { canisterId as commentCanisterId } from '@/dfx/declarations/comment';
+import { canisterId as entryCanisterId } from '@/dfx/declarations/entry';
+
 import PromotedSVG from '@/components/PromotedSvg/Promoted';
 import Tippy from '@tippyjs/react';
 import { ARTICLE_FEATURED_IMAGE_ASPECT, profileAspect } from '@/constant/sizes';
@@ -80,15 +82,21 @@ import useSearchParamsHook from '@/components/utils/searchParamsHook';
 import DirectorySlider from '@/components/CompanySlider/CompanySlider';
 import Web3HomeSlider from '@/components/web3Homeslider/Web3homeSlider';
 import PodcastHomeSlider from '@/components/PodcastSliderHome/PodcastHomeSlider';
-import { ARTICLE_STATIC_PATH, Podcast_STATIC_PATH } from '@/constant/routes';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+import {
+  ARTICLE_DINAMIC_PATH,
+  ARTICLE_STATIC_PATH,
+  DIRECTORY_DINAMIC_PATH,
+  DIRECTORY_STATIC_PATH,
+  Podcast_DINAMIC_PATH,
+  Podcast_STATIC_PATH,
+} from '@/constant/routes';
+import { SocialShimmer } from 'react-content-shimmer';
+import CustomeShimmer from '@/components/Shimmers/CustomeShimmer';
+import CustomeShimmerSlider from '@/components/Shimmers/CustomeShimmer';
+import ArticleShimmer from '@/components/Shimmers/ArticleShimmer';
+import { number } from 'yup';
+import { Null } from '@dfinity/candid/lib/cjs/idl';
+import { debounce } from '@/lib/utils';
 
 function HomeArticle({ article, small }: { article: any; small?: boolean }) {
   let [commentVal, setCommentVal] = useState('');
@@ -96,14 +104,14 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
     article[1].comment.comments ?? 0
   );
   const [showConnectModal, setShowConnectModal] = useState(false);
+  const [reward, setRewardperuser] = useState<any>(null);
+  const [quizId, setQuizId] = useState<any>(null);
 
-  const [userImage, setuserImage] = useState('');
+  const [userImage, setuserImage] = useState<string>('');
   const [isCommenting, setIsCommenting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  let [likeCount, setLikeCount] = useState(0 ?? Number(article[1].likes));
-  let [isliked, setIsLiked] = useState(
-    article[1]?.likedUsers?.some((u: any) => u?.toString() == article[1].userId)
-  );
+  let [likeCount, setLikeCount] = useState(Number(article[1].likes) ?? 0);
+  let [isliked, setIsLiked] = useState(false);
 
   const { auth, setAuth, identity, principal } = useConnectPlugWalletStore(
     (state) => ({
@@ -135,10 +143,10 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
     e.preventDefault();
     logger(commentVal.trim().length, 'c2');
     if (commentVal.trim().length < 1) {
-      return toast.error("Comment can't be empty.");
+      return toast.error(t("Comment can't be empty."));
     }
     if (commentVal.trim().length > 400) {
-      return toast.error("Comment can't be more then 400 characters.");
+      return toast.error(t("Comment can't be more then 400 characters."));
     }
     try {
       if (!isUserConnected(auth, handleConnectModal)) return;
@@ -158,26 +166,16 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
       const addedComment = await commentsActor.addComment(
         commentVal,
         userCanisterId,
+        entryCanisterId,
         article[0],
         article[1]?.title,
         entrytype
       );
-      // const user = await auth.actor.get_user_details([principal]);
-      // const dateNow = moment.utc().format('MMMM Do, YYYY');
-      // const newComment = {
-      //   creation_time: utcToLocal('', 'MMMM Do, YYYY, HH:mm'),
-      //   user: user.ok[1],
-      //   content: currentComment,
-      //   userId: principal,
-      // };
-      // setUserArticleComments((prev: any) => {
-      //   return [newComment, ...prev];
-      // });
       if (addedComment.ok) {
         setIsCommenting(false);
         setCommentsLength((pre: any) => pre + 1);
         setCommentVal('');
-        toast.success('Comment added successfully.');
+        toast.success(t('Comment added successfully.'));
       } else {
         setIsCommenting(false);
         toast.error(t('Something went wrong.'));
@@ -233,29 +231,26 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
   };
   let copyToClipboard = (e: any, link: string) => {
     e.preventDefault();
-    let newPath = path.split('/');
-    // newPath = newPath + link;
-    // const currentURL = window.location.href.split('/');
-    // const fetched = currentURL[2] + '/';
-    // logger(currentURL, 'PEPEPEPEPEP');
     let location = window.navigator.clipboard.writeText(window.location.href);
-    toast.success('URL copied to clipboard');
+    toast.success(t('URL copied to clipboard'));
   };
   const getUser = async (userId: string) => {
-    let newUser = null;
-    if(!userId) return;
-    newUser = await auth.actor.get_user_details([userId]);
-    logger(newUser, '34a344');
-    if (newUser.ok) {
-      if (newUser.ok[1].profileImg.length != 0) {
-        let userImg = getImage(newUser.ok[1].profileImg[0]);
-        setuserImage(userImg);
+    if (!userId) return;
+    let res = await auth.actor.get_user_name(identity?._principal);
+    let user: { image: []; name: string; designation: string } | undefined =
+      fromNullable(res);
+    if (user) {
+      let userImage: string | undefined = fromNullable(user?.image);
+      if (userImage) {
+        setuserImage(userImage);
       }
     }
   };
+  const debouncedFetchResults = useCallback(debounce(getUser, 500), []);
+
   useEffect(() => {
     if (identity) {
-      getUser(identity?._principal?.toString());
+      debouncedFetchResults(identity?._principal?.toString());
       if (identity._principal) {
         if (
           article[1]?.likedUsers?.some(
@@ -275,12 +270,28 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
     setLikeCount(Number(article[1].likes));
     logger(
       {
-        liked: article[1].userId,
-        article: article[1].likedUsers[0]?.toString(),
+        liked: article[1],
       },
       'article245'
     );
   }, [article]);
+
+  let getQuizOfEntry = async (articleId: any) => {
+    const entryActor = makeEntryActor({
+      agentOptions: {
+        identity,
+      },
+    });
+    let quiz = await entryActor.getOnlyActiveQuizOfArticles(articleId);
+    if (quiz && quiz.length != 0) {
+      setQuizId(quiz[0][0]);
+      setRewardperuser(quiz[0][1][0]);
+    } else {
+      setQuizId('');
+    }
+  };
+  // console.log("Stored values:", quizId, reward);
+
   const { t, changeLocale } = useLocalization(LANG);
   return (
     <>
@@ -293,7 +304,7 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
         <div className='social-space-post'>
           {article[1]?.comment && (
             <div className='header-pnl'>
-              {/* <div className='img-pnl'></div> */}
+              {/* <div className='img-pnl'/> */}
               {article[1].comment.image ? (
                 <Image
                   alt='commenter'
@@ -320,17 +331,17 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                   <li>
                     <Link
                       style={{ pointerEvents: 'none' }}
-                      href='https://nftstudio24.com/news/'
+                      href='https://blockza.io/news/'
                     >
-                      <i className='fa fa-ellipsis-h'></i>
+                      <i className='fa fa-ellipsis-h' />
                     </Link>
                   </li>
                   <li>
                     <Link
                       style={{ pointerEvents: 'none' }}
-                      href='https://nftstudio24.com/news/'
+                      href='https://blockza.io/news/'
                     >
-                      <i className='fa fa-close'></i>
+                      <i className='fa fa-close' />
                     </Link>
                   </li>
                 </ul>
@@ -351,9 +362,16 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                   className='user-pf-img'
                   height={60}
                 />
-
                 <div className='txty-pnl'>
-                  <h6>{t('by')}</h6>
+                  <h2
+                    style={{
+                      color: '#000',
+                      fontSize: '12px',
+                      fontWeight: '400',
+                    }}
+                  >
+                    {t('by')}
+                  </h2>
                   <h4
                     onClick={() =>
                       openArticleLink(`/profile?userId=${article[1].userId}`)
@@ -394,26 +412,40 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                       article[1]?.directory
                     ) {
                       openArticleLink(
-                        `/directory?directoryId=${article.length != 0 ? article[1]?.companyId : '#'
-                        }`
+                        article[1]?.directory[0].isStatic
+                          ? `${DIRECTORY_STATIC_PATH + article[1]?.companyId}`
+                          : `${
+                              article.length != 0
+                                ? DIRECTORY_DINAMIC_PATH + article[1]?.companyId
+                                : DIRECTORY_DINAMIC_PATH + '#'
+                            }`
                       );
                     } else {
                       openArticleLink(
-                        `/category-details?category=${article.length != 0 ? article[1]?.category[0] : '#'
+                        `/category-details?category=${
+                          article.length != 0 ? article[1]?.category[0] : '#'
                         }`
                       );
                     }
                   }}
                 >
-                  <h6>0n</h6>
+                  <h2
+                    style={{
+                      fontSize: '12px',
+                      fontWeight: '400',
+                      color: '#000',
+                    }}
+                  >
+                    {t('ON')}
+                  </h2>
                   <h4 className='mb-0' style={{ lineHeight: 1 }}>
                     {article[1]?.isCompanySelected
                       ? article[1]?.directory
                         ? article[1]?.directory[0].company.length > 15
                           ? `${article[1]?.directory[0].company.slice(
-                            0,
-                            15
-                          )}...`
+                              0,
+                              15
+                            )}...`
                           : article[1]?.directory[0].company
                         : article[1].categoryName
                       : article[1].categoryName}
@@ -424,9 +456,9 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                     {article[1]?.isCompanySelected && article[1]?.directory
                       ? article[1]?.directory[0].shortDescription.length > 10
                         ? `${article[1]?.directory[0].shortDescription.slice(
-                          0,
-                          10
-                        )}...`
+                            0,
+                            10
+                          )}...`
                         : article[1]?.directory[0].shortDescription
                       : ''}
                   </p>
@@ -439,10 +471,10 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                   article[1].isPodcast
                     ? article[1].isStatic
                       ? `${Podcast_STATIC_PATH + article[0]}`
-                      : `/podcast?podcastId=${article[0] ?? 'noarticlefound'}`
+                      : `${Podcast_DINAMIC_PATH + article[0]}`
                     : article[1].isStatic
-                      ? `${ARTICLE_STATIC_PATH + article[0]}`
-                      : `/article?articleId=${article[0] ?? 'noarticlefound'}`
+                    ? `${ARTICLE_STATIC_PATH + article[0]}`
+                    : `${ARTICLE_DINAMIC_PATH + article[0]}`
                 )
               }
               style={{
@@ -475,7 +507,7 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                       className='me-2 '
                     />{' '} */}
                 <p className='mb-0' style={{ fontWeight: '600' }}>
-                {t("Promoted Article")}
+                  {t('Promoted Article')}
                 </p>
               </div>
             )}
@@ -486,10 +518,10 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                   article[1].isPodcast
                     ? article[1].isStatic
                       ? `${Podcast_STATIC_PATH + article[0]}`
-                      : `/podcast?podcastId=${article[0] ?? 'noarticlefound'}`
+                      : `${Podcast_DINAMIC_PATH + article[0]}`
                     : article[1].isStatic
-                      ? `${ARTICLE_STATIC_PATH + article[0]}`
-                      : `/article?articleId=${article[0] ?? '#'}`
+                    ? `${ARTICLE_STATIC_PATH + article[0]}`
+                    : `${ARTICLE_DINAMIC_PATH + article[0]}`
                 }
                 target='_self'
               >
@@ -520,17 +552,25 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                     : article[1]?.seoExcerpt
                   : ''}
               </h4>
-              <h6>{article[1]?.userName}</h6>
+              <h2
+                style={{
+                  color: '#6a6969',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                }}
+              >
+                {article[1]?.userName}
+              </h2>
             </div>
             <Link
               href={
                 article[1].isPodcast
                   ? article[1].isStatic
                     ? `${Podcast_STATIC_PATH + article[0]}`
-                    : `/podcast?podcastId=${article[0]}`
+                    : `${Podcast_DINAMIC_PATH + article[0]}`
                   : article[1].isStatic
-                    ? `${ARTICLE_STATIC_PATH + article[0]}`
-                    : `/article?articleId=${article[0]}`
+                  ? `${ARTICLE_STATIC_PATH + article[0]}`
+                  : `${ARTICLE_DINAMIC_PATH + article[0]}`
               }
               className='learn-more-btn'
             >
@@ -540,8 +580,14 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
           </div>
           <div className='txt-pnl'>
             <ul className='post-comment-list'>
+              {/* {reward ?
               <li>
-                <Image src={iconcoin} alt='Icon Comment' /> +500 NS24
+            <Image src={iconcoin} alt='Icon Comment' /> +{parseInt(reward)}NS24
+              </li> :
+              ""} */}
+              <li>
+                <Image src={iconcoin} alt='Icon Comment' /> +{article[1].reward}{' '}
+                BlockZa
               </li>
               <li>
                 <a
@@ -549,16 +595,17 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                     article[1].isPodcast
                       ? article[1].isStatic
                         ? `${Podcast_STATIC_PATH + article[0]}`
-                        : `/podcast?podcastId=${article[0]}`
+                        : `${Podcast_DINAMIC_PATH + article[0]}`
                       : article[1].isStatic
-                        ? `${ARTICLE_STATIC_PATH + article[0]}`
-                        : `/article?articleId=${article[0]}`
+                      ? `${ARTICLE_STATIC_PATH + article[0]}`
+                      : `${ARTICLE_DINAMIC_PATH + article[0]}`
                   }
                   className='mr-3'
                 >
                   <Image
-                    src={`${isliked ? '/images/liked.svg' : '/images/like.svg'
-                      }`}
+                    src={`${
+                      isliked ? '/images/liked.svg' : '/images/like.svg'
+                    }`}
                     width={25}
                     height={25}
                     alt='Icon Thumb'
@@ -572,10 +619,10 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                     article[1].isPodcast
                       ? article[1].isStatic
                         ? `${Podcast_STATIC_PATH + article[0]}?route=comments`
-                        : `/podcast?podcastId=${article[0]}&route=comments`
+                        : `${Podcast_DINAMIC_PATH + article[0]}&route=comments`
                       : article[1].isStatic
-                        ? `${ARTICLE_STATIC_PATH + article[0]}?route=comments`
-                        : `/article?articleId=${article[0]}&route=comments`
+                      ? `${ARTICLE_STATIC_PATH + article[0]}?route=comments`
+                      : `${ARTICLE_DINAMIC_PATH + article[0]}&route=comments`
                   }
                 >
                   <Image src={iconmessage} alt='Icon Comment' />{' '}
@@ -601,10 +648,9 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                 <div
                   className='d-flex align-items-center gap-1'
                   style={{ cursor: 'pointer' }}
-                  onClick={likeEntry}
                 >
                   <div className='viewbox'>
-                    <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
+                    <i className='fa fa-eye fill blue-icon fa-lg me-1' />
                     <b>{t('Views')}</b> <span className='mx-1'>|</span>
                     <b>{formatLikesCount(parseInt(article[1]?.views)) ?? 0}</b>
                   </div>
@@ -618,8 +664,9 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                   onClick={likeEntry}
                 >
                   <Image
-                    src={`${isliked ? '/images/liked.svg' : '/images/like.svg'
-                      }`}
+                    src={`${
+                      isliked ? '/images/liked.svg' : '/images/like.svg'
+                    }`}
                     width={25}
                     height={25}
                     alt='Icon Thumb'
@@ -637,8 +684,7 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
               <li>
                 <a href='#' onClick={fouceOnInputField}>
                   <Image src={iconmessage} alt='Icon Comment' />{' '}
-                  {commentsLength ?? 0}
-                  {t('Comments')}
+                  {commentsLength ?? 0} {t('Comments')}
                 </a>
               </li>
               {/* <li>
@@ -691,9 +737,9 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
           </div>
           <div
             className='footer-pnl'
-          // onClick={() =>
-          //   openArticleLink(`/article?articleId=${article[0]}&route=comments`)
-          // }
+            // onClick={() =>
+            //   openArticleLink(`${ARTICLE_DINAMIC_PATH+article[0]}&route=comments`)
+            // }
           >
             <div
               className=''
@@ -730,7 +776,7 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                       <Spinner animation='border' size='sm' />
                     ) : (
                       <Link href='#' onClick={sendcomment}>
-                        <i className='fa fa-send'></i>
+                        <i className='fa fa-send' />
                       </Link>
                     )}
                   </li>
@@ -743,7 +789,7 @@ function HomeArticle({ article, small }: { article: any; small?: boolean }) {
                       style={{ pointerEvents: 'none' }}
                       className='disabled'
                     >
-                      <i className='fa fa-send'></i>
+                      <i className='fa fa-send' />
                     </Link>
                   </li>
                 </ul>
@@ -767,9 +813,12 @@ export default function Authenticated() {
   const [paginatedEntries, setPaginatedEntries] = useState<any[]>([]);
 
   const [entriesAmount, setEntriesAmount] = useState(0);
+  const [entriesLength, setEntriesLength] = useState(0);
+
   const [isArticleLoading, setIsArticleLoading] = useState<any>(true);
   const [HideTrendinpost, setHideTrendinpost] = useState<any>(true);
-
+  const [reward, setRewardperuser] = useState([]);
+  const [quizId, setQuizId] = useState<any>(null);
   const { auth, setAuth, identity, principal } = useConnectPlugWalletStore(
     (state) => ({
       auth: state.auth,
@@ -778,6 +827,7 @@ export default function Authenticated() {
       principal: state.principal,
     })
   );
+
   const urlparama = useSearchParamsHook();
   const searchParams = new URLSearchParams(urlparama);
   let cRoute = searchParams.get('route');
@@ -791,29 +841,30 @@ export default function Authenticated() {
   let openArticleLink = (articleLink: any) => {
     router.push(articleLink);
   };
+  const userAcotr = makeUserActor({
+    agentOptions: {
+      identity,
+    },
+  });
 
+  const commentsActor = makeCommentActor({
+    agentOptions: {
+      identity,
+    },
+  });
+  const entryActor = makeEntryActor({
+    agentOptions: {
+      identity,
+    },
+  });
   let refineEntries = async (entriesList: any) => {
-    const userAcotr = makeUserActor({
-      agentOptions: {
-        identity,
-      },
-    });
-
-    const commentsActor = makeCommentActor({
-      agentOptions: {
-        identity,
-      },
-    });
-    const entryActor = makeEntryActor({
-      agentOptions: {
-        identity,
-      },
-    });
-
     for (let entry = 0; entry < entriesList.length; entry++) {
       let newUser = null;
       let TempDirectory = null;
       var authorId = entriesList[entry][1].user.toString();
+      let entryId = entriesList[entry][0];
+
+      // logger(entriesList[entry][1].reward=quiz[0][1][0] , 'efwfewefqwefweqf')
       newUser = await userAcotr.get_user_details([authorId]);
       const comments = await commentsActor.getComments(entriesList[entry][0]);
       let resp = await entryActor.get_category(
@@ -822,9 +873,16 @@ export default function Authenticated() {
       let category: any = fromNullable(resp);
       let categoryName = 'No Category';
       let categoryLogo: any = iconbnb;
-      if (category) {
-        logger({ category }, 'categorytt');
+      let quiz = await entryActor.getOnlyActiveQuizOfArticles(entryId);
+      if (quiz && quiz.length != 0) {
+        logger(quiz[0][1][0], 'categorytt');
 
+        // entriesList[entry][1].reward=2;
+        entriesList[entry][1].reward = parseInt(quiz[0][1][0]);
+      } else {
+        entriesList[entry][1].reward = 0;
+      }
+      if (category) {
         categoryName = category.name;
         if (category?.logo) {
           categoryLogo = getImage(category.logo);
@@ -900,10 +958,9 @@ export default function Authenticated() {
           entriesList[entry][1].image[0]
         );
       }
-
       entriesList[entry][1].directory = TempDirectory;
     }
-    logger({ entriesList }, 'list of enttttt');
+
     return entriesList;
   };
 
@@ -915,37 +972,19 @@ export default function Authenticated() {
         },
       });
 
-      const resp = await entryActor.getPaginatedEntries(0, 6);
+      const resp = await entryActor.getPaginatedEntries(0, 3);
       logger(resp, 'REsp of paginations');
       let tempEntries = resp.entries;
-      if (tempEntries.length > 5) {
-        const filteredEntries = tempEntries;
-        let refined = await refineEntries(filteredEntries);
-        setLatestEntry(refined);
-        // let [bcaa, ...restEntries] = refined;
-        // setEntries(restEntries);
-        setIsArticleLoading(false);
-      } else if (tempEntries.length != 0) {
-        let refined = await refineEntries(tempEntries);
-        // let [bcaa, ...restEntries] = refined;
-        // setEntries(restEntries);
-        logger(refined, 'refined');
-        setLatestEntry(refined);
-        setIsArticleLoading(false);
-        // setIsArticleLoading(false)
-        // setLatestEntry(refined[0]);
-      } else {
-        setIsArticleLoading(false);
-      }
-      // setEntryId(templatestEntry[0]);
-      // logger('pop');
+      setEntriesAmount(parseInt(resp.amount));
+      let refined = await refineEntries(tempEntries);
+
+      setLatestEntry(refined);
+      setIsArticleLoading(false);
     } catch (err) {
       setIsArticleLoading(false);
-      // logger('pop');
     }
   };
   const getNewEntries = async () => {
-    logger('new entries were called');
     try {
       const entryActor = makeEntryActor({
         agentOptions: {
@@ -956,6 +995,16 @@ export default function Authenticated() {
       // if (entriesAmount > 5) {
       //   startIndex = lastIndex > entriesAmount ? entriesAmount - 1 : lastIndex;
       // }
+      if (entriesAmount < paginatedEntries.length + 3) {
+        if (entriesAmount < entriesLength) {
+          setEntriesLength(0);
+          startIndex = 0;
+        } else {
+          startIndex = entriesLength;
+          setEntriesLength((pre) => pre + 3);
+          logger({ entriesAmount, entriesLength }, 'asgsafdgasgsadgads');
+        }
+      }
 
       logger(startIndex, 'getting for diddd');
       const resp = await entryActor.getPaginatedEntries(startIndex, 3);
@@ -983,19 +1032,11 @@ export default function Authenticated() {
       // logger('pop');
     }
   };
-  let copyToClipboard = (e: any, link: string) => {
-    e.preventDefault();
-    let newPath = path.split('/');
-    // newPath = newPath + link;
-    // const currentURL = window.location.href.split('/');
-    // const fetched = currentURL[2] + '/';
-    // logger(currentURL, 'PEPEPEPEPEP');
-    let location = window.navigator.clipboard.writeText(window.location.href);
-    toast.success('URL copied to clipboard');
-  };
+  const debouncedFetchResults = useCallback(debounce(getEntries, 500), []);
+
   useEffect(() => {
-    getNewEntries();
-    getEntries();
+    // getNewEntries();
+    debouncedFetchResults('');
   }, []);
   useEffect(() => {
     if (cRoute && auth.state === 'initialized') {
@@ -1013,12 +1054,20 @@ export default function Authenticated() {
   return (
     <>
       <main id='main' className='new-home logged-main'>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         <div className='main-inner home'>
-          <Head>
-            <title>Hi</title>
-          </Head>
           <div className='section scroll-anime anime-down' id='news'>
             <Row>
+              <div className='col-xl-12 col-lg-12 col-md-12'>
+                <ins
+                  className='adsbygoogle'
+                  data-ad-layout='in-article'
+                  data-ad-format='fluid'
+                  data-ad-client='ca-pub-8110270797239445'
+                  data-ad-slot='3863906898'
+                  style={{ display: 'block', textAlign: 'center' }}
+                />
+              </div>
               <Col xxl='12' xl='12' lg='12' md='12' sm='12'>
                 <div className='feed-page-main'>
                   <div className='left-side'>
@@ -1056,7 +1105,7 @@ export default function Authenticated() {
                             </h4>
                           </div>
                         </div>
-                        <div className='spacer-20'></div>
+                        <div className='spacer-20' />
 
                         <CompanyListSidebar />
                       </Col>
@@ -1076,7 +1125,7 @@ export default function Authenticated() {
                         {/* <LeadershipPost more={false} /> */}
                       </Col>
                       <Col xl='12' lg='12' className='heding'>
-                        <div className='spacer-20'></div>
+                        <div className='spacer-20' />
                         <Dropdown
                           onClick={() => setHideTrendinpost((pre: any) => !pre)}
                         >
@@ -1087,9 +1136,9 @@ export default function Authenticated() {
                           >
                             {t('Trending')}{' '}
                             {HideTrendinpost ? (
-                              <i className='fa fa-angle-down'></i>
+                              <i className='fa fa-angle-down' />
                             ) : (
-                              <i className='fa fa-angle-right'></i>
+                              <i className='fa fa-angle-right' />
                             )}
                           </Dropdown.Toggle>
 
@@ -1102,7 +1151,7 @@ export default function Authenticated() {
                         </Dropdown.Item>
                       </Dropdown.Menu> */}
                         </Dropdown>
-                        <div className='spacer-20'></div>
+                        <div className='spacer-20' />
                       </Col>
 
                       <span
@@ -1118,16 +1167,24 @@ export default function Authenticated() {
                     <div className='log-home '>
                       <div className='anime-right dashleft-pnl'>
                         <Row>
-                          {isArticleLoading ? (
-                            <div className='d-flex justify-content-center'>
-                              <Spinner />
-                            </div>
+                          <Col>
+                         <iframe
+                              src={LANG=="en"?'https://www.chatbase.co/chatbot-iframe/vXOyMigraOFfiJ7f5O1Il':"https://www.chatbase.co/chatbot-iframe/384SXpy6Uf9FJnTpRTgef"}
+                              frameBorder='0'
+                              className='bootIframe'
+                            ></iframe>
+                          </Col>
+                        </Row>
+                        <Row>
+                          {isArticleLoading && latestEntry.length == 0 ? (
+                            <ArticleShimmer />
                           ) : (
-                            latestEntry.length > 0 && (
+                            latestEntry.length > 0 &&
+                            !isArticleLoading && (
                               <HomeArticle article={latestEntry[0]} />
                             )
                           )}
-                          <div className='spacer-40'></div>
+                          <div className='spacer-40' />
                           <Col
                             xl='12'
                             lg='12'
@@ -1136,27 +1193,21 @@ export default function Authenticated() {
                             id='blockchain'
                           >
                             <h4>
-                              <Image src={iconrss} alt='RSS' />{' '}
-                              {t('Blockchain News')}
+                              <Image src={iconrss} alt='RSS' /> {t('Feeds')}
                             </h4>
-                            <div className='spacer-20'></div>
+                            <div className='spacer-20' />
                             {/* <GeneralSlider /> */}
                             <NewsSlider />
                           </Col>
                           {isArticleLoading ? (
-                            <div
-                              style={{
-                                width: '100%',
-                                height: 1100,
-                              }}
-                            ></div>
+                            <ArticleShimmer />
                           ) : (
                             latestEntry.length > 1 && (
                               <HomeArticle article={latestEntry[1]} />
                             )
                           )}
 
-                          <div className='spacer-40'></div>
+                          <div className='spacer-40' />
                           <Col xl='12' lg='12' md='12'>
                             <div className='anime-right'>
                               <Row>
@@ -1171,27 +1222,22 @@ export default function Authenticated() {
                                     <Image src={press} alt='Hot' />
                                     {t('Press Release')}
                                   </h4>
-                                  <div className='spacer-20'></div>
+                                  <div className='spacer-20' />
                                 </Col>
                                 <ReleaseSlider />
                               </Row>
                             </div>
                           </Col>
-                          <div className='spacer-30'></div>
+                          <div className='spacer-30' />
                           {isArticleLoading ? (
-                            <div
-                              style={{
-                                width: '100%',
-                                height: 1100,
-                              }}
-                            ></div>
+                            <ArticleShimmer />
                           ) : (
                             latestEntry.length > 2 && (
                               <HomeArticle article={latestEntry[2]} />
                             )
                           )}
 
-                          <div className='spacer-40'></div>
+                          <div className='spacer-40' />
                           <Col xl='12' lg='12' md='12'>
                             <div className='anime-left'>
                               <Row>
@@ -1206,7 +1252,7 @@ export default function Authenticated() {
                                     <Image src={stars} alt='Hot' />
                                     {t('Featured Campaigns')}{' '}
                                   </h4>
-                                  <div className='spacer-20'></div>
+                                  <div className='spacer-20' />
                                 </Col>
                                 <FeaturedSlider />
                               </Row>
@@ -1220,14 +1266,18 @@ export default function Authenticated() {
               </Col>
             </Row>
             <Row>
-              <Col xxl='3' xl='4' lg='12' md='12' sm='12'></Col>
+              <Col xxl='3' xl='4' lg='12' md='12' sm='12' />
               <Col xxl='9' xl='8' lg='12' md='12' className='log-home '>
                 <div className='anime-right dashleft-pnl'>
                   <Row>
                     <InfiniteScroll
                       dataLength={paginatedEntries.length} //This is important field to render the next data
-                      next={getNewEntries}
-                      scrollThreshold={'10px'}
+                      next={() => {
+                        setTimeout(() => {
+                          getNewEntries();
+                        }, 2000);
+                      }}
+                      // scrollThreshold={'10px'}
                       hasMore={true}
                       style={{ overflow: 'unset' }}
                       loader={
@@ -1235,8 +1285,8 @@ export default function Authenticated() {
                           <Spinner />
                         </div>
                       }
-                    // endMessage={<p>DUDE WHAT U WATCHING ?? ITS GONE</p>}
-                    // below props only if you need pull down functionality
+                      // endMessage={<p>DUDE WHAT U WATCHING ?? ITS GONE</p>}
+                      // below props only if you need pull down functionality
                     >
                       <div
                         className='mycls-w'
@@ -1245,11 +1295,12 @@ export default function Authenticated() {
                           flexDirection: 'column',
                           alignItems: 'flex-end',
                         }}
-                      //  className='d-flex flex-row flex-wrap gap-5'
+                        //  className='d-flex flex-row flex-wrap gap-5'
                       >
                         {paginatedEntries.map(
-                          (mappedEntry: any, index: number) =>
-                            isArticleLoading ? (
+                          (mappedEntry: any, index: number) => {
+                            logger(mappedEntry, 'mappedEntrymappedEntry');
+                            return isArticleLoading ? (
                               <div className='d-flex justify-content-center'>
                                 <Spinner />
                               </div>
@@ -1269,12 +1320,13 @@ export default function Authenticated() {
                                         md='12'
                                         className='heding w-100'
                                         id='blockchain'
+                                        key={index}
                                       >
                                         <h4>
                                           <Image src={iconrss} alt='RSS' />{' '}
-                                          {t('Blockchain News')}
+                                          {t('Feeds')}
                                         </h4>
-                                        <div className='spacer-20'></div>
+                                        <div className='spacer-20' />
                                         {/* <GeneralSlider /> */}
                                         <NewsSlider
                                           catagory={mappedEntry[1]?.category[0]}
@@ -1290,6 +1342,7 @@ export default function Authenticated() {
                                         lg='12'
                                         md='12'
                                         className='w-100'
+                                        key={index}
                                       >
                                         <div className='anime-right'>
                                           <Row>
@@ -1302,9 +1355,9 @@ export default function Authenticated() {
                                             >
                                               <h4>
                                                 <Image src={press} alt='Hot' />{' '}
-                                                Press Release
+                                                {t('Press Release')}
                                               </h4>
-                                              <div className='spacer-20'></div>
+                                              <div className='spacer-20' />
                                             </Col>
                                             <ReleaseSlider
                                               catagory={
@@ -1324,6 +1377,7 @@ export default function Authenticated() {
                                         lg='12'
                                         md='12'
                                         className='w-100'
+                                        key={index}
                                       >
                                         <div className='anime-left'>
                                           <Row>
@@ -1338,7 +1392,7 @@ export default function Authenticated() {
                                                 <Image src={stars} alt='Hot' />
                                                 {t('podcast')}{' '}
                                               </h4>
-                                              <div className='spacer-20'></div>
+                                              <div className='spacer-20' />
                                             </Col>
                                             <PodcastHomeSlider
                                               catagory={
@@ -1358,6 +1412,7 @@ export default function Authenticated() {
                                         lg='12'
                                         md='12'
                                         className='w-100'
+                                        key={index}
                                       >
                                         <div className='anime-right'>
                                           <Row>
@@ -1370,9 +1425,9 @@ export default function Authenticated() {
                                             >
                                               <h4>
                                                 <Image src={press} alt='Hot' />{' '}
-                                                Web3
+                                                {t('Web3 Directory New')}
                                               </h4>
-                                              <div className='spacer-20'></div>
+                                              <div className='spacer-20' />
                                             </Col>
 
                                             <Web3HomeSlider
@@ -1388,7 +1443,8 @@ export default function Authenticated() {
                                   )}
                                 </>
                               )
-                            )
+                            );
+                          }
                         )}
                       </div>
                     </InfiniteScroll>
