@@ -22,27 +22,20 @@ import ReactPaginate from 'react-paginate';
 import Tippy from '@tippyjs/react';
 import PodcastSVG from '@/components/podcastSVG/Podcastsvg';
 import { profileAspect } from '@/constant/sizes';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { ARTICLE_STATIC_PATH, Podcast_STATIC_PATH } from '@/constant/routes';
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-// const articleTabName = 'Articles';
-// const activityTabName = 'Activity';
-// const tabs = [
-//   activityTabName,
-//   'Comments',
-//   'Favorite Posts',
-//   'Favorite product Communities',
-//   articleTabName,
-// ];
+import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 
-export default function ActivityTab({ }: {}) {
+import {
+  ARTICLE_DINAMIC_PATH,
+  ARTICLE_STATIC_PATH,
+  DIRECTORY_DINAMIC_PATH,
+  DIRECTORY_STATIC_PATH,
+  Podcast_DINAMIC_PATH,
+  Podcast_STATIC_PATH,
+} from '@/constant/routes';
+import { Principal } from '@dfinity/principal';
+export default function ActivityTab({isAdmin,userId,userName}: {isAdmin?:boolean,userId?:string,userName?:string}) {
   const router = useRouter();
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,20 +45,6 @@ export default function ActivityTab({ }: {}) {
   const [forcePaginate, setForcePaginate] = useState(0);
   const { t, changeLocale } = useLocalization(LANG);
 
-  const articleTabName = t('Articles');
-  const activityTabName = t('activity');
-
-  const tabs = [
-    activityTabName,
-    articleTabName,
-    t('Comments'),
-    t('Favorite Posts '),
-    t('Favorite product Communities'),
-  ];
-
-  // const { isBlack } = useThemeStore((state) => ({
-  //   isBlack: state.isBlack,
-  // }));
   const { auth, identity } = useConnectPlugWalletStore((state) => ({
     auth: state.auth,
     identity: state.identity,
@@ -88,14 +67,8 @@ export default function ActivityTab({ }: {}) {
   let itemsPerPage = 10;
 
   const pageCount = Math.ceil(tempmyActivity.length / itemsPerPage);
-  // let endIndex =
-  //   forcePaginate === 0
-  //     ? itemsPerPage
-  //     : (forcePaginate * itemsPerPage) % myActivity.length;
-  let startIndex = forcePaginate * itemsPerPage;
 
   let currentItems = myActivity;
-  // logger({ currentItems, myActivity, startIndex }, 'THESEEE');
   const refineActivity = (activity: Activity): RefinedActivity => {
     const refinedActivity: RefinedActivity = {
       message: '',
@@ -107,89 +80,106 @@ export default function ActivityTab({ }: {}) {
       pressRelease: false,
       isPodcast: false,
       isWeb3: false,
-      shoudRoute :false,
-      isStatic:false
+      shoudRoute: false,
+      isStatic: false,
     };
+
     if (activity.activity_type.hasOwnProperty('subscribe')) {
-      refinedActivity.message = 'You subscribed to a User';
+      const translatedMessage = isAdmin?'You subscribed to a User':t('You subscribed to a User');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
     } else if (activity.activity_type.hasOwnProperty('create_podcats')) {
-      refinedActivity.message = 'You created a Podcast';
+      const translatedMessage = isAdmin?'You created a Podcast':t('You created a Podcast');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isPodcast = true;
     } else if (activity.activity_type.hasOwnProperty('create_pressRelease')) {
-      refinedActivity.message = 'You created a Press Release';
+      const translatedMessage = isAdmin?'You created a Press Release':t('You created a Press Release');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.pressRelease = true;
       refinedActivity.isStatic = activity.isStatic;
-      
     } else if (activity.activity_type.hasOwnProperty('like_web3')) {
-      refinedActivity.message = 'You liked a Company';
+      const translatedMessage = isAdmin?'You liked a Company':t('You liked a Company');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isWeb3 = true;
+      refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('create_web3')) {
-      refinedActivity.message = 'You created a Company';
+      const translatedMessage = isAdmin?'You created a Company':t('You created a Company');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isWeb3 = true;
+      refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('comment')) {
-      refinedActivity.message = 'You commented on an Article';
+      const translatedMessage = isAdmin?'You commented on an Article':t('You commented on an Article');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('comment_podcats')) {
-      refinedActivity.message = 'You commented on a Podcast';
+      const translatedMessage = isAdmin?'You commented on a Podcast':t('You commented on a Podcast');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isPodcast = true;
       refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('delete_podcats')) {
-      refinedActivity.message = 'You deleted a Podcast';
+      const translatedMessage = isAdmin?'You deleted a Podcast':t('You deleted a Podcast');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isPodcast = true;
       refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('delete_article')) {
-      refinedActivity.message = 'You deleted an Article';
+      const translatedMessage = isAdmin?'You deleted an Article':t('You deleted an Article');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isStatic = activity.isStatic;
     } else if (activity.activity_type.hasOwnProperty('delete_pressRelease')) {
-      refinedActivity.message = 'You deleted a Press Release';
+      const translatedMessage = isAdmin?'You deleted a Press Release':t('You deleted a Press Release');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.isStatic = activity.isStatic;
       refinedActivity.pressRelease = true;
     } else if (activity.activity_type.hasOwnProperty('comment_pressRelease')) {
-      refinedActivity.message = 'You commented on a Press Release';
+      const translatedMessage = isAdmin?'You commented on a Press Release':t('You commented on a Press Release');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.pressRelease = true;
       refinedActivity.isStatic = activity.isStatic;
-    }
-    else if (activity.activity_type.hasOwnProperty('promote')) {
-      refinedActivity.message = 'You promoted an article';
+    } else if (activity.activity_type.hasOwnProperty('promote')) {
+      const translatedMessage = isAdmin?'You promoted an article':t('You promoted an article');
+      refinedActivity.message = translatedMessage ?? 'Error';
       refinedActivity.title = activity.title;
       refinedActivity.pressRelease = false;
       refinedActivity.isPodcast = false;
       refinedActivity.isPromoted = true;
       refinedActivity.isStatic = activity.isStatic;
-
     } else if (activity.activity_type.hasOwnProperty('like')) {
       if (activity.isPodcast) {
-        refinedActivity.message = 'You liked a Podcast';
+        const translatedMessage = isAdmin?'You liked a Podcast':t('You liked a Podcast');
+        refinedActivity.message = translatedMessage ?? 'Error';
         refinedActivity.title = activity.title;
         refinedActivity.isPodcast = true;
         refinedActivity.isStatic = activity.isStatic;
       } else {
         if (activity.pressRelease) {
-          refinedActivity.message = 'You liked a Press Release';
+          const translatedMessage = isAdmin?'You liked a Press Release':t('You liked a Press Release');
+          refinedActivity.message = translatedMessage ?? 'Error';
           refinedActivity.title = activity.title;
           refinedActivity.pressRelease = true;
           refinedActivity.isStatic = activity.isStatic;
         } else {
-          refinedActivity.message = 'You liked an Article';
+          const translatedMessage = isAdmin?'You liked an Article':t('You liked an Article');
+          refinedActivity.message = translatedMessage ?? 'Error';
           refinedActivity.title = activity.title;
           refinedActivity.isStatic = activity.isStatic;
         }
       }
     } else if (activity.activity_type.hasOwnProperty('create')) {
+      const translatedMessage1 = isAdmin?'You Promoted an Article':t('You Promoted an Article');
+      const translatedMessage2 = isAdmin?'You created an Article':t('You created an Article');
       refinedActivity.message = activity.isPromoted
-        ? 'You Promoted an Article'
-        : 'You created an Article';
+        ? translatedMessage1
+        : translatedMessage2;
       refinedActivity.title = activity.title;
       refinedActivity.isStatic = activity.isStatic;
     }
@@ -202,7 +192,7 @@ export default function ActivityTab({ }: {}) {
     // refinedActivity.pressRelease = activity.pressRelease;
     refinedActivity.time = utcToLocal(activity.time.toString(), 'hh:mm A');
     refinedActivity.date = utcToLocal(activity.time.toString(), 'DD-MM-yyyy');
-    refinedActivity.shoudRoute=activity.shoudRoute;
+    refinedActivity.shoudRoute = activity.shoudRoute;
     return refinedActivity;
   };
   let paginatedActivities = async (
@@ -226,6 +216,7 @@ export default function ActivityTab({ }: {}) {
           activity.title = entry[0].company;
           activity.isWeb3 = true;
           activity.shoudRoute = true;
+          activity.isStatic = entry[0].isStatic;
         } else {
           // activity.title = 'not-found';
           activity.isWeb3 = true;
@@ -239,8 +230,7 @@ export default function ActivityTab({ }: {}) {
           activity.pressRelease = entry[0].pressRelease;
           activity.isPodcast = entry[0].isPodcast;
           activity.shoudRoute = true;
-          activity.isStatic=entry[0].isStatic; 
-
+          activity.isStatic = entry[0].isStatic;
 
           // if (entry[0].)
         } else {
@@ -262,7 +252,7 @@ export default function ActivityTab({ }: {}) {
             activity.pressRelease = false;
 
             activity.isPromoted = false;
-          };
+          }
           activity.shoudRoute = false;
         }
       }
@@ -275,18 +265,23 @@ export default function ActivityTab({ }: {}) {
     setIsLoading(false);
     setMyActivity(refinedActivities);
   };
-  const testimg = async () => {
+
+  const getActivities = async () => {
     const myActivities = await activityActor.getActivities();
+ 
 
     if (myActivities.ok) {
       let activities = myActivities.ok[0];
-      let tempact = [...activities];
+      setTempMyActivity(activities);
+      paginatedActivities(0, activities);
     } else {
+      setIsLoading(false);
     }
   };
-  const getActivities = async () => {
-    const myActivities = await activityActor.getActivities();
-    testimg();
+  const getActivitiesDashboard = async (userId:string) => {
+    let userPrincipal=Principal.fromText(userId)
+    const myActivities = await activityActor.getActivitiesDashboard(userPrincipal,userCanisterId);
+ 
 
     if (myActivities.ok) {
       let activities = myActivities.ok[0];
@@ -301,25 +296,22 @@ export default function ActivityTab({ }: {}) {
     let startIndex = event.selected * itemsPerPage;
     paginatedActivities(startIndex, tempmyActivity);
   };
+
   useEffect(() => {
-    // let endIndex = (forcePaginate * itemsPerPage) % myActivity.length;
-    // currentItems = myActivity.slice(forcePaginate, endIndex);
-  }, [myActivity]);
-  useEffect(() => {
-    // if (auth.state === 'initialized') {
-    // logger(userId);
+   
     if (auth.state === 'initialized') {
-      getActivities();
+      if(isAdmin && userId){
+        getActivitiesDashboard(userId)
+      }else{
+
+        getActivities();
+      }
     }
   }, [auth]);
-  useEffect(() => {
-    if (auth.state === 'initialized') {
-      getActivities();
-    }
-  }, []);
-let openLink=(link:any)=>{
-  router.push(link);
-}
+
+  let openLink = (link: any) => {
+    router.push(link);
+  };
   return (
     <div>
       <div
@@ -329,7 +321,7 @@ let openLink=(link:any)=>{
         {currentItems?.length > 0 ? (
           <div className='table-container'>
             <div className='table-container-inner '>
-              <Table className='activity-table small mb-0'>
+              <Table className={`activity-table small mb-0 ${isAdmin?"article-table table table-striped table-hover":""}`}>
                 <thead>
                   <tr>
                     <th>
@@ -339,7 +331,7 @@ let openLink=(link:any)=>{
                       <p>{t('date')}</p>
                     </th>
                     <th>
-                      <p>Time</p>
+                      <p>{t('Time')}</p>
                     </th>
                   </tr>
                 </thead>
@@ -348,10 +340,12 @@ let openLink=(link:any)=>{
                     <tr key={index}>
                       <td>
                         <div className='d-inline-flex align-items-start'>
-                          {activity.message ?? ''}
+                          {userName}{activity.message.slice(isAdmin?3:0) ?? ''}
                           {activity.isPromoted && (
                             <Tippy
-                              content={<p className='mb-0'>{t('Promoted Article')}</p>}
+                              content={
+                                <p className='mb-0'>{t('Promoted Article')}</p>
+                              }
                             >
                               <Image
                                 src={proimg}
@@ -364,7 +358,9 @@ let openLink=(link:any)=>{
                           )}
                           {activity?.pressRelease && (
                             <Tippy
-                              content={<p className='mb-0'> {t('Press Release')}</p>}
+                              content={
+                                <p className='mb-0'> {t('Press Release')}</p>
+                              }
                             >
                               <Image
                                 src={pressicon}
@@ -379,7 +375,7 @@ let openLink=(link:any)=>{
                             // </span>
                           )}
                           {activity?.isPodcast && (
-                            <Tippy content={<p className='mb-0'>Podcast</p>}>
+                            <Tippy content={<p className='mb-0'>{t('podcast')}</p>}>
                               <div
                                 className='position-relative ms-1'
                                 style={{
@@ -396,31 +392,52 @@ let openLink=(link:any)=>{
                             // </span>
                           )}
                           <Link
-                          onClick={(e)=>{
-                            e.preventDefault();
-                            if(activity.shoudRoute){
-
-                            
-                            if(activity.message == 'You subscribed to a User'){
-                              openLink(`/profile?userId=${activity.target}`)
-
-                            }else if(activity.isPodcast){
-                              openLink(activity.isStatic?`${Podcast_STATIC_PATH+activity.target}`:`/podcast?podcastId=${activity.target}`);
-                            }else if(activity.isWeb3){
-                              openLink(`/directory?directoryId=${activity.target}`);
-                            }else{
-                              openLink(activity.isStatic?`${ARTICLE_STATIC_PATH+activity.target}`:`/article?articleId=${activity.target}`);
-                            }
-                          }
-                          }}
-                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (activity.shoudRoute) {
+                                if (
+                                  activity.message == 'You subscribed to a User' || activity.message == "あなたはユーザー登録をしました"
+                                ) {
+                                  openLink(
+                                    `/profile?userId=${activity.target}`
+                                  );
+                                } else if (activity.isPodcast) {
+                                  openLink(
+                                    activity.isStatic
+                                      ? `${Podcast_STATIC_PATH + activity.target
+                                      }`
+                                      : `${Podcast_DINAMIC_PATH+activity.target}`
+                                  );
+                                } else if (activity.isWeb3) {
+                                  openLink(
+                                    activity.isStatic
+                                      ? `${DIRECTORY_STATIC_PATH +
+                                      activity.target
+                                      }`
+                                      : `${DIRECTORY_DINAMIC_PATH+activity.target}`
+                                  );
+                                } else {
+                                  openLink(
+                                    activity.isStatic
+                                      ? `${ARTICLE_STATIC_PATH + activity.target
+                                      }`
+                                      : `${ARTICLE_DINAMIC_PATH+activity.target}`
+                                  );
+                                }
+                              }
+                            }}
+                            href='#'
                             className='ms-1'
-                            style={{cursor:activity.shoudRoute?"pointer":"not-allowed"}}
+                            style={{
+                              cursor: activity.shoudRoute
+                                ? 'pointer'
+                                : 'not-allowed',
+                            }}
                           >
                             {' '}
                             {activity.title.length < 20
                               ? activity.title
-                              : `${activity.title.slice(0, 30)}...` ?? ''}
+                              : `${activity.title.slice(0, 30)}...`}
                           </Link>
                         </div>
                       </td>
@@ -437,7 +454,7 @@ let openLink=(link:any)=>{
             {isLoading ? (
               <Spinner />
             ) : (
-              <p className='h5 m-0'>No Recent Activity Found</p>
+              <p className='h5 m-0'>{t('No Recent Activity Found')}</p>
             )}
           </div>
         )}

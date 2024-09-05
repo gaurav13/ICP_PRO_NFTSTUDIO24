@@ -61,8 +61,22 @@ body {
         }
       }
     }
+    div {
+     
 
-    h6,
+      &.blue-text {
+        margin-top: 20px;
+        color: $white;
+        margin-bottom: 100px;
+        max-width: 330px;
+
+        @media (max-width: 1200px) {
+          max-width: 100%;
+          margin-bottom: 15px;
+        }
+      }
+    }
+    h6,div.heading6 
     p {
       font-size: 16px;
       font-weight: 500;
@@ -78,7 +92,7 @@ body {
         margin-bottom: 15px;
       }
     }
-    h6 {
+    h6,div.heading6 {
       font-weight: 700;
     }
     p {
@@ -242,6 +256,10 @@ body {
         @include animation-anime(transright, 1s, linear);
       }
     }
+    div.heading6{
+      color: #fff;
+      margin-bottom: 5px;
+    }
   }
 }
 
@@ -261,7 +279,7 @@ body {
 }
 
 @media (max-width: 1200px) {
-  body .footer h6 {
+  body .footer h6 ,div.heading6{
     margin-top: 20px;
   }
 }
@@ -270,7 +288,7 @@ body {
     font-size: 14px;
     display: inline-block;
   }
-  body .footer h6 {
+  body .footer h6 ,div.heading6 {
     font-size: 18px;
   }
   body .footer ul li a,

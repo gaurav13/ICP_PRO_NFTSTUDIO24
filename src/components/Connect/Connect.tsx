@@ -6,7 +6,7 @@ import * as React from 'react';
 import icpimage from '@/assets/Img/coin-image.png';
 // import { Modal } from 'flowbite-react';
 import { usePathname, useRouter } from 'next/navigation';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
 import { toast } from 'react-toastify';
 import {
@@ -43,9 +43,11 @@ import icongirl from '@/assets/Img/Icons/icon-girl-1.png';
 import { User } from '@/types/profile';
 import { getImage, getImageById } from '@/components/utils/getImage';
 import { ConnectPlugWalletSlice, UserAuth } from '@/types/store';
-import logger from '@/lib/logger';
 import { canisterId as ledgerCanisterId } from '@/dfx/declarations/icp_ledger_canister';
-import { makeLedgerCanister } from '@/dfx/service/actor-locator';
+import {
+  makeLedgerCanister,
+  makeTokenCanister,
+} from '@/dfx/service/actor-locator';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { Principal } from '@dfinity/principal';
 import iconlogo from '@/assets/Img/Icons/icon-logo.png';
@@ -61,6 +63,11 @@ import { E8S, GAS_FEE } from '@/constant/config';
 import { number, object, string } from 'yup';
 import instance from '@/components/axios';
 import SignInButton from '@/components/SignInButton';
+import { formatLikesCount } from '@/components/utils/utcToLocal';
+import { BUYTOKENS } from '@/constant/routes';
+import ConfirmationModel from '@/components/Modal/ConfirmationModel';
+import { MINIMUM_TOKEN_TRANSFER } from '@/constant/validations';
+import GlobalSearch from '@/components/GlobalContent/SearchModal';
 export default function Connect({
   hideRewards,
   hideUser,
@@ -72,6 +79,9 @@ export default function Connect({
 }) {
   const [pText, setPText] = React.useState('nothing');
   const [show, setShow] = React.useState<boolean | undefined>();
+  const [showTokenModle, setShowTokenModle] = React.useState<
+    boolean | undefined
+  >();
   const [plugConnected, setPlugConnected] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [isLoggin, setIsLoggin] = React.useState<boolean>(false);
@@ -84,13 +94,11 @@ export default function Connect({
   const [user, setUser] = React.useState<User | null>();
   const [profileImg, setProfileImg] = React.useState<string | null>();
   const [publicKey, setPublicKey] = React.useState<string | null>();
-  const [client, setClient] = React.useState<AuthClient>();
-  const [rewards, setRewards] = React.useState(0);
   const [userBalance, setUserBalance] = React.useState<undefined | number>();
   const [isTransfering, setIsTransfering] = React.useState(false);
   const [loginModalShow, setLoginModalShow] = React.useState(false);
   const pathname = usePathname();
-  const route = pathname.split('/')[1];
+  const route = pathname?.split('/')[1];
   const { t, changeLocale } = useLocalization(LANG);
   const {
     auth,
@@ -103,27 +111,40 @@ export default function Connect({
     setAuth,
     reward,
     balance,
+    tokensBalance,
     setReward,
     setBalance,
+    setTokensBalance,
+    setTokenSymbol,
+    tokenSymbol,
   } = useConnectPlugWalletStore((state) => ({
     auth: (state as ConnectPlugWalletSlice).auth,
     setAuth: (state as ConnectPlugWalletSlice).setAuth,
     reward: (state as ConnectPlugWalletSlice).reward,
     balance: (state as ConnectPlugWalletSlice).balance,
+    tokensBalance: (state as ConnectPlugWalletSlice).tokensBalance,
     userAuth: (state as ConnectPlugWalletSlice).userAuth,
     identity: (state as ConnectPlugWalletSlice).identity,
     setIdentity: (state as ConnectPlugWalletSlice).setIdentity,
     setReward: (state as ConnectPlugWalletSlice).setReward,
     setBalance: (state as ConnectPlugWalletSlice).setBalance,
+    setTokensBalance: (state as ConnectPlugWalletSlice).setTokensBalance,
     principal: (state as ConnectPlugWalletSlice).principal,
     setPrincipal: (state as ConnectPlugWalletSlice).setPrincipal,
     setUserAuth: (state as ConnectPlugWalletSlice).setUserAuth,
+    setTokenSymbol: (state as ConnectPlugWalletSlice).setTokenSymbol,
+    tokenSymbol: (state as ConnectPlugWalletSlice).tokenSymbol,
   }));
   const router = useRouter();
   const location = usePathname();
   const handleShow = () => setShow(true);
+  const handleShowTokenModle = () => setShowTokenModle(true);
   const handleClose = () => {
     setShow(false);
+    setIsLoggin(false);
+  };
+  const handleCloseTokenModle = () => {
+    setShowTokenModle(false);
     setIsLoggin(false);
   };
   const methods = authMethods({
@@ -131,7 +152,18 @@ export default function Connect({
     setIsLoading,
     handleClose,
   });
-
+  const icpTokenName = async () => {
+    if (auth.state !== 'initialized' || !identity) return;
+    const tokenActor = makeTokenCanister({
+      agentOptions: {
+        identity,
+      },
+    });
+    const tokenName = await tokenActor.icrc1_symbol();
+    if (tokenName) {
+      setTokenSymbol(tokenName);
+    }
+  };
   const initialTransferValues = {
     destination: '',
     amount: 0,
@@ -148,7 +180,7 @@ export default function Connect({
       }
     }),
     amount: number()
-      .test('min', 'Minimum 0.00000001 ICP can be sent.', (value) => {
+      .test('min', t('Minimum 0.00000001 ICP can be sent.'), (value) => {
         if (value && value >= 0.00000001) {
           return true;
         } else {
@@ -157,7 +189,7 @@ export default function Connect({
       })
       .test(
         'min',
-        'Sorry, there are not enough funds in your account',
+        t('Sorry, there are not enough funds in your account'),
         (value) => {
           if (balance && value) {
             let requiredICP = balance - gasFeeICP;
@@ -170,14 +202,51 @@ export default function Connect({
         }
       ),
   });
+  const tokensTransferSchema = object().shape({
+    destination: string().test('min', t('Not a valid address'), (value) => {
+      try {
+        Principal.fromText(value as string);
+        return true;
+      } catch {
+        return false;
+      }
+    }),
+    amount: number()
+      .test(
+        'min',
+        `${t(`Minimum`)} ${MINIMUM_TOKEN_TRANSFER} ${tokenSymbol} ${t(
+          'can be sent.'
+        )})`,
+        (value) => {
+          if (value && value >= MINIMUM_TOKEN_TRANSFER) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      )
+      .test(
+        'min',
+        t('Sorry, there are not enough funds in your account'),
+        (value) => {
+          if (tokensBalance && value) {
+            if (tokensBalance >= value) return true;
+          } else if (!value) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      ),
+  });
 
   const verifyConnection = async () => {
     if (!window.ic) {
-      return toast.error('Install Plug Wallet');
+      return toast.error(t('Install Plug Wallet'));
     }
     const connected = false; //await window.ic.plug.isConnected();
     if (connected) {
-      toast.success('Already connected');
+      toast.success(t('Already connected'));
       setPlugConnected(true);
       handleClose();
       return;
@@ -186,7 +255,7 @@ export default function Connect({
 
       const host = 'http://127.0.0.1:4943';
 
-      const onConnectionUpdate = async () => { };
+      const onConnectionUpdate = async () => {};
       try {
         const publicKey = await window.ic.plug.requestConnect({
           whitelist,
@@ -197,7 +266,7 @@ export default function Connect({
         setPlugConnected(true);
         handleClose();
       } catch {
-        toast.error("Couldn't connect to plug wallet");
+        toast.error(t('Could not connect to plug wallet'));
       }
     }
   };
@@ -230,6 +299,7 @@ export default function Connect({
     //     });
     // }
   };
+
   const disconnect = async () => {
     // if (getToken()) {
     //   localStorage.removeItem('token');
@@ -241,6 +311,7 @@ export default function Connect({
     }
   };
   const connect = async () => {
+    setLoginModalShow(false);
     setIsLoggin(true);
     const login = await methods.login();
   };
@@ -256,8 +327,38 @@ export default function Connect({
   };
   const copyPrincipal = () => {
     window.navigator.clipboard.writeText(principal);
-    toast.success('Address copied to clipboard', { autoClose: 1000 });
+    toast.success(t('Address copied to clipboard'), { autoClose: 1000 });
   };
+  /**
+  function getTokenBalance use to get token balance of user
+   @return token balance 
+   @perams null 
+    **/
+  const getTokenBalance = async () => {
+    if (auth.state !== 'initialized' || !identity) return;
+    let tokenActor = await makeTokenCanister({
+      agentOptions: {
+        identity,
+      },
+    });
+
+    try {
+      let myPrincipal = identity.getPrincipal();
+      let res = await tokenActor.icrc1_balance_of({
+        owner: myPrincipal,
+        subaccount: [],
+      });
+      let balance = parseInt(res);
+
+      setTokensBalance(balance);
+    } catch (error) {}
+  };
+  /**
+  function getBalance use to get icp balance of user
+   
+  @return icp balance 
+   @perams null 
+    **/
   const getBalance = async () => {
     if (auth.state !== 'initialized' || !identity) return;
     let ledgerActor = await makeLedgerCanister({
@@ -266,41 +367,56 @@ export default function Connect({
       },
     });
 
-    let acc: any = AccountIdentifier.fromPrincipal({
-      principal: identity.getPrincipal(),
-      // subAccount: identity.getPrincipal(),
-    });
-    let res = await ledgerActor.account_balance({
-      account: acc.bytes,
-    });
-    let balance = parseInt(res.e8s) / E8S;
-    setBalance(balance);
-    setUserBalance(balance);
+    try {
+      let acc: any = AccountIdentifier.fromPrincipal({
+        principal: identity.getPrincipal(),
+        // subAccount: identity.getPrincipal(),
+      });
+
+      let res = await ledgerActor.account_balance({
+        account: acc.bytes,
+      });
+
+      let balance = parseInt(res.e8s) / E8S;
+
+      setBalance(balance);
+      setUserBalance(balance);
+    } catch (error) {}
   };
   const getUser = async (res?: any) => {
     let tempUser = null;
+    let tempUserReward = null;
+    let tempReward = [];
+
     if (res) {
       tempUser = await res.get_user_details([]);
+      tempUserReward = await auth.actor.get_reward_of_user_count();
     } else {
       tempUser = await auth.actor.get_user_details([]);
+      tempUserReward = await auth.actor.get_reward_of_user_count();
+    }
+    if (tempUserReward) {
+      tempReward = tempUserReward;
     }
     if (tempUser.ok) {
       setUser(tempUser.ok[1]);
-      const unClaimedRewards = tempUser.ok[1].rewards.filter((reward: any) => {
-        return !reward.isClaimed;
-      });
+      // const unClaimedRewards = tempReward?.filter((reward: any) => {
+      //   return !reward.isClaimed;
+      // });
+
+      let allAmount = Number(tempReward?.all) ?? 0;
+      let claimedAmount = Number(tempReward?.claimed) ?? 0;
+      let unClaimedAmount = Number(tempReward?.unclaimed) ?? 0;
+
       // .reduce((acc: number, obj: any) => acc + parseInt(obj.amount), 0);
       // let rewardsInICP = unClaimedRewards / E8S;
-      setRewards(unClaimedRewards.length);
 
-      logger(unClaimedRewards.length, 'UNNNNNN');
-      setReward(unClaimedRewards.length);
+      setReward(unClaimedAmount ?? 0);
 
       if (tempUser.ok[1].isBlocked) {
         setUserAuth({ ...userAuth, status: tempUser.ok[1].isBlocked });
       }
       if (tempUser.ok[1].isAdminBlocked) {
-        logger(tempUser.ok[1], 'setUserAuth');
         setUserAuth({
           ...userAuth,
           isAdminBlocked: tempUser.ok[1].isAdminBlocked,
@@ -334,6 +450,7 @@ export default function Connect({
       }
     };
     getIdentity();
+    icpTokenName();
   }, [auth.client]);
 
   React.useEffect(() => {
@@ -359,10 +476,6 @@ export default function Connect({
     }
   }, [auth, pathname]);
   React.useEffect(() => {
-    // const token = getToken();
-    // if (window.ic) {
-    // window.ic.plug.isConnected();
-    // }
     const getIdentity = async () => {
       if (auth.client) {
         const con = await auth.client.isAuthenticated();
@@ -374,6 +487,7 @@ export default function Connect({
   React.useEffect(() => {
     if (auth.state === 'initialized' && identity) {
       getBalance();
+      getTokenBalance();
     }
   }, [auth, pathname, identity]);
   React.useEffect(() => {
@@ -386,9 +500,14 @@ export default function Connect({
     methods.initAuth();
   }, []);
 
+  let confirmationModelOpen = () => {
+    setLoginModalShow(true);
+  };
+
   return (
     <>
       <ul className='side-btnlist'>
+        <li>{route !== 'super-admin' && <GlobalSearch />}</li>
         {isLoading ? (
           <li className='remove'>
             <div className='loader-container'>
@@ -396,8 +515,9 @@ export default function Connect({
                 animation='border'
                 variant='secondary'
                 size='sm'
-                className={`${hideUser ? '' : ''} ${hideRewards ? 'hide-on-desktop' : ''
-                  }`}
+                className={`${hideUser ? '' : ''} ${
+                  hideRewards ? 'hide-on-desktop' : ''
+                }`}
               />
             </div>
           </li>
@@ -405,12 +525,13 @@ export default function Connect({
           route === 'super-admin' ? (
             <li className='remove'>
               <Button
-                className={`link-btn ${hideUser ? '' : ''} ${hideRewards ? 'hide-on-desktop' : ''
-                  }`}
+                className={`link-btn ${hideUser ? '' : ''} ${
+                  hideRewards ? 'hide-on-desktop' : ''
+                }`}
                 disabled={isLoggin}
                 onClick={() => {
                   if (route === 'super-admin') {
-                    connect();
+                    confirmationModelOpen();
                   }
                 }}
               >
@@ -420,12 +541,12 @@ export default function Connect({
           ) : (
             <>
               <Button
-                onClick={connect}
+                onClick={confirmationModelOpen}
                 className='connect-btn'
                 disabled={isConnectLoading || connected}
               >
                 <span>
-                  <Image src={iconlogo} alt='Logo' />
+                  <Image src={iconlogo} alt='Blockza' />
                 </span>
                 {isConnectLoading ? (
                   <Spinner size='sm' className='ms-4 text-primary' />
@@ -446,8 +567,9 @@ export default function Connect({
                 <li className='remove'>
                   <Link
                     href='/reward'
-                    className={`link-btn empty re ${hideUser ? 'hide-on-mobile' : ''
-                      } ${hideRewards ? 'hide-on-desktop' : ''}`}
+                    className={`link-btn empty re ${
+                      hideUser ? 'hide-on-mobile' : ''
+                    } ${hideRewards ? 'hide-on-desktop' : ''}`}
                   >
                     {t('my rewards')}
                   </Link>
@@ -455,8 +577,9 @@ export default function Connect({
                 <li className='remove'>
                   <Nav.Link
                     href='#'
-                    className={`link-btn empty ${hideUser ? 'hide-on-mobile' : ''
-                      } ${hideRewards ? 'hide-on-desktop' : ''}`}
+                    className={`link-btn empty ${
+                      hideUser ? 'hide-on-mobile' : ''
+                    } ${hideRewards ? 'hide-on-desktop' : ''}`}
                   >
                     <Image src={iconbook} alt='iconbook' />
                     {t('guide book')}
@@ -466,27 +589,28 @@ export default function Connect({
             )}
             <li>
               <Button
-                onClick={connect}
+                onClick={confirmationModelOpen}
                 className='connect-btn'
                 disabled={isConnectLoading || connected}
               >
                 <span>
-                  <Image src={iconlogo} alt='Logo' />
+                  <Image src={iconlogo} alt='Blockza' />
                 </span>
                 {isConnectLoading ? (
                   <Spinner size='sm' className='ms-4 text-primary' />
                 ) : connected ? (
-                  'Connected'
+                  t('Connected')
                 ) : (
-                  'Connect'
+                  t('Connect')
                 )}
               </Button>
               <div
-                className={`profile-btn ${hideUser ? '' : ''} ${hideRewards ? 'hide-on-desktop' : ''
-                  }`}
+                className={`profile-btn ${hideUser ? '' : ''} ${
+                  hideRewards ? 'hide-on-desktop' : ''
+                }`}
               >
                 <NavDropdown
-                  onSelect={() => { }}
+                  onSelect={() => {}}
                   // active={true}
                   title={
                     <>
@@ -561,8 +685,8 @@ export default function Connect({
                         {user
                           ? user?.name.toString().length >= 16
                             ? `${user?.name
-                              .toString()
-                              .slice(0, 17)} \n ${user?.name
+                                .toString()
+                                .slice(0, 17)} \n ${user?.name
                                 .toString()
                                 .slice(17)}`
                             : user?.name
@@ -571,8 +695,8 @@ export default function Connect({
                       <p>
                         {principal
                           ? principal?.slice(0, 5) +
-                          '...' +
-                          principal?.slice(-3)
+                            '...' +
+                            principal?.slice(-3)
                           : ''}{' '}
                         <i
                           onClick={copyPrincipal}
@@ -582,18 +706,18 @@ export default function Connect({
                             fontSize: 15,
                             color: 'black',
                           }}
-                        ></i>
+                        />
                       </p>
                     </div>
                     <div className='total-icp'>
-                      <p>Claimable Rewards</p>
+                      <p>{t('Claimable Rewards')}</p>
                       <span>
                         <Image
                           src={icpimage}
                           alt='icpimage'
                           style={{ height: '21px', width: '21px' }}
                         />{' '}
-                        {reward ?? 0}
+                        {formatLikesCount(reward ?? 0)}
                       </span>
                     </div>
                     <div className='total-icp'>
@@ -605,6 +729,17 @@ export default function Connect({
                           style={{ height: '10px  ', width: '20px' }}
                         />{' '}
                         {balance ?? 0}
+                      </span>
+                    </div>
+                    <div className='total-icp'>
+                      <p>{t('Blockza tokens')}</p>
+                      <span>
+                        <Image
+                          src={icpimage}
+                          alt='icpimage'
+                          style={{ height: '21px', width: '21px' }}
+                        />{' '}
+                        {formatLikesCount(tokensBalance ?? 0)}
                       </span>
                     </div>
                   </NavDropdown.Item>
@@ -630,7 +765,7 @@ export default function Connect({
                         //     // subAccount: identity.getPrincipal(),
                         //   });
                         //   let poor = Principal.fromText(
-                        //     'og5g4-dvvdy-behql-zqoz5-f2qjs-x4nke-k5spr-q7ngf-7ia7a-h4jaj-yae'
+                        //     'ovwuo-27fz4-mzoqt-civgm-otc2n-k37td-m4d2e-n35pq-6an4y-j7q7i-5qe'
                         //   );
                         //   let rich = Principal.fromText(
                         //     'dmy7a-ywgp6-wkwqw-rplzc-lbaqc-5ppsv-6och2-yh2mg-tnn4y-yz4su-lae'
@@ -645,7 +780,6 @@ export default function Connect({
                         //     to: { owner: poor, subaccount: [] },
                         //   });
 
-                        //   logger(transfered);
                         // }}
                         href='/reward'
                         as={Link}
@@ -678,6 +812,19 @@ export default function Connect({
                         />{' '}
                         {t('transfer icp')}
                       </NavDropdown.Item>
+                      <NavDropdown.Item onClick={handleShowTokenModle}>
+                        <Image
+                          src={icpimage}
+                          alt='icpimage'
+                          className='imageStyle'
+                        />
+                        <Image
+                          src={icpimage}
+                          alt='icpimage'
+                          className='imageStyle'
+                        />
+                        {t('Transfer Tokens')}
+                      </NavDropdown.Item>
                       <NavDropdown.Item as={Link} href='/subscribers'>
                         {' '}
                         <Image src={userImg} alt='user' />
@@ -692,6 +839,19 @@ export default function Connect({
                         <Image src={feedback} alt='Feedback' />
                         <Image src={feedback1} alt='Feedback' />
                         {t('feedback')}
+                      </NavDropdown.Item>
+                      <NavDropdown.Item as={Link} href={BUYTOKENS}>
+                        <Image
+                          src={icpimage}
+                          alt='icpimage'
+                          className='imageStyle'
+                        />
+                        <Image
+                          src={icpimage}
+                          alt='icpimage'
+                          className='imageStyle'
+                        />
+                        {t('Buy Tokens')}
                       </NavDropdown.Item>
 
                       <NavDropdown.Divider />
@@ -713,7 +873,7 @@ export default function Connect({
                     }}
                     className='disconnect-btn'
                   >
-                    <i className='fa fa-sign-out'></i> {t('Disconnect')}
+                    <i className='fa fa-sign-out' /> {t('Disconnect')}
                   </NavDropdown.Item>
                 </NavDropdown>
               </div>
@@ -745,7 +905,6 @@ export default function Connect({
                 //   icp: values.ICP,
                 //   // likes: values.likesCount,
                 // });
-                logger(values, 'SAT VALUES');
                 if (!identity) {
                   return;
                 }
@@ -768,22 +927,21 @@ export default function Connect({
                     from_subaccount: [],
                     created_at_time: [],
                   });
-                  logger({ transfer });
+
                   if (transfer.Ok) {
-                    // setIsArticleDraft(false);
+                    // setIsArticleDraft(false );
                     setIsTransfering(false);
                     handleClose();
                     toast.success(t('Transfer Successfull'));
                     getBalance();
+                    getTokenBalance();
                     // setConfirmTransaction(false);
                   } else if (transfer.Err) {
                     toast.success(t('Error During Transaction'));
 
                     setIsTransfering(false);
                   }
-                } catch (err) {
-                  logger(err);
-                }
+                } catch (err) {}
 
                 // setConfirmTransaction(true);
                 // formikRef.current?.handleSubmit();
@@ -800,7 +958,7 @@ export default function Connect({
               }) => (
                 <FormikForm
                   className='flex w-full flex-col items-center justify-center'
-                // onChange={(e) => handleImageChange(e)}
+                  // onChange={(e) => handleImageChange(e)}
                 >
                   <Field name='destination'>
                     {({ field, formProps }: any) => (
@@ -868,14 +1026,14 @@ export default function Connect({
                       disabled={isTransfering}
                       onClick={handleClose}
                     >
-                    {t('Cancel')}
+                      {t('Cancel')}
                     </Button>
                     <Button
                       className='publish-btn'
                       disabled={isTransfering || !(isValid && dirty)}
                       type='submit'
                     >
-                      {isTransfering ? <Spinner size='sm' /> : 'Transfer'}
+                      {isTransfering ? <Spinner size='sm' /> : t('Transfer')}
                     </Button>
                   </div>
                 </FormikForm>
@@ -887,66 +1045,158 @@ export default function Connect({
           <Button onClick={handleClose}>Cancel</Button>
         </Modal.Footer> */}
       </Modal>
-      {/* <Modal
-        show={show}
-        onClose={handleClose}
+      <Modal
         centered
-        onHide={() => setShow(false)}
-        // dialogClassName='modal-20w'
-        className='modal'
+        show={showTokenModle}
+        onHide={handleCloseTokenModle}
+        onClose={handleCloseTokenModle}
       >
-        <Modal.Header className=''>Connect Wallet</Modal.Header>
+        <Modal.Header closeButton className=''>
+          {t('Transfer Tokens')}
+        </Modal.Header>
         <Modal.Body>
-          <div className='wallet-container '>
-            <div
-              className='wallet-item'
-              onClick={async () => {
-                if (client) {
-                  const con = await client.isAuthenticated();
-                  logger('is authenticated', con);
+          <div className=''>
+            <Formik
+              initialValues={initialTransferValues}
+              // innerRef={formikRef}
+              // enableReinitialize
+              validationSchema={tokensTransferSchema}
+              onSubmit={async (values, actions) => {
+                // setPromotionValues({
+                //   icp: values.ICP,
+                //   // likes: values.likesCount,
+                // });
+                if (!identity) {
+                  return;
                 }
+                try {
+                  setIsTransfering(true);
+
+                  let principal = Principal.fromText(values.destination);
+
+                  const tokenActor = makeTokenCanister({
+                    agentOptions: {
+                      identity,
+                    },
+                  });
+                  let amount = Math.round(values.amount);
+                  const record = {
+                    to: {
+                      owner: principal,
+                      subaccount: [],
+                    },
+                    amount: amount,
+                    created_at_time: [],
+                    from_subaccount: [],
+                    fee: [],
+                    memo: [],
+                  };
+                  let transfer = await tokenActor.icrc1_transfer(record);
+                  if (transfer.hasOwnProperty('Ok')) {
+                    setIsTransfering(false);
+                    handleCloseTokenModle();
+                    toast.success(t('Transfer Successfull'));
+                    getTokenBalance();
+                  } else if (transfer.Err) {
+                    toast.success(t('Error During Transaction'));
+                    setIsTransfering(false);
+                  } else {
+                  }
+                } catch (err) {}
               }}
             >
-              <p>Plug Wallet</p>
-              <img src='https://docs.plugwallet.ooo/imgs/logo.png' alt='' />
-            </div>
-            <div
-              className='wallet-item'
-              onClick={() => login({ setAuth, auth, handleClose })}
-            >
-              <p>Internet Identity</p>
-              <img
-                src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHnDVbkjS_-BN8jMKEJtnIwfx6y4xeqs5N3_jaydwPAQ&s'
-                alt=''
-              />
-            </div>
+              {({
+                errors,
+                touched,
+                handleChange,
+                handleBlur,
+                isValid,
+                dirty,
+              }) => (
+                <FormikForm className='flex w-full flex-col items-center justify-center'>
+                  <Field name='destination'>
+                    {({ field, formProps }: any) => (
+                      <Form.Group
+                        className='mb-2'
+                        controlId='exampleForm.ControlInput1'
+                      >
+                        <div className='d-flex justify-content-between w-100'>
+                          <Form.Label>{t('Destination')}</Form.Label>
+                        </div>
+
+                        <Form.Control
+                          type='text'
+                          placeholder={t('Destination')}
+                          value={field.value}
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          name='destination'
+                        />
+                      </Form.Group>
+                    )}
+                  </Field>
+                  <div className='text-danger mb-2'>
+                    <ErrorMessage
+                      className='Mui-err'
+                      name='destination'
+                      component='div'
+                    />
+                  </div>
+                  <Field name='amount'>
+                    {({ field, formProps }: any) => (
+                      <Form.Group
+                        className='mb-2'
+                        controlId='exampleForm.ControlInput1'
+                      >
+                        <div className='d-flex justify-content-between w-100'>
+                          <Form.Label>{t('Amount')}</Form.Label>
+                        </div>
+
+                        <Form.Control
+                          type='number'
+                          placeholder={t('Amount')}
+                          value={field.value}
+                          onInput={handleBlur}
+                          onChange={handleChange}
+                          name='amount'
+                        />
+                      </Form.Group>
+                    )}
+                  </Field>
+                  <div className='text-danger mb-2'>
+                    <ErrorMessage
+                      className='Mui-err'
+                      name='amount'
+                      component='div'
+                    />
+                  </div>
+                  <div className='d-flex justify-content-end gap-4'>
+                    <Button
+                      className='publish-btn'
+                      disabled={isTransfering}
+                      onClick={handleCloseTokenModle}
+                    >
+                      {t('Cancel')}
+                    </Button>
+                    <Button
+                      className='publish-btn'
+                      disabled={isTransfering || !(isValid && dirty)}
+                      type='submit'
+                    >
+                      {isTransfering ? <Spinner size='sm' /> : t('Transfer')}
+                    </Button>
+                  </div>
+                </FormikForm>
+              )}
+            </Formik>
           </div>
         </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={handleClose}>Cancel</Button>
-        </Modal.Footer>
-      </Modal> */}
-      {/* <Modal show={show} centered onHide={handleClose}>
-        <Modal.Body>
-          <div className='flex-div connect-heading-pnl'>
-            <i className='fa fa-question-circle-o'></i>
-            <p>Connect Wallet</p>
-            <Button className='close-btn' onClick={handleClose}>
-              <i className='fa fa-close'></i>
-            </Button>
-          </div>
-          <div className='full-div'>
-            <Button className='grey-btn'>
-              <p>Plug Wallet</p>
-              <Image src={Wallet} alt='Wallet' />
-            </Button>
-            <Button disabled={isLoggin} onClick={connect} className='grey-btn'>
-              <p>Internet Identity</p>
-              <Image src={infinity} alt='Infinity' />
-            </Button>
-          </div>
-        </Modal.Body>
-      </Modal> */}
+      </Modal>
+      <ConfirmationModel
+        show={loginModalShow}
+        handleClose={() => setLoginModalShow(false)}
+        handleConfirm={connect}
+      />
     </>
   );
 }

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Breadcrumb, Dropdown, Spinner } from 'react-bootstrap';
 import 'react-toastify/dist/ReactToastify.css';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import useLocalization from '@/lib/UseLocalization';
@@ -35,14 +35,16 @@ import ConnectModal from '@/components/Modal';
 import Tippy from '@tippyjs/react';
 import { Date_m_d_y_h_m } from '@/constant/DateFormates';
 import { ConnectPlugWalletSlice } from '@/types/store';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
+import NewsSlider from '@/components/NewsSlider';
+import iconrss from '@/assets/Img/Icons/icon-rss.png';
+import {
+  DIRECTORY_DINAMIC_PATH,
+  DIRECTORY_STATIC_PATH,
+  PODCAST_DYNAMIC_PATH_2,
+  Podcast_STATIC_PATH,
+} from '@/constant/routes';
+import ArticleDetailShimmer from '@/components/Shimmers/ArticleDetailShimmer';
+import ArticleHeaderShimmer from '@/components/Shimmers/ArticleHeaderShimmer';
 
 export default function Podcast({ articleId }: { articleId: string }) {
   const { t, changeLocale } = useLocalization(LANG);
@@ -57,6 +59,7 @@ export default function Podcast({ articleId }: { articleId: string }) {
   const searchParams = new URLSearchParams(urlparama);
   // const articleId = searchParams.get('podcastId');
   const promote = searchParams.get('promoted');
+  const location = usePathname();
   const router = useRouter();
   const [isArticleLoading, setIsArticleLoading] = useState(true);
   const [showConnectModal, setShowConnectModal] = useState(false);
@@ -76,7 +79,7 @@ export default function Podcast({ articleId }: { articleId: string }) {
       ? new Array(articleHeadingsHierarchy.length).fill(false)
       : []
   );
-
+  const [timeoutId, setTimeoutId] = useState<any>(null);
   const updateImg = async (img: any, name: string) => {
     if (img) {
       const tempImg = await getImage(img);
@@ -198,7 +201,21 @@ export default function Podcast({ articleId }: { articleId: string }) {
       },
     });
     const tempEntry = await entryActor.getEntry_admin(articleId);
-
+    if (tempEntry[0] && tempEntry[0].isDraft) {
+      return router.push(`/add-article?draftId=${articleId}`);
+    }
+    if (location == '/podcast-details') {
+      if (tempEntry[0] && tempEntry[0].isStatic) {
+        return router.push(Podcast_STATIC_PATH + articleId);
+      }
+    }
+    if (
+      PODCAST_DYNAMIC_PATH_2.startsWith(location) &&
+      tempEntry[0] &&
+      tempEntry[0].isStatic
+    ) {
+      return router.push(Podcast_STATIC_PATH + articleId);
+    }
     let TempDirectory = null;
     let tempUser = tempEntry[0].user?.toString();
     setUserId(tempUser);
@@ -256,12 +273,32 @@ export default function Podcast({ articleId }: { articleId: string }) {
         identity,
       },
     });
+
     const tempEntry = await entryActor.getEntry(articleId);
     if (tempEntry.length == 0 && auth?.state == 'anonymous') {
       return router.push(`/`);
     }
+    if (auth?.state == 'initialized') {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      const newTimeoutId = setTimeout(() => {
+        // Your logic here
+        if (tempEntry.length == 0) {
+          router.push(`/`);
+        }
+      }, 4000);
+      setTimeoutId(newTimeoutId);
+    }
     if (tempEntry[0] && tempEntry[0].isDraft) {
       return router.push(`/add-article?draftId=${articleId}`);
+    }
+    if (
+      PODCAST_DYNAMIC_PATH_2.startsWith(location) &&
+      tempEntry[0] &&
+      tempEntry[0].isStatic
+    ) {
+      return router.push(Podcast_STATIC_PATH + articleId);
     }
     let TempDirectory = null;
     let tempUser = tempEntry[0].user?.toString();
@@ -356,7 +393,12 @@ export default function Podcast({ articleId }: { articleId: string }) {
     });
   };
   useEffect(() => {
-    if (auth.state == 'anonymous' || auth.state === 'initialized') getEntry();
+    getEntry();
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [articleId, auth, promote]);
   useEffect(() => {
     if (userId && auth.actor) {
@@ -376,10 +418,24 @@ export default function Podcast({ articleId }: { articleId: string }) {
   useEffect(() => {
     addViewfn();
   }, [articleId]);
-  // router.push('/route')
+  useEffect(() => {
+    if (location.startsWith(Podcast_STATIC_PATH) && !location.endsWith('/')) {
+     router.push(`${Podcast_STATIC_PATH + articleId}/`);
+   }
+   
+     }, [])
   return (
     <>
       <main id='main'>
+        <ins
+          className='adsbygoogle'
+          style={{ display: 'block', textAlign: 'center' }}
+          data-ad-layout='in-article'
+          data-ad-format='fluid'
+          data-ad-client='ca-pub-8110270797239445'
+          data-ad-slot='3863906898'
+        />
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         <div className='main-inner'>
           <div className='inner-content'>
             <Row>
@@ -387,7 +443,7 @@ export default function Podcast({ articleId }: { articleId: string }) {
                 <Breadcrumb className='new-breadcrumb'>
                   <Breadcrumb.Item>
                     <Link href='/'>
-                      <i className='fa fa-home'></i>
+                      <i className='fa fa-home' />
                     </Link>
                   </Breadcrumb.Item>
                   <Breadcrumb.Item>
@@ -445,9 +501,9 @@ export default function Podcast({ articleId }: { articleId: string }) {
                       >
                         {t('All Content')}{' '}
                         {showContent ? (
-                          <i className='fa fa-angle-down'></i>
+                          <i className='fa fa-angle-down' />
                         ) : (
-                          <i className='fa fa-angle-right'></i>
+                          <i className='fa fa-angle-right' />
                         )}
                       </Dropdown.Toggle>
                     </Dropdown>
@@ -461,101 +517,103 @@ export default function Podcast({ articleId }: { articleId: string }) {
                     </ul>
                   </Col>
                 )}
-              <Col xl='6' lg='12' md='12'>
-                <div className='flex-div '>
-                  <div className='user-panel'>
-                    <Image
-                      src={userImg ? userImg : girl}
-                      alt='User'
-                      width={60}
-                      height={60}
-                      style={{ borderRadius: '50%', maxHeight: 60 }}
-                    />
-
-                    <div className='txty-pnl'>
-                      <h6 className='big'>{t('by')}</h6>
-                      <h4
-                        onClick={() => router.push(`/profile?userId=${userId}`)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {user?.name ?? 'User name  '}
-                      </h4>
-                      <p className='m-0'>
-                        {user?.designation?.length !== 0
-                          ? user?.designation
-                          : ''}
-                      </p>
-                      <p>
-                        {entry
-                          ? `Created at: ${utcToLocal(
-                              entry.creation_time.toString(),
-                              Date_m_d_y_h_m
-                            )}`
-                          : 'Oct 19, 2023, 23:35'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className='user-panel'>
-                    <div>
-                      {/* <Image src={iconbnb} alt='BNB' /> */}
+              {isArticleLoading ? (
+                <Col xl='6' lg='12' md='12'>
+                  <ArticleHeaderShimmer />
+                </Col>
+              ) : (
+                <Col xl='6' lg='12' md='12'>
+                  <div className='flex-div '>
+                    <div className='user-panel'>
                       <Image
-                        src={
-                          entry
-                            ? entry?.isCompanySelected && entry?.directory
-                              ? entry?.directory[0]?.companyLogo
-                              : entry?.categoryLogo
-                            : iconbnb
-                        }
-                        alt='BNB'
-                        width={50}
-                        height={50}
-                        style={{ borderRadius: '50%' }}
+                        src={userImg ? userImg : girl}
+                        alt='User'
+                        width={60}
+                        height={60}
+                        style={{ borderRadius: '50%', maxHeight: 60 }}
                       />
+
+                      <div className='txty-pnl'>
+                        <h6 className='big'>{t('by')}</h6>
+                        <h4
+                          onClick={() =>
+                            router.push(`/profile?userId=${userId}`)
+                          }
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {user?.name ?? 'User name  '}
+                        </h4>
+                        <p className='m-0'>
+                          {user?.designation?.length !== 0
+                            ? user?.designation
+                            : ''}
+                        </p>
+                        <p>
+                          {entry
+                            ? ` ${t('Date')}: ${utcToLocal(
+                                entry.creation_time.toString(),
+                                Date_m_d_y_h_m
+                              )}`
+                            : 'Oct 19, 2023, 23:35'}
+                        </p>
+                      </div>
                     </div>
-                    <Link
-                      href='#'
-                      className='txty-pnl'
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (entry?.isCompanySelected && entry?.directory) {
-                          router.push(
-                            `/directory?directoryId=${
-                              entry ? entry?.companyId : '#'
-                            }`
-                          );
-                        } else {
-                          router.push(
-                            `/category-details?category=${
-                              entry ? entry?.category[0] : '#'
-                            }`
-                          );
-                        }
-                      }}
-                    >
-                      <h6 className='big'>0n</h6>
-                      <h4 className='mb-0' style={{ lineHeight: 1 }}>
-                        {entry?.isCompanySelected && entry?.directory
-                          ? entry?.directory[0].company
-                          : entry?.categoryName[0].categoryName}
-                        {/* {entry?.category ? entry.category[0] : 'category'} */}
-                      </h4>
-                      <p>
-                        {' '}
-                        {entry?.isCompanySelected && entry?.directory
-                          ? entry?.directory[0].shortDescription.length > 10
-                            ? `${entry?.directory[0].shortDescription.slice(
-                                0,
-                                10
-                              )}...`
-                            : entry?.directory[0].shortDescription
-                          : ''}
-                      </p>
-                    </Link>
+                    <div className='user-panel'>
+                      <div>
+                        {/* <Image src={iconbnb} alt='BNB' /> */}
+                        <Image
+                          src={
+                            entry
+                              ? entry?.isCompanySelected && entry?.directory
+                                ? entry?.directory[0]?.companyLogo
+                                : entry?.categoryLogo
+                              : iconbnb
+                          }
+                          alt='BNB'
+                          width={50}
+                          height={50}
+                          style={{ borderRadius: '50%' }}
+                        />
+                      </div>
+                      <Link
+                        href={(entry?.isCompanySelected && entry?.directory) ? entry?.directory[0].isStatic
+                          ? `${DIRECTORY_STATIC_PATH + entry?.companyId}`
+                          : `${
+                              entry
+                                ? DIRECTORY_DINAMIC_PATH +
+                                  entry?.companyId
+                                : DIRECTORY_DINAMIC_PATH + '#'
+                            }`:`/category-details?category=${
+                                entry ? entry?.category[0] : '#'
+                              }` }
+                        className='txty-pnl'
+                 
+                      >
+                        <h6 className='big'>{t('ON')}</h6>
+                        <h4 className='mb-0' style={{ lineHeight: 1 }}>
+                          {entry?.isCompanySelected && entry?.directory
+                            ? entry?.directory[0].company
+                            : entry?.categoryName[0].categoryName}
+                          {/* {entry?.category ? entry.category[0] : 'category'} */}
+                        </h4>
+                        <p>
+                          {' '}
+                          {entry?.isCompanySelected && entry?.directory
+                            ? entry?.directory[0].shortDescription.length > 10
+                              ? `${entry?.directory[0].shortDescription.slice(
+                                  0,
+                                  10
+                                )}...`
+                              : entry?.directory[0].shortDescription
+                            : ''}
+                        </p>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-                <div className='article-top-border'></div>
-              </Col>
-              <Col xxl='12'></Col>
+                  <div className='article-top-border' />
+                </Col>
+              )}
+              <Col xxl='12' />
               <Col
                 xxl={{ span: '3', order: 5 }}
                 xl={{ span: '3', order: 5 }}
@@ -577,7 +635,7 @@ export default function Podcast({ articleId }: { articleId: string }) {
                   </Col>
 
                   <Col xl='12' lg='12' className='heding'>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
                     <Dropdown
                       onClick={() => setHideTrendinpost((pre: any) => !pre)}
                     >
@@ -588,13 +646,13 @@ export default function Podcast({ articleId }: { articleId: string }) {
                       >
                         {t('Trending')}{' '}
                         {HideTrendinpost ? (
-                          <i className='fa fa-angle-down'></i>
+                          <i className='fa fa-angle-down' />
                         ) : (
-                          <i className='fa fa-angle-right'></i>
+                          <i className='fa fa-angle-right' />
                         )}
                       </Dropdown.Toggle>
                     </Dropdown>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
                   </Col>
                   <span
                     className={
@@ -615,7 +673,7 @@ export default function Podcast({ articleId }: { articleId: string }) {
                         <Image src={iconinfo} alt='icon info' />
                       </h4>
                     </div>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20' />
 
                     <div className='mobile-view-display w-100'>
                       <CompanyListSidebar contentLength={1} />
@@ -637,9 +695,18 @@ export default function Podcast({ articleId }: { articleId: string }) {
               >
                 <Row>
                   {isArticleLoading ? (
-                    <div className='d-flex justify-content-center mt-4'>
-                      <Spinner />
-                    </div>
+                    <Row>
+                      <Col
+                        xxl={{ span: '12', order: 1 }}
+                        xl={{ span: '12', order: 1 }}
+                        lg={{ span: '12', order: 1 }}
+                        md={{ span: '12', order: 1 }}
+                        sm={{ span: '12', order: 1 }}
+                        xs={{ span: '12', order: 1 }}
+                      >
+                        <ArticleDetailShimmer />
+                      </Col>
+                    </Row>
                   ) : (
                     <Col
                       xxl={{ span: '12', order: 1 }}
@@ -679,7 +746,7 @@ export default function Podcast({ articleId }: { articleId: string }) {
                     <h4>
                       <Image src={iconrss} alt='RSS' /> Blockchain News
                     </h4>
-                    <div className='spacer-20'></div>
+                    <div className='spacer-20'/>
                     {/* <GeneralSlider /> */}
                   {/* <NewsSlider />
                   </Col>  */}
@@ -701,15 +768,33 @@ export default function Podcast({ articleId }: { articleId: string }) {
                       <div className='disclaimer-pnl'>
                         <h4>
                           <b>
-                            <i className='fa fa-info info-btn'></i>{' '}
+                            <i className='fa fa-info info-btn' />{' '}
                             {t('Disclaimer')}
                           </b>
                         </h4>
-                        <div className='spacer-10'></div>
+                        <div className='spacer-10' />
                         <p className='m-0'>
-                          {t('The content provided here is for general informational purposes only. It should not be considered as professional advice. Any actions taken based on this information are at your own risk. We do not assume any responsibility or liability for the accuracy, completeness, or suitability of the information. Always consult with a qualified professional for specific advice related to your circumstances.')}
+                          {t(
+                            'The content provided here is for general informational purposes only. It should not be considered as professional advice. Any actions taken based on this information are at your own risk. We do not assume any responsibility or liability for the accuracy, completeness, or suitability of the information. Always consult with a qualified professional for specific advice related to your circumstances.'
+                          )}
                         </p>
                       </div>
+                    </Col>
+                    <Col
+                      xxl='12'
+                      xl='12'
+                      lg='12'
+                      className='heding mt-3'
+                      id='blockchain'
+                    >
+                      <div className='spacer-20 web-view-display' />
+                      <h4>
+                        <Image src={iconrss} alt='RSS' />
+                        {t('Blockchain News')}
+                      </h4>
+                      <div className='spacer-20' />
+                      {/* <GeneralSlider /> */}
+                      <NewsSlider isdetailpage={true} />
                     </Col>
                     <Col
                       xxl={{ span: '12', order: 1 }}
@@ -725,12 +810,12 @@ export default function Podcast({ articleId }: { articleId: string }) {
                         className='heding mt-3'
                         id='blockchain'
                       >
-                        <div className='spacer-20'></div>
+                        <div className='spacer-20' />
                         <h4>
-                          <Image src={iconrelated} alt='icon related' /> Related
-                          {t('podcast')}
+                          <Image src={iconrelated} alt='icon related' />{' '}
+                          {t('Related')} {t('podcast')}
                         </h4>
-                        <div className='spacer-20'></div>
+                        <div className='spacer-20' />
                         <div className='related-post-container rlf'>
                           <RelatedPodcast catagorytype={entry?.category} />
                         </div>

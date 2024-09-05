@@ -12,12 +12,22 @@ export { idlFactory } from './entry.did.js';
  */
 const englishCanisterId =
   process.env.CANISTER_ID_ENTRY || process.env.NEXT_PUBLIC_ENTRY_CANISTER_ID;
+const staggingCanisterID =
+  process.env.CANISTER_ID_ENTRY_SG ||
+  process.env.NEXT_PUBLIC_ENTRY_SG_CANISTER_ID;
 const japaneseCanisterId =
   process.env.CANISTER_ID_ENTRY_JP ||
   process.env.NEXT_PUBLIC_ENTRY_JP_CANISTER_ID;
 
-export const canisterId =
-  LANG === 'jp' ? japaneseCanisterId : englishCanisterId;
+let tempCanisterId = null;
+if (process.env.NEXT_PUBLIC_STAGGING=="true") {
+  tempCanisterId = staggingCanisterID;
+} else if (LANG == 'jp') {
+  tempCanisterId = japaneseCanisterId;
+} else if (LANG == 'en') {
+  tempCanisterId = englishCanisterId;
+}
+export const canisterId = tempCanisterId;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });

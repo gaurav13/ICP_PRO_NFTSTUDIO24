@@ -27,7 +27,7 @@ import {
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 import { useConnectPlugWalletStore } from '@/store/useStore';
 import Image from 'next/image';
-import { BASE_IMG_URL, isValidFileType } from '@/constant/image';
+import { BASE_IMG_URL, isDescription, isValidFileType } from '@/constant/image';
 import {
   ARTICLE_FEATURED_IMAGE_ASPECT,
   COMPANY_BANNER_IMAGE_ASPECT,
@@ -46,6 +46,9 @@ import uploadImage from '@/components/utils/uploadImage';
 import { getImage } from '@/components/utils/getImage';
 import { Principal } from '@dfinity/principal';
 import { getIdFromLink, getIdFromUrl } from '@/constant/DateFormates';
+import Texteditor from '@/components/cutomeEditor/Editor';
+import { EMAIL_VALIDATE } from '@/constant/regulerExpression';
+import Tippy from '@tippyjs/react';
 function ScrollToError() {
   const formik = useFormikContext();
   const submitting = formik?.isSubmitting;
@@ -64,13 +67,13 @@ export default function AddCompanyForm({
   setShowWeb3Model,
   reFetchfn,
   directoryId,
-  handleWeb3modelclose
+  handleWeb3modelclose,
 }: {
   showWeb3Model: any;
   setShowWeb3Model: any;
   reFetchfn?: any;
   directoryId?: any;
-  handleWeb3modelclose?: any
+  handleWeb3modelclose?: any;
 }) {
   const { auth, setAuth, identity, principal } = useConnectPlugWalletStore(
     (state: any) => ({
@@ -100,11 +103,18 @@ export default function AddCompanyForm({
   const [previewweb3companyLogoFile, setPreviewweb3companyLogoFile] =
     useState<File | null>(null);
   const [categories, setCategories] = useState<string[]>();
+
+  const [logoError, setLogoError] = useState(false);
+  const [bannerError, setBannerError] = useState(false);
+  const [founderError, setFounderError] = useState(false);
+  const [web3Content, setweb3Content] = useState('');
+  const [discriptionErr, setDiscriptionErr] = useState(false);
+
   const web3FormikRef = useRef<FormikProps<FormikValues>>(null);
   const initialWeb3Values: any = {
     company: tempWeb3 ? tempWeb3.company : '',
     companyLogo: '',
-    companyDetail: tempWeb3 ? tempWeb3.companyDetail : '',
+    // companyDetail: tempWeb3 ? tempWeb3.companyDetail : '',
     shortDescription: tempWeb3 ? tempWeb3.shortDescription : '',
     founderName: tempWeb3 ? tempWeb3.founderName : '',
     founderDetail: tempWeb3 ? tempWeb3.founderDetail : '',
@@ -134,8 +144,8 @@ export default function AddCompanyForm({
     discord: tempWeb3
       ? tempWeb3?.discord?.length != 0
         ? tempWeb3.discord[0]
-        : ''
-      : '',
+        : 'no'
+      : 'no',
     telegram: tempWeb3
       ? tempWeb3?.telegram?.length != 0
         ? tempWeb3.telegram[0]
@@ -144,6 +154,11 @@ export default function AddCompanyForm({
     twitter: tempWeb3
       ? tempWeb3?.twitter?.length != 0
         ? tempWeb3.twitter[0]
+        : ''
+      : '',
+    founderEmail: tempWeb3
+      ? tempWeb3?.founderEmail?.length != 0
+        ? tempWeb3.founderEmail
         : ''
       : '',
   };
@@ -155,24 +170,28 @@ export default function AddCompanyForm({
     shortDescription: string()
       .required(t('Short Description is required'))
       .max(250, t('Short Description cannot be more than 250 characters')),
-    companyDetail: string()
-      .required(t('Company Detail is required'))
-      .max(1000, t('Company Detail cannot be more than 1000 characters')),
+    // companyDetail: string()
+    //   .required(t('Company Detail is required'))
+    //   .max(1000, t('Company Detail cannot be more than 1000 characters')),
     founderName: string()
       .required(t('Founder Name is required'))
-      .max(35, t('Founder Name cannot be more than 35 characters')),
+      .max(200, t('Founder Name cannot be more than 200 characters')),
     founderDetail: string()
       .required(t('Founder Detail is required'))
-      .max(250, t('Founder Detail cannot be more than 250 characters')),
+      .max(400, t('Founder Detail cannot be more than 400 characters')),
     catagory: string().required(t('Category is required')),
     // img: mixed().required('Image is required'),
     companyUrl: string().url(t('Company Link must be a valid Link')),
     facebook: string().url(t('Facebook Link must be a valid Link')),
-    instagram: string().url(t('Instagram Link must be a valid Link')),
+    instagram: string().url(t('Youtube Link must be a valid Link')),
     linkedin: string().url(t('LinkedIn Link must be a valid Link')),
-    discord: string().url(t('Discord Link must be a valid Link')),
+    discord: string(),
     telegram: string().url(t('Telegram Link must be a valid Link')),
     twitter: string().url(t('Twitter Link must be a valid Link')),
+    founderEmail: string()
+      .required(t('Founder Email is required'))
+      .trim()
+      .matches(EMAIL_VALIDATE, t('Invalid Email')),
   });
   const comapanyLogoUpload = async (
     imgUrl: string,
@@ -192,6 +211,7 @@ export default function AddCompanyForm({
     setLogoLink(_logoLink);
     setTempweb3ComapnyPreviewLogo(newUrl);
     setPreviewweb3companyLogoFile(resizedFile);
+    setLogoError(false);
     handleHideCropper();
   };
   const comapanyFounderUpload = async (
@@ -212,6 +232,9 @@ export default function AddCompanyForm({
     setFounderLink(_founderLink);
     setTempweb3PreviewImg(newUrl);
     setPreviewweb3File(resizedFile);
+
+    setFounderError(false);
+
     handleHideCropper();
   };
   const handleShowCropper = () => {
@@ -239,6 +262,8 @@ export default function AddCompanyForm({
           imgName: img.name,
           aspect: COMPANY_LOGO_IMAGE_ASPECT,
           callBack: comapanyLogoUpload,
+          maxWidth: MAX_COMPANY_FOUNDER_SIZES.width,
+          maxHeight: MAX_COMPANY_FOUNDER_SIZES.height,
         });
         break;
       case 'founder':
@@ -247,6 +272,8 @@ export default function AddCompanyForm({
           imgName: img.name,
           aspect: COMPANY_FOUNDER_IMAGE_ASPECT,
           callBack: comapanyFounderUpload,
+          maxWidth: MAX_COMPANY_FOUNDER_SIZES.width,
+          maxHeight: MAX_COMPANY_FOUNDER_SIZES.height,
         });
         break;
       case 'banner':
@@ -255,13 +282,17 @@ export default function AddCompanyForm({
           imgName: img.name,
           aspect: COMPANY_BANNER_IMAGE_ASPECT,
           callBack: comapanyBannerUpload,
+          maxWidth: MAX_COMPANY_BANNER_SIZES.width,
+          maxHeight: MAX_COMPANY_BANNER_SIZES.height,
         });
         break;
 
       default:
         toast.error(t('Errorr while uploading media'));
         logger(
-          t('Image name didn not match any of the provided cases please add a case if you want to use this function for more images')
+          t(
+            'Image name didn not match any of the provided cases please add a case if you want to use this function for more images'
+          )
         );
         break;
     }
@@ -287,6 +318,7 @@ export default function AddCompanyForm({
     setBannerLink(_bannerLink);
     setTempweb3BannerPreviewImg(newUrl);
     setPreviewweb3BannerFile(resizedFile);
+    setBannerError(false);
     handleHideCropper();
   };
   const web3ModelClose = () => {
@@ -298,12 +330,26 @@ export default function AddCompanyForm({
     setTempweb3ComapnyPreviewLogo('');
     setPreviewweb3companyLogoFile(null);
     if (handleWeb3modelclose) {
-      handleWeb3modelclose()
+      handleWeb3modelclose();
     }
   };
   const web3ModelShow = () => setShowWeb3Model(true);
   let submitWeb3form = (e: any) => {
     e.preventDefault();
+    if (!founderLink) {
+      setFounderError(true);
+    }
+    if (!bannerLink) {
+      setBannerError(true);
+    }
+    if (!logoLink) {
+      setLogoError(true);
+    }
+    let isDec = isDescription(web3Content);
+
+    if (isDec.length <= 0) {
+      setDiscriptionErr(true);
+    }
     web3FormikRef.current?.handleSubmit();
   };
   const resetWeb3 = () => {
@@ -314,13 +360,24 @@ export default function AddCompanyForm({
     setPreviewweb3File(null);
     setTempweb3ComapnyPreviewLogo('');
     setPreviewweb3companyLogoFile(null);
+    setweb3Content('');
+    setFounderLink(undefined);
+    setBannerLink(undefined);
+    setLogoLink(undefined);
   };
   let addWeb3 = async (e: any) => {
-    if (!identity) return toast.error(t('Please connect to internet identity.'));
+    if (!identity)
+      return toast.error(t('Please connect to internet identity.'));
 
     let founderImgArray = null;
     let web3BannerArray = null;
     let web3CompanyLogoArray = null;
+    let isDec = isDescription(web3Content);
+
+    if (isDec.length <= 0) {
+      setDiscriptionErr(true);
+      return;
+    }
     if (e.catagory === 'Please Select Category') {
       return toast.error(t('Please select at least one  category'));
     }
@@ -362,7 +419,7 @@ export default function AddCompanyForm({
     let tempWeb3 = {
       company: e.company,
       shortDescription: e.shortDescription,
-      companyDetail: e.companyDetail,
+      companyDetail: web3Content,
       founderName: e.founderName,
       founderDetail: e.founderDetail,
       founderImage: founderImgArray,
@@ -376,6 +433,7 @@ export default function AddCompanyForm({
       discord: e.discord,
       telegram: e.telegram,
       twitter: e.twitter,
+      founderEmail: e.founderEmail,
     };
     let entryActor = makeEntryActor({
       agentOptions: {
@@ -412,7 +470,11 @@ export default function AddCompanyForm({
         .then((e: any) => {
           setisWeb3Submitting(false);
           if (e.ok) {
-            toast.success(t('Company details are sent for review.'));
+            toast.success(
+              t(
+                'Your directory has been published successfully. We will review it shortly and contact you with feedback. Thank you for your submission.'
+              )
+            );
             reFetchfn();
             resetWeb3();
           } else {
@@ -420,7 +482,7 @@ export default function AddCompanyForm({
           }
         })
         .catch((err: any) => {
-          toast.error('Something went hwrong.');
+          toast.error(t('Something went wrong.'));
           setisWeb3Submitting(false);
           setShowWeb3Model(false);
           setTempweb3BannerPreviewImg('');
@@ -466,13 +528,14 @@ export default function AddCompanyForm({
       setLogoLink(logoId);
       setFounderLink(founderId);
       setDirectory(TempDirectory[0]);
-      setShowWeb3Model(true)
+      setweb3Content(tempWeb3[0].companyDetail);
+      setShowWeb3Model(true);
     }
     // const promted = await entryActor.getPromotedEntries();
     // logger(promted, 'PROMTED ENTRIES');
   };
   useEffect(() => {
-    logger(directoryId, "directoryId54432534")
+    logger(directoryId, 'directoryId54432534');
     if (directoryId && directoryId != undefined) {
       getWeb3(directoryId);
     }
@@ -482,10 +545,10 @@ export default function AddCompanyForm({
       const _categories = await getCategories(identity);
       setCategories(_categories);
     }
-    if (auth.state == 'initialized' && identity) {
+    // if (auth.state == 'initialized' && identity) {
       getData();
-    }
-  }, [auth, identity]);
+    // }
+  }, []);
 
   return (
     <>
@@ -506,7 +569,7 @@ export default function AddCompanyForm({
         <Modal.Header closeButton={!isWeb3Submitting}>
           <Modal.Title>
             <b>{t('register your company')}</b>
-            <div className='spacer-20'></div>
+            <div className='spacer-20' />
           </Modal.Title>
         </Modal.Header>
         <Formik
@@ -526,10 +589,10 @@ export default function AddCompanyForm({
           {({ errors, touched, handleChange, handleBlur }) => (
             <FormikForm
               className='flex flex-col items-center justify-center px-3'
-            // onChange={(e) => handleImageChange(e)}
+              // onChange={(e) => handleImageChange(e)}
             >
               <Row>
-                <Col xl='6' lg='6' md='6' className='mb-3'>
+                <Col xl='6' lg='6' md='6' className='mb-3 '>
                   <Field name='company'>
                     {({ field, formProps }: any) => (
                       <Form.Group
@@ -557,14 +620,16 @@ export default function AddCompanyForm({
                     />
                   </div>
                 </Col>
-                <Col xl='6' lg='6' md='6' className='mb-3'>
+                <Col xl='6' lg='6' md='6' className='mb-3 '>
                   <Field name='shortDescription'>
                     {({ field, formProps }: any) => (
                       <Form.Group
                         className='mb-2'
                         controlId='exampleForm.ControlInput1'
                       >
-                        <Form.Label>{t('Company short description')}</Form.Label>
+                        <Form.Label>
+                          {t('Company short description')}
+                        </Form.Label>
                         <Form.Control
                           type='text'
                           placeholder={t('Enter Company  description here...')}
@@ -588,7 +653,7 @@ export default function AddCompanyForm({
               </Row>
               <Row>
                 <Col xl='12' lg='12' md='12' className='mb-3'>
-                  <Field name='companyDetail'>
+                  {/* <Field name='companyDetail'>
                     {({ field, formProps }: any) => (
                       <Form.Group
                         className='mb-2'
@@ -614,6 +679,25 @@ export default function AddCompanyForm({
                       name='companyDetail'
                       component='div'
                     />
+                  </div> */}
+                  <div className='full-div my-3'>
+                    <Form.Label>{t('Company Detail')}</Form.Label>
+                    <Texteditor
+                      initialValue={web3Content}
+                      value={web3Content}
+                      onChangefn={setweb3Content}
+                      errorState={setDiscriptionErr}
+                      placeholder={
+                        directoryId
+                          ? 'Enter Company Detail here...'
+                          : t('Enter Company Detail here...')
+                      }
+                    />
+                    {discriptionErr && (
+                      <div className='text-danger mb-2'>
+                        {t('Company Detail is required')}
+                      </div>
+                    )}
                   </div>
                 </Col>
               </Row>
@@ -728,10 +812,10 @@ export default function AddCompanyForm({
                   <Field name='instagram'>
                     {({ field, formProps }: any) => (
                       <Form.Group className='mb-2'>
-                        <Form.Label>{t('Instagram Link')}</Form.Label>
+                        <Form.Label>{t('Youtube Link')}</Form.Label>
                         <Form.Control
                           type='text'
-                          placeholder={t('Enter Instagarm Link Here...')}
+                          placeholder={t('Enter Youtube Link Here...')}
                           value={field.value}
                           onChange={handleChange}
                           onInput={handleBlur}
@@ -775,28 +859,60 @@ export default function AddCompanyForm({
               </Row>
               <Row>
                 <Col xl='6' lg='6' md='6' className='mb-3'>
-                  <Field name='discord'>
-                    {({ field, formProps }: any) => (
-                      <Form.Group className='mb-2'>
-                        <Form.Label>{t('Discord LInk')}</Form.Label>
-                        <Form.Control
-                          type='text'
-                          placeholder={t('Enter Discord Link here...')}
-                          value={field.value}
-                          onChange={handleChange}
-                          onInput={handleBlur}
-                          name='discord'
-                        />
-                      </Form.Group>
-                    )}
-                  </Field>
-                  <div className='text-danger mt-2'>
-                    <ErrorMessage
-                      className='Mui-err'
-                      name='discord'
-                      component='div'
-                    />
-                  </div>
+                <Field name='discord'>
+  {({ field }: any) => (
+    <Form.Group className='mb-2'>
+        <Form.Label>
+        {t('Feature directory')}
+                                      <Tippy
+                                        content={
+                                          <div>
+                                            <p className='mb-0'>
+                                            {t("Feature your company with ease using our AI Chatbot Avatar.")} 
+                                            </p>
+                                            <p className='mb-0'>
+                                            {t("Boost your brand visibility effortlessly! Join us for just $40 per month and let our AI handle your corporate information!")} 
+                                            </p>
+                                          </div>
+                                        }
+                                      >
+                                        <span className='ps-1'>
+                                          <i className='fa fa-circle-info' />
+                                        </span>
+                                      </Tippy>
+                                    </Form.Label>
+    
+<div className='d-flex'>
+
+              <label className='d-flex align-items-center'>
+                <Field type="radio" name="discord" value="yes" className="me-2"/>
+                {t('Yes')}
+              </label>
+          
+              <label className='d-flex align-items-center ms-3'>
+                <Field type="radio" name="discord" value="no" className="me-2"/>
+                {t('No')}
+              </label>
+           
+            <ErrorMessage name="discord" component="div" />
+            
+
+</div>
+     
+
+    </Form.Group>
+  )}
+</Field>
+
+<div className='text-danger mt-2'>
+  <ErrorMessage
+    className='Mui-err'
+    name='discord'
+    component='div'
+  />
+</div>
+
+                  
                 </Col>
                 <Col xl='6' lg='6' md='6' className='mb-3'>
                   <Field name='telegram'>
@@ -848,6 +964,30 @@ export default function AddCompanyForm({
                     />
                   </div>
                 </Col>
+                <Col xl='6' lg='6' md='6' className='mb-3'>
+                  <Field name='founderEmail'>
+                    {({ field, formProps }: any) => (
+                      <Form.Group className='mb-2'>
+                        <Form.Label>{t('Founder Email')}</Form.Label>
+                        <Form.Control
+                          type='text'
+                          placeholder={t('Enter Founder Email Address Here...')}
+                          value={field.value}
+                          onChange={handleChange}
+                          onInput={handleBlur}
+                          name='founderEmail'
+                        />
+                      </Form.Group>
+                    )}
+                  </Field>
+                  <div className='text-danger mt-2'>
+                    <ErrorMessage
+                      className='Mui-err'
+                      name='founderEmail'
+                      component='div'
+                    />
+                  </div>
+                </Col>
               </Row>
               <Row>
                 <Col xl='12' lg='12' md='12' className='mb-3'>
@@ -861,7 +1001,9 @@ export default function AddCompanyForm({
                           onInput={handleChange}
                           name='catagory'
                         >
-                          <option>{t('Please Select Category')}</option>
+                          <option value={''}>
+                            {t('Please Select Category')}
+                          </option>
                           {categories &&
                             categories.map((category: any, index) => (
                               <option value={category[0]} key={index}>
@@ -902,7 +1044,7 @@ export default function AddCompanyForm({
                         />
                       </div>
                     )}
-                    <Form.Group controlId='formFile2' className='mb-4'>
+                    <Form.Group  className='mb-4'>
                       {/* <Form.Label>Select Company Banner Image</Form.Label> */}
                       <div className='input-group d-flex justify-content-center'>
                         <Form.Control
@@ -917,17 +1059,22 @@ export default function AddCompanyForm({
                           type='button'
                           className='reg-btn blue-btn  mt-2 rounded'
                         >
-                          <i className='fa fa-upload me-1'></i>{' '}
+                          <i className='fa fa-upload me-1' />{' '}
                           <label
                             className='text-white'
                             htmlFor='previewweb3companylogo'
-                          >{t('Select Company Logo')}
-
+                          >
+                            {t('Select Company Logo')}
                           </label>
                         </Button>
                       </div>
                     </Form.Group>
                   </div>
+                  {logoError && (
+                    <div className='text-danger mb-2'>
+                      {t('Company logo is required')}
+                    </div>
+                  )}
                 </Col>
                 <Col xl='6' lg='6' md='6' className='mb-4'>
                   <div className='d-flex  flex-column align-items-center photo-editor-pnl'>
@@ -950,7 +1097,7 @@ export default function AddCompanyForm({
                         />
                       </div>
                     )}
-                    <Form.Group controlId='formFile' className='mb-3'>
+                    <Form.Group className='mb-3'>
                       {/* <Form.Label>Select Company Banner Image</Form.Label> */}
                       <div className='input-group d-flex justify-content-center'>
                         <Form.Control
@@ -965,7 +1112,7 @@ export default function AddCompanyForm({
                           type='button'
                           className='reg-btn blue-btn  mt-2 rounded'
                         >
-                          <i className='fa fa-upload me-2'></i>
+                          <i className='fa fa-upload me-2' />
                           <label
                             className='text-white'
                             htmlFor='previewweb3Img'
@@ -976,6 +1123,11 @@ export default function AddCompanyForm({
                       </div>
                     </Form.Group>
                   </div>
+                  {founderError && (
+                    <div className='text-danger mb-2'>
+                      {t('Founder Image is required')}
+                    </div>
+                  )}
                 </Col>
               </Row>
               <Row>
@@ -1000,11 +1152,11 @@ export default function AddCompanyForm({
                         />
                       </div>
                     )}
-                    <Form.Group controlId='formFile' className='mb-3'>
+                    <Form.Group  className='mb-3'>
                       {/* <Form.Label>Select Company Banner Image</Form.Label> */}
                       <div className='input-group d-flex justify-content-center'>
                         <Form.Control
-                          id='previewweb3companyBannerImg'
+                          id='previewweb3companyBannerImg2'
                           className='d-none'
                           // onChange={handleCompanyBannerChange}
                           onChange={(e) => handleImageChageCommon(e, 'banner')}
@@ -1015,10 +1167,10 @@ export default function AddCompanyForm({
                           type='button'
                           className='reg-btn blue-btn mt-2 rounded'
                         >
-                          <i className='fa fa-upload me-1'></i>{' '}
+                          <i className='fa fa-upload me-1' />{' '}
                           <label
                             className='text-white'
-                            htmlFor='previewweb3companyBannerImg'
+                            htmlFor='previewweb3companyBannerImg2'
                           >
                             {t('Select Company Banner Image')}
                           </label>
@@ -1026,6 +1178,11 @@ export default function AddCompanyForm({
                       </div>
                     </Form.Group>
                   </div>
+                  {bannerError && (
+                    <div className='text-danger mb-2'>
+                      {t('Company Banner Image is required')}
+                    </div>
+                  )}
                 </Col>
 
                 <Col xl='12' lg='12' md='12' className='mb-4'>
@@ -1036,9 +1193,11 @@ export default function AddCompanyForm({
                   >
                     {isWeb3Submitting ? (
                       <Spinner animation='border' size='sm' />
-                    ) :
-                      (directoryId ? t('Edit Company') : t('Add Company'))
-                    }
+                    ) : directoryId ? (
+                      t('Edit Company')
+                    ) : (
+                      t('Add Company')
+                    )}
                   </Button>
                 </Col>
               </Row>
