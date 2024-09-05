@@ -10,7 +10,7 @@ export default function ReleasePost({ small }: { small?: boolean }) {
       <div className='release-post'>
         <div className={`release-post-inner ${small ? 'small' : ''}`}>
           <div className='img-pnl'>
-            <Link href='https://nftstudio24.com/meetups/hyfi-2024-singapore'>
+            <Link href='https://blockza.io/meetups/hyfi-2024-singapore'>
               <Image src={smallpost1} alt='Post' />
             </Link>
           </div>
@@ -18,7 +18,7 @@ export default function ReleasePost({ small }: { small?: boolean }) {
             <span>March 7, 2024</span>
             <h6>
               <Link
-                href='https://nftstudio24.com/meetups/hyfi-2024-singapore'
+                href='https://blockza.io/meetups/hyfi-2024-singapore'
                 className='text-primary'
               >
                 {/* ONE°15 Marina Sentosa... */}
@@ -33,7 +33,7 @@ export default function ReleasePost({ small }: { small?: boolean }) {
       <div className='release-post'>
         <div className={`release-post-inner ${small ? 'small' : ''}`}>
           <div className='img-pnl'>
-            <Link href='https://nftstudio24.com/meetups/token2049-2024-premier-crypto-conference-returns-to-dubai/'>
+            <Link href='https://blockza.io/meetups/token2049-2024-premier-crypto-conference-returns-to-dubai/'>
               <Image src={smallpost2} alt='Post' />
             </Link>
           </div>
@@ -42,7 +42,7 @@ export default function ReleasePost({ small }: { small?: boolean }) {
             <span>April 18, 2024 - April 19</span>
             <h6>
               <Link
-                href='https://nftstudio24.com/meetups/token2049-2024-premier-crypto-conference-returns-to-dubai/'
+                href='https://blockza.io/meetups/token2049-2024-premier-crypto-conference-returns-to-dubai/'
                 className='text-primary'
               >
                 {/* TOKEN2049 Returns to Dubai in... */}
@@ -59,7 +59,7 @@ export default function ReleasePost({ small }: { small?: boolean }) {
       <div className='release-post'>
         <div className={`release-post-inner ${small ? 'small' : ''}`}>
           <div className='img-pnl'>
-            <Link href='https://nftstudio24.com/meetups/web-3-0-iot-conferences-at-webs-week-2024/'>
+            <Link href='https://blockza.io/meetups/web-3-0-iot-conferences-at-webs-week-2024/'>
               <Image src={smallpost3} alt='Post' />
             </Link>
           </div>
@@ -67,7 +67,7 @@ export default function ReleasePost({ small }: { small?: boolean }) {
             <p className='mb-0'>Web 3.0 & IoT Conferences at WW 2024</p>
             <h6>
               <Link
-                href='https://nftstudio24.com/meetups/web-3-0-iot-conferences-at-webs-week-2024/'
+                href='https://blockza.io/meetups/web-3-0-iot-conferences-at-webs-week-2024/'
                 className='text-primary'
               >
                 Frankfurt, Germany
@@ -77,32 +77,6 @@ export default function ReleasePost({ small }: { small?: boolean }) {
           </div>
         </div>
       </div>
-      {/* <div className='release-post'>
-        <div className={`release-post-inner ${small ? 'small' : ''}`}>
-          <div className='img-pnl'>
-            <Link href="/"><Image src={smallpost2} alt="Post" /></Link>
-          </div>
-          <div className='txt-pnl'>
-            <span>October 22 - October 24</span>
-            <h6>Blockchain Life 2023
-              Festival Arena</h6>
-            <p>Dubai, Festival Arena Dubai, Festival Arena</p>
-          </div>
-        </div>
-      </div>
-      <div className='release-post'>
-        <div className={`release-post-inner ${small ? 'small' : ''}`}>
-          <div className='img-pnl'>
-            <Link href="/"><Image src={smallpost3} alt="Post" /></Link>
-          </div>
-          <div className='txt-pnl'>
-            <span>November 1 - November 2</span>
-            <h6>World Blockchain
-              Summit 2023 </h6>
-            <p>DUBAI MARINA Barsha Heights, Dubai, UAE Dubai Dubai 333851</p>
-          </div>
-        </div>
-      </div> */}
     </>
   );
 }

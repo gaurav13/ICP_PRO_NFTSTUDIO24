@@ -9,7 +9,6 @@
       "declarations": {
         "output": "src/dfx/declarations/temp/entry"
       }
-      
     },
     "user": {
       "main": "backend/service/User.mo",
@@ -50,7 +49,49 @@
       "frontend": {
         "entrypoint": "out/index.html"
       },
-      "source": ["out","domains/en"],
+      "source": ["out", "domains/en"],
+      "type": "assets",
+      "declarations": {
+        "output": "src/dfx/declarations/temp/NFTStudio24"
+      }
+    },
+    "staging": {
+      "comment": "staging Canisters"
+    },
+    "entry_SG": {
+      "main": "backend/service/Entry.mo",
+      "type": "motoko",
+      "declarations": {
+        "output": "src/dfx/declarations/temp/entry"
+      }
+    },
+    "user_SG": {
+      "main": "backend/service/User.mo",
+      "type": "motoko",
+      "declarations": {
+        "output": "src/dfx/declarations/temp/user"
+      }
+    },
+    "comment_SG": {
+      "main": "backend/service/Comment.mo",
+      "type": "motoko",
+      "declarations": {
+        "output": "src/dfx/declarations/temp/comment"
+      }
+    },
+    "subscriber_SG": {
+      "main": "backend/service/Subscriber.mo",
+      "type": "motoko",
+      "declarations": {
+        "output": "src/dfx/declarations/temp/subscriber"
+      }
+    },
+    "NFTStudio24_SG": {
+      "frontend": {
+        "entrypoint": "out/index.html"
+      },
+      "dependencies": ["user_SG", "entry_SG", "comment_SG", "subscriber_SG"],
+      "source": ["out"],
       "type": "assets",
       "declarations": {
         "output": "src/dfx/declarations/temp/NFTStudio24"
@@ -94,13 +135,11 @@
         "output": "src/dfx/declarations/temp/DIP721"
       }
     },
-   
     "NFTStudio24_JP": {
-      "dependencies": ["entry_JP", "user_JP", "comment_JP", "subscriber_JP", "DIP721_JP"],
       "frontend": {
         "entrypoint": "out/index.html"
       },
-      "source": ["out","domains/jp"],
+      "source": ["out", "domains/jp"],
       "type": "assets",
       "declarations": {
         "output": "src/dfx/declarations/temp/NFTStudio24_JP"
@@ -132,10 +171,12 @@
         "output": "src/dfx/declarations/temp/icp_ledger_canister"
       }
     },
-    "icrc1_ledger_canister": {
-      "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/ic/d87954601e4b22972899e9957e800406a0a6b929/rs/rosetta-api/icrc1/ledger/ledger.did",
-      "wasm": "https://download.dfinity.systems/ic/d87954601e4b22972899e9957e800406a0a6b929/canisters/ic-icrc1-ledger.wasm.gz"
+    "token_canister": {
+      "main": "backend/service/Token.mo",
+      "type": "motoko",
+      "declarations": {
+        "output": "src/dfx/declarations/temp/token_canister"
+      }
     }
   },
   "networks": {

@@ -28,6 +28,9 @@ export interface ListUser {
     isVerified : Bool;
     isVerificationRequested : Bool;
     identificationImage?:any
+    claimedReward?: number;
+    unclaimedReward?: number;
+    tokens?: number;
    
   };
 }

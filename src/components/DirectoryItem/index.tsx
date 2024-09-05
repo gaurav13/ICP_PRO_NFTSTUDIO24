@@ -6,7 +6,7 @@ import DirectoryArticle from '@/components/DirectoryArticle';
 import logger from '@/lib/logger';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-
+import { usePathname } from 'next/navigation'
 export default function DirectoryItems({
   currentItems,
   handleRefetch,
@@ -14,7 +14,19 @@ export default function DirectoryItems({
   currentItems: any;
   handleRefetch: () => void;
 }) {
-  const { t, changeLocale } = useLocalization(LANG);
+  const location = usePathname();
+  let language;
+
+  const changeLang = () => {
+    if (LANG === 'jp') {
+      language = location.includes('super-admin/') ? 'en' : 'jp';
+    }
+    else{
+      language = "en"
+    }
+  };
+  const funcCalling = changeLang()
+  const { t, changeLocale } = useLocalization(language);
   logger(currentItems, 'currentItems5423');
   return (
     <Col xl='12' lg='12'>
@@ -26,12 +38,12 @@ export default function DirectoryItems({
                 <tr>
                   <th>
                     <p>
-                      Company <Image className='arw' src={arrows} alt='arrow' />
+                     {t('Company')}<Image className='arw' src={arrows} alt='arrow' />
                     </p>
                   </th>
-                  <th>Founder</th>
-                  <th>Categories</th>
-                  <th className='d-flex align-items-center'>Action</th>
+                  <th>{t('Founder')}</th>
+                  <th>{t('categories')}</th>
+                  <th className='d-flex align-items-center'>{t('Action')}</th>
                 </tr>
               </thead>
               <tbody>

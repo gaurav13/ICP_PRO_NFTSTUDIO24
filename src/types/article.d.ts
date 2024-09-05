@@ -21,6 +21,8 @@ export interface TopEvent {
   applyTicket : string;
   lat : Float;
     lng : Float;
+  isStatic:boolean;
+
 }
 export interface ListEvent {
   id: string;
@@ -29,8 +31,10 @@ export interface ListEvent {
   date: string;
   shortDescription: string;
   website: string;
-  freeTicket : Text;
-  applyTicket : Text;
+  freeTicket : string;
+  applyTicket : string;
+  isStatic:boolean;
+  discountTicket : string;
 
 }
 export interface EventStatus {

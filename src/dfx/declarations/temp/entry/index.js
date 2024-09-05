@@ -1,8 +1,8 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
 
 // Imports and re-exports candid interface
-import { idlFactory } from "./entry_JP.did.js";
-export { idlFactory } from "./entry_JP.did.js";
+import { idlFactory } from "./entry.did.js";
+export { idlFactory } from "./entry.did.js";
 
 /* CANISTER_ID is replaced by webpack based on node environment
  * Note: canister environment variable will be standardized as
@@ -10,8 +10,8 @@ export { idlFactory } from "./entry_JP.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_ENTRY_JP ||
-  process.env.ENTRY_JP_CANISTER_ID;
+  process.env.CANISTER_ID_ENTRY ||
+  process.env.ENTRY_CANISTER_ID;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
@@ -40,4 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const entry_JP = createActor(canisterId);
+export const entry = createActor(canisterId);

@@ -12,7 +12,7 @@ import { formatLikesCount, utcToLocal } from '@/components/utils/utcToLocal';
 import { Date_m_d_y_h_m } from '@/constant/DateFormates';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { ARTICLE_STATIC_PATH } from '@/constant/routes';
+import { ARTICLE_DINAMIC_PATH, ARTICLE_STATIC_PATH } from '@/constant/routes';
 
 export default React.memo(function TrendingPressReleaseSide({
   isArticle,
@@ -111,7 +111,7 @@ export default React.memo(function TrendingPressReleaseSide({
                     href={
                       entry[1].isStatic
                         ? `${ARTICLE_STATIC_PATH + entry[0]}`
-                        : `/article?articleId=${entry[0]}`
+                        : `${ARTICLE_DINAMIC_PATH + entry[0]}`
                     }
                   >
                     <h6 style={{ maxHeight: '20px', overflow: 'hidden' }}>
@@ -131,7 +131,7 @@ export default React.memo(function TrendingPressReleaseSide({
                         href={
                           entry[1].isStatic
                             ? `${ARTICLE_STATIC_PATH + entry[0]}`
-                            : `/article?articleId=${entry[0]}`
+                            : `${ARTICLE_DINAMIC_PATH + entry[0]}`
                         }
                       >
                         <Image src={iconthumb} alt='Icon Thumb' />{' '}
@@ -141,7 +141,9 @@ export default React.memo(function TrendingPressReleaseSide({
                         href={
                           entry[1].isStatic
                             ? `${ARTICLE_STATIC_PATH + entry[0]}?route=comments`
-                            : `/article?articleId=${entry[0]}&route=comments`
+                            : `${
+                                ARTICLE_DINAMIC_PATH + entry[0]
+                              }&route=comments`
                         }
                       >
                         <Image src={iconmessage} alt='Icon Comment' />{' '}
@@ -153,12 +155,12 @@ export default React.memo(function TrendingPressReleaseSide({
                         href={
                           entry[1].isStatic
                             ? `${ARTICLE_STATIC_PATH + entry[0]}`
-                            : `/article?articleId=${entry[0]}`
+                            : `${ARTICLE_DINAMIC_PATH + entry[0]}`
                         }
                         className='ms-1'
                       >
                         <div className='viewbox'>
-                          <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
+                          <i className='fa fa-eye fill blue-icon fa-lg me-1' />
                           {t('Views')} <span className='mx-1'>|</span>
                           {entry[1].views ? entry[1].views : 0}
                         </div>

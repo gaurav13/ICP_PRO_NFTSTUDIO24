@@ -37,6 +37,8 @@ export default async function getCroppedImg(
   rotation = 0,
   flip = { horizontal: false, vertical: false }
 ): Promise<File | null> {
+  
+ 
   const image: any = await createImage(imageSrc);
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -108,4 +110,5 @@ export default async function getCroppedImg(
       // resolve(URL.createObjectURL(file as File));
     }, 'image/jpeg');
   });
+
 }

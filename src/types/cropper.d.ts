@@ -8,4 +8,6 @@ export interface CropperProps {
     pixels: any,
     rotation: number
   ) => unknown;
+  maxWidth: number,
+  maxHeight: number,
 }

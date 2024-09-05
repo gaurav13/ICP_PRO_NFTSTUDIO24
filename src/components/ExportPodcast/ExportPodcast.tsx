@@ -19,9 +19,9 @@ import PromotedSVG from '@/components/PromotedSvg/Promoted';
 import Tippy from '@tippyjs/react';
 import PodcastSVG from '@/components/podcastSVG/Podcastsvg';
 import { formatLikesCount } from '@/components/utils/utcToLocal';
-import useLocalization from "@/lib/UseLocalization"
+import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { Podcast_STATIC_PATH } from '@/constant/routes';
+import { Podcast_DINAMIC_PATH, Podcast_STATIC_PATH, QUIZ_ROUTE } from '@/constant/routes';
 
 export default function ExportPodcast({
   entry,
@@ -99,9 +99,15 @@ export default function ExportPodcast({
         <div
           className='img-pnl'
           style={{ cursor: 'pointer' }}
-          onClick={() => router.push( entry?.isStatic?`${Podcast_STATIC_PATH+entryId}`: `/podcast?podcastId=${entryId}`)}
+          onClick={() =>
+            router.push(
+              entry?.isStatic
+                ? `${Podcast_STATIC_PATH + entryId}`
+                : `${Podcast_DINAMIC_PATH + entryId}`
+            )
+          }
         >
-          {/* <Image src={Post} alt='Post' /> */}
+          {/* <Image src={Post} alt='Post' />Podcast_DINAMIC_PATH */}
           <div
             style={{
               position: 'relative',
@@ -160,7 +166,7 @@ export default function ExportPodcast({
               <div className='txet-pnl'>
                 <h6>
                   <Link href={`/profile?userId=${authorId}`}>
-                    By {user?.name[0] ?? ''}{' '}
+                    {t('By')} {user?.name[0] ?? ''}{' '}
                     <p className='m-0'>{user?.designation[0] ?? ''}</p>
                   </Link>
                   <Button>
@@ -179,7 +185,13 @@ export default function ExportPodcast({
           </p> */}
           <div className='cut'>
             <h2
-              onClick={() => router.push(entry?.isStatic?`${Podcast_STATIC_PATH+entryId}`:`/podcast?podcastId=${entryId}`)}
+              onClick={() =>
+                router.push(
+                  entry?.isStatic
+                    ? `${Podcast_STATIC_PATH + entryId}`
+                    : `${Podcast_DINAMIC_PATH + entryId}`
+                )
+              }
               style={{ cursor: 'pointer' }}
             >
               {entry?.isPodcast && (
@@ -202,14 +214,18 @@ export default function ExportPodcast({
               dangerouslySetInnerHTML={{ __html: entry?.description ?? '' }}
             /> */}
             {parse(entry?.description ?? '')}
-            <div style={{ minHeight: 300 }}></div>
+            <div style={{ minHeight: 300 }} />
           </div>
           <Link
-            href={entry?.isStatic?`${Podcast_STATIC_PATH+entryId}`:`/podcast?podcastId=${entryId}`}
+            href={
+              entry?.isStatic
+                ? `${Podcast_STATIC_PATH + entryId}`
+                : `${Podcast_DINAMIC_PATH + entryId}`
+            }
             // onClick={(e) => e.preventDefault()}
             className='show-more-link'
           >
-            {t('show more')} <i className='fa fa-caret-down'></i>
+            {t('show more')} <i className='fa fa-caret-down' />
           </Link>
           <div className='count-description-pnl'>
             <div className='flex-wali-div'>
@@ -221,10 +237,10 @@ export default function ExportPodcast({
                   <div>{parseInt(entry?.likes ?? '0')}</div>
                 </li>
               </ul> */}
-              {/* <div></div> */}
+              {/* <div/> */}
               <h6 className='me-2'>
                 <div className='viewbox'>
-                  <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
+                  <i className='fa fa-eye fill blue-icon fa-lg me-1' />
                   {t('Views')} <span className='mx-1'>|</span>
                   {formatLikesCount(parseInt(entry?.views ?? 0))}
                 </div>
@@ -245,11 +261,11 @@ export default function ExportPodcast({
                     width={25}
                   />
                 ) : (
-                  // <i className='fa fa-like'></i>
+                  // <i className='fa fa-like'/>
                   // <i
                   //   className='fa-solid  fa-thumbs-up my-fa'
                   //   style={{ fontSize: 20, height: 25, width: 25, maxWidth: 25 }}
-                  // ></i>
+                  // />
                   <Image
                     src={'/images/like.svg'}
                     alt='Icon Thumb'
@@ -260,7 +276,7 @@ export default function ExportPodcast({
                   // <i
                   //   className='fa-regular  fa-thumbs-up  my-fa'
                   //   style={{ fontSize: 20, height: 25, width: 25, maxWidth: 25 }}
-                  // ></i>
+                  // />
                 )}{' '}
                 <span className='ms-2 mt-2'>
                   {formatLikesCount(parseInt(entry?.likes) ?? '0')}
@@ -285,8 +301,10 @@ export default function ExportPodcast({
                 // style={{ cursor: 'pointer' }}
                 // onClick={() => router.push('/nft-article-quiz')}
                 >
-                  <Link href={entry?.isStatic?`${Podcast_STATIC_PATH+entryId}`:`/podcast?podcastId=${entryId}`}>
-                    {t('take quiz')} <i className='fa fa-angle-right'></i>
+                  <Link
+                    href={QUIZ_ROUTE}
+                  >
+                    {t('take quiz')} <i className='fa fa-angle-right' />
                   </Link>
                 </li>
               </ul>

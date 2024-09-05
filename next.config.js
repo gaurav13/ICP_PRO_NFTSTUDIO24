@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-
+const RedirectsRoutes = require('./RedirectsRoutes');
 const DFXWebPackConfig = require('./dfx.webpack.config');
 DFXWebPackConfig.initCanisterIds();
 
@@ -8,16 +8,24 @@ const webpack = require('webpack');
 // Make DFX_NETWORK available to Web Browser with default "local" if DFX_NETWORK is undefined
 const EnvPlugin = new webpack.EnvironmentPlugin({
   DFX_NETWORK: 'local',
+
   BASE_URL: 'https://icp-node.ammag.tech/v1/',
+  // BASE_URL: 'http://localhost:4000/v1/',
   ASSETS_ID: 'bd3sg-teaaa-aaaaa-qaaba-cai',
+  PROJECT_ID: '2NxypsJ5XEQ07prpeSQFPCqfpqc',
+  PROJECT_SECRET: 'c388aa5fea94beee3f2b4795309d5480',
   NEXT_PUBLIC_GOOGLE_MAP_API:"AIzaSyDk-rwnNyAFaJRMaqZtGWnt3GQKTiQ2joU",
   MASTER_WALLET:
     's25sy-rsnmo-ud3bs-gepqx-rfa7b-hnnp4-s5d27-zwtr7-uovzz-qgloj-wae',
+    CANISTER_ID_ICP_TOKEN_CANISTER:"dxfxs-weaaa-aaaaa-qaapa-cai"
 });
 
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
+  },
+  async redirects() {
+    return RedirectsRoutes;
   },
   images: { unoptimized: true },
   reactStrictMode: true,
@@ -29,7 +37,6 @@ const nextConfig = {
   //     'res.cloudinary.com',
   //   ],
   // },
-
   webpack(config) {
     // Grab the existing rule that handles SVG imports
     const fileLoaderRule = config.module.rules.find((rule) =>
@@ -63,6 +70,7 @@ const nextConfig = {
     return config;
   },
   output: 'export',
+  trailingSlash: true,
 };
 
 module.exports = nextConfig;

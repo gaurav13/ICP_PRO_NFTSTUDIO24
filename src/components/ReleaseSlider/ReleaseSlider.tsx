@@ -1,173 +1,3 @@
-// import React from 'react';
-// import 'slick-carousel/slick/slick.css';
-// import post1 from '@/assets/Img/Posts/Post-3.png';
-// import post2 from '@/assets/Img/Posts/Post-4.png';
-// import logo from '@/assets/Img/Logo/Footer-logo.png';
-// import Slider from 'react-slick';
-// import Link from 'next/link';
-// import Image from 'next/image';
-// export default function ReleaseSlider() {
-//   // const responsive = {
-//   //   desktop: {
-//   //     breakpoint: { max: 3000, min: 992 },
-//   //     items: 2
-//   //   },
-//   //   tablet: {
-//   //     breakpoint: { max: 991, min: 767 },
-//   //     items: 2
-//   //   },
-//   //   mobile: {
-//   //     breakpoint: { max: 767, min: 0 },
-//   //     items: 1
-//   //   }
-//   // };
-//   var Featued = {
-//     dots: false,
-//     infinite: true,
-//     speed: 500,
-//     slidesToShow: 2,
-//     slidesToScroll: 2,
-//     responsive: [
-//       {
-//         breakpoint: 1400,
-//         settings: {
-//           slidesToShow: 1,
-//           slidesToScroll: 1,
-//           infinite: false,
-//         },
-//       },
-//       {
-//         breakpoint: 991,
-//         settings: {
-//           slidesToShow: 2,
-//           slidesToScroll: 2,
-//           infinite: false,
-//         },
-//       },
-//       {
-//         breakpoint: 767,
-//         settings: {
-//           slidesToShow: 2,
-//           slidesToScroll: 2,
-//           infinite: false,
-//         },
-//       },
-//       {
-//         breakpoint: 575,
-//         settings: {
-//           slidesToShow: 1,
-//           slidesToScroll: 1,
-//           infinite: false,
-//         },
-//       },
-//     ],
-//   };
-//   return (
-//     <Slider {...Featued} lazyLoad='anticipated'>
-//       <div className='Post-padding'>
-//         <Link href='#' className='Featured-Post press'>
-//           <div className='Featured-Post-inner'>
-//             <div className='img-pnl'>
-//               <Image src={post1} alt='Post' />
-//               <h2>Press Release</h2>
-//             </div>
-//             <div className='txt-pnl'>
-//               <h5>Hong Kong FinTech Week 2023: “Fintech Redefined”</h5>
-//               <p>
-//                 <span>
-//                   <Image src={logo} alt='logo' />
-//                 </span>{' '}
-//                 {t('Campaing of')} <b>NFTStudio24</b>
-//               </p>
-//               <Link className='read-more-btn' href='#'>
-//                 Read More
-//               </Link>
-//             </div>
-//           </div>
-//         </Link>
-//       </div>
-//       <div className='Post-padding'>
-//         <Link href='#' className='Featured-Post press'>
-//           <div className='Featured-Post-inner'>
-//             <div className='img-pnl'>
-//               {/* <Link href='/'> */}
-//               <Image src={post2} alt='Post' />
-//               {/* </Link> */}
-//               <h2>Press Release</h2>
-//             </div>
-//             <div className='txt-pnl'>
-//               <h5>
-//                 Highstreet Redefines Metaverse Life Via Home Sales with Animoca
-//                 Brands
-//               </h5>
-//               <p>
-//                 <span>
-//                   <Image src={logo} alt='logo' />
-//                 </span>{' '}
-//                 {t('Campaing of')} <b>NFTStudio24</b>
-//               </p>
-
-//               <Link className='read-more-btn' href='#'>
-//                 Read More
-//               </Link>
-//             </div>
-//           </div>
-//         </Link>
-//       </div>
-//       <div className='Post-padding'>
-//         <Link href='#' className='Featured-Post press'>
-//           <div className='Featured-Post-inner'>
-//             <div className='img-pnl'>
-//               <Image src={post1} alt='Post' />
-//               <h2>Press Release</h2>
-//             </div>
-//             <div className='txt-pnl'>
-//               <h5>Hong Kong FinTech Week 2023: “Fintech Redefined”</h5>
-//               <p>
-//                 <span>
-//                   <Image src={logo} alt='logo' />
-//                 </span>{' '}
-//                 {t('Campaing of')} <b>NFTStudio24</b>
-//               </p>
-
-//               <Link className='read-more-btn' href='#'>
-//                 Read More
-//               </Link>
-//             </div>
-//           </div>
-//         </Link>
-//       </div>
-//       <div className='Post-padding'>
-//         <Link href='#' className='Featured-Post press'>
-//           <div className='Featured-Post-inner'>
-//             <div className='img-pnl'>
-//               {/* <Link href='/'> */}
-//               <Image src={post2} alt='Post' />
-//               {/* </Link> */}
-//               <h2>Press Release</h2>
-//             </div>
-//             <div className='txt-pnl'>
-//               <h5>
-//                 Highstreet Redefines Metaverse Life Via Home Sales with Animoca
-//                 Brands
-//               </h5>
-//               <p>
-//                 <span>
-//                   <Image src={logo} alt='logo' />
-//                 </span>{' '}
-//                 {t('Campaing of')} <b>NFTStudio24</b>
-//               </p>
-
-//               <Link className='read-more-btn' href='#'>
-//                 Read More
-//               </Link>
-//             </div>
-//           </div>
-//         </Link>
-//       </div>
-//     </Slider>
-//   );
-// }
 import React, { useEffect, useState } from 'react';
 import 'slick-carousel/slick/slick.css';
 import post1 from '@/assets/Img/Posts/Post-1.png';
@@ -187,7 +17,7 @@ import { utcToLocal } from '@/components/utils/utcToLocal';
 import { Date_m_d_y_h_m } from '@/constant/DateFormates';
 import useLocalization from '@/lib/UseLocalization';
 import { LANG } from '@/constant/language';
-import { ARTICLE_STATIC_PATH } from '@/constant/routes';
+import { ARTICLE_DINAMIC_PATH, ARTICLE_STATIC_PATH } from '@/constant/routes';
 export default function ReleaseSlider({
   catagory,
   isHome,
@@ -214,20 +44,7 @@ export default function ReleaseSlider({
       identity,
     },
   });
-  // const responsive = {
-  //   desktop: {
-  //     breakpoint: { max: 3000, min: 992 },
-  //     items: 2
-  //   },
-  //   tablet: {
-  //     breakpoint: { max: 991, min: 767 },
-  //     items: 2
-  //   },
-  //   mobile: {
-  //     breakpoint: { max: 767, min: 0 },
-  //     items: 1
-  //   }
-  // };
+
   var Featued = {
     dots: false,
     infinite: true,
@@ -277,31 +94,7 @@ export default function ReleaseSlider({
       },
     ],
   };
-  //   useEffect(() => {
-  //     async function getFeaturedEntries() {
-  //       try {
 
-  //         let entrylist = await entryActor.getPromotedEntries(10);
-  // if(entrylist.length !=0){
-
-  //         for (let entry = 0; entry < entrylist.length; entry++) {
-  //           let id=entrylist[entry][1].user.toString();
-
-  //          let user=await getUser(id);
-  //          logger(user,"ttt")
-  //         //  entrylist[entry][1].newuser=user
-
-  //         }
-  //         setPromotedArticle(entrylist)
-  //         logger(entrylist[0][1].user.toString(), 'proooo');
-  //       }
-  //       } catch (error) {
-  //         console.error(error, 'proooo');
-  //       }
-  //     }
-
-  //     getFeaturedEntries();
-  //   }, []);
   async function getPressReleaseEntries(catagory: string) {
     try {
       let tempList = await entryActor.getPressEntries(catagory);
@@ -329,7 +122,6 @@ export default function ReleaseSlider({
         );
 
         setPromotedArticle(entrylist);
-        logger(entrylist, 'aaaa');
         const timer = setTimeout(() => {
           setIsloaded(false);
         }, 2000);
@@ -338,9 +130,7 @@ export default function ReleaseSlider({
       } else {
         setIsloaded(false);
       }
-    } catch (error) {
-      console.error(error, 'proooo');
-    }
+    } catch (error) {}
   }
   async function categoryNamefn(cat: string) {
     let resp = await entryActor.get_category(cat);
@@ -371,7 +161,7 @@ export default function ReleaseSlider({
         <div className='d-flex justify-content-center'>
           <p>
             {t('No Press Release found')}{' '}
-            {categoryName ? `on ${categoryName} category` : ''}
+            {categoryName ? `${t('ON')} ${categoryName} ${t('Category')}` : ''}
           </p>
         </div>
       )}
@@ -397,7 +187,13 @@ export default function ReleaseSlider({
                         aspectRatio: ARTICLE_FEATURED_IMAGE_ASPECT,
                       }}
                     >
-                      <Link href={entry[1].isStatic?`${ARTICLE_STATIC_PATH+entry[0]}`:`/article?articleId=${entry[0]}`}>
+                      <Link
+                        href={
+                          entry[1].isStatic
+                            ? `${ARTICLE_STATIC_PATH + entry[0]}`
+                            : `${ARTICLE_DINAMIC_PATH + entry[0]}`
+                        }
+                      >
                         <Image
                           src={entry[1].image ? entry[1].image : post1}
                           alt='Post'
@@ -405,12 +201,12 @@ export default function ReleaseSlider({
                           // width={100}
                           fill
                         />
-                        <h2>Press Release</h2>
+                        <h2>{t('Press Release')}</h2>
                       </Link>
                     </div>
                     <div className='txt-pnl'>
                       <span className='mobile-view-display red-span'>
-                        Latest Press Release
+                        {t('Latest')} {t('Press Release')}
                       </span>
                       <h5>
                         {entry[1]?.title.length > 50
@@ -419,14 +215,13 @@ export default function ReleaseSlider({
                       </h5>
                       <p className='d-flex web-view-display'>
                         <span>
-                          {/* <Image src={logo} alt='logo' /> */}
                           <Link
                             href={`/profile?userId=${entry[1].user.toString()}`}
                             className='mylink'
                           >
                             <Image
                               src={entry[1].userImg ? entry[1].userImg : logo}
-                              alt='logo'
+                              alt='Blockza'
                               className='myimg'
                               height={100}
                               width={100}
@@ -448,10 +243,14 @@ export default function ReleaseSlider({
                       </p>
                       <div className='d-flex justify-content-center'>
                         <Link
-                          href={entry[1].isStatic?`${ARTICLE_STATIC_PATH+entry[0]}`:`/article?articleId=${entry[0]}`}
+                          href={
+                            entry[1].isStatic
+                              ? `${ARTICLE_STATIC_PATH + entry[0]}`
+                              : `${ARTICLE_DINAMIC_PATH + entry[0]}`
+                          }
                           style={{ width: '270px' }}
                         >
-                          Read More
+                          {t('Read More')}
                         </Link>
                       </div>
                     </div>
@@ -460,81 +259,6 @@ export default function ReleaseSlider({
               </div>
             );
           })}
-          {/* <div className='Post-padding'>
-          <div className='Featured-Post'>
-            <div className='Featured-Post-inner'>
-              <div className='img-pnl'>
-                <Link href='/'>
-                  <Image src={post2} alt='Post' />
-                </Link>
-              </div>
-              <div className='txt-pnl'>
-                <h5>
-                  {t('How Party Degen climbed the top ranking on OpenSea in 6 days')}
-                </h5>
-                <p>
-                  <span>
-                    <Image src={logo} alt='logo' />
-                  </span>{' '}
-                  {t('Campaing of')} <b>NFTStudio24</b>
-                </p>
-                <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div> */}
-          {/* <div className='Post-padding'>
-          <div className='Featured-Post'>
-            <div className='Featured-Post-inner'>
-              <div className='img-pnl'>
-                <Link href='/'>
-                  <Image src={post1} alt='Post' />
-                </Link>
-              </div>
-              <div className='txt-pnl'>
-                <h5>
-                    {t('All You Need to Know about Superlative Secret Society NFT...')}
-                </h5>
-                <p>
-                  <span>
-                    <Image src={logo} alt='logo' />
-                  </span>{' '}
-                  {t('Campaing of')} <b>NFTStudio24</b>
-                </p>
-                <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className='Post-padding'>
-          <div className='Featured-Post'>
-            <div className='Featured-Post-inner'>
-              <div className='img-pnl'>
-                <Link href='/'>
-                  <Image src={post2} alt='Post' />
-                </Link>
-              </div>
-              <div className='txt-pnl'>
-                <h5>
-                  {t('How Party Degen climbed the top ranking on OpenSea in 6 days')}
-                </h5>
-                <p>
-                  <span>
-                    <Image src={logo} alt='logo' />
-                  </span>{' '}
-                  {t('Campaing of')} <b>NFTStudio24</b>
-                </p>
-                <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div> */}
         </Slider>
       )}
     </>

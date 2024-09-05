@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import 'slick-carousel/slick/slick.css';
 import post1 from '@/assets/Img/Posts/Post-1.png';
-import post2 from '@/assets/Img/Posts/Post-2.png';
-import logo from '@/assets/Img/Logo/Footer-logo.png';
-import box from '@/assets/Img/Icons/icon-giftbox.png';
 import Slider from 'react-slick';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -17,28 +14,28 @@ import {
 } from '@/dfx/service/actor-locator';
 import logger from '@/lib/logger';
 import { getImage } from '@/components/utils/getImage';
-import generalpost1 from '@/assets/Img/event-5.png';
 import iconmessage from '@/assets/Img/Icons/icon-comment.png';
-import iconthumb from '@/assets/Img/Icons/icon-thumb.png';
-import generalpost2 from '@/assets/Img/event-6.png';
-import parse from 'html-react-parser';
-import iconcoin from '@/assets/Img/coin-image.png';
-import { Spinner } from 'react-bootstrap';
 import { canisterId as userCanisterId } from '@/dfx/declarations/user';
 import { canisterId as commentCanisterId } from '@/dfx/declarations/comment';
 import { useRouter } from 'next/navigation';
-import { ARTICLE_FEATURED_IMAGE_ASPECT, profileAspect } from '@/constant/sizes';
+import { ARTICLE_FEATURED_IMAGE_ASPECT } from '@/constant/sizes';
 import {
   formatLikesCount,
   isUserConnected,
 } from '@/components/utils/utcToLocal';
-import { toast } from 'react-toastify';
 import ConnectModal from '@/components/Modal';
 import { fromNullable } from '@dfinity/utils';
-import { ARTICLE_STATIC_PATH } from '@/constant/routes';
+import { ARTICLE_DINAMIC_PATH, ARTICLE_STATIC_PATH } from '@/constant/routes';
+import CustomeShimmerSlider from '@/components/Shimmers/CustomeShimmer';
 
-function NewsItem({ entry }: any) {
-  let [likeCount, setLikeCount] = useState(0 ?? Number(entry[1].likes));
+function NewsItem({
+  entry,
+  isdetailpage,
+}: {
+  entry: any;
+  isdetailpage?: boolean;
+}) {
+  let [likeCount, setLikeCount] = useState<number>(Number(entry[1].likes));
   const [showConnectModal, setShowConnectModal] = useState(false);
   let [isliked, setIsLiked] = useState(false);
   let router = useRouter();
@@ -118,7 +115,7 @@ function NewsItem({ entry }: any) {
   }, [identity]);
   return (
     <>
-      <div className='Post-padding'>
+      <div className={`Post-padding ${isdetailpage ? 'flexcls' : ''}`}>
         <div className='general-post slider'>
           <Link
             className='position-relative'
@@ -129,7 +126,7 @@ function NewsItem({ entry }: any) {
             href={
               entry[1].isStatic
                 ? `${ARTICLE_STATIC_PATH + entry[0]}`
-                : `/article?articleId=${entry[0]}`
+                : `${ARTICLE_DINAMIC_PATH + entry[0]}`
             }
           >
             <div>
@@ -146,7 +143,7 @@ function NewsItem({ entry }: any) {
               href={
                 entry[1].isStatic
                   ? `${ARTICLE_STATIC_PATH + entry[0]}`
-                  : `/article?articleId=${entry[0]}`
+                  : `${ARTICLE_DINAMIC_PATH + entry[0]}`
               }
             >
               <h6>
@@ -174,7 +171,7 @@ function NewsItem({ entry }: any) {
                       ? entry[0]
                         ? entry[1].isStatic
                           ? `${ARTICLE_STATIC_PATH + entry[0]}`
-                          : `/article?articleId=${entry[0]}`
+                          : `${ARTICLE_DINAMIC_PATH + entry[0]}`
                         : '#'
                       : `#`
                   }`}
@@ -191,11 +188,11 @@ function NewsItem({ entry }: any) {
                       width={25}
                     />
                   ) : (
-                    // <i className='fa fa-like'></i>
+                    // <i className='fa fa-like'/>
                     // <i
                     //   className='fa-solid  fa-thumbs-up my-fa'
                     //   style={{ fontSize: 20, height: 25, width: 25, maxWidth: 25 }}
-                    // ></i>
+                    // />
                     <Image
                       src={'/images/like.svg'}
                       alt='Icon Thumb'
@@ -206,7 +203,7 @@ function NewsItem({ entry }: any) {
                     // <i
                     //   className='fa-regular  fa-thumbs-up  my-fa'
                     //   style={{ fontSize: 20, height: 25, width: 25, maxWidth: 25 }}
-                    // ></i>
+                    // />
                   )}
                   {formatLikesCount(likeCount) ?? 0}
                 </a>
@@ -217,7 +214,7 @@ function NewsItem({ entry }: any) {
                       ? entry[0]
                         ? entry[1].isStatic
                           ? `${ARTICLE_STATIC_PATH + entry[0]}`
-                          : `/article?articleId=${entry[0]}?route=comments`
+                          : `${ARTICLE_DINAMIC_PATH + entry[0]}?route=comments`
                         : '#'
                       : `#`
                   }`}
@@ -230,9 +227,16 @@ function NewsItem({ entry }: any) {
                 </a>
               </li>
               <li>
-                <Link href={`article?articleId=${entry[0]}`} className='ms-1'>
+                <Link
+                  href={
+                    entry[1].isStatic
+                      ? `${ARTICLE_STATIC_PATH + entry[0]}`
+                      : `${ARTICLE_DINAMIC_PATH + entry[0]}`
+                  }
+                  className='ms-1'
+                >
                   <div className='viewbox'>
-                    <i className='fa fa-eye fill blue-icon fa-lg me-1'></i>
+                    <i className='fa fa-eye fill blue-icon fa-lg me-1' />
                     {t('Views')} <span className='mx-1'>|</span>
                     {entry[1].views ? entry[1].views : 0}
                   </div>
@@ -244,7 +248,7 @@ function NewsItem({ entry }: any) {
                       ? entry[0]
                         ? entry[1].isStatic
                           ? `${ARTICLE_STATIC_PATH + entry[0]}?route=comments`
-                          : `/article?articleId=${entry[0]}&route=comments`
+                          : `${ARTICLE_DINAMIC_PATH + entry[0]}&route=comments`
                         : '#'
                       : `#`
                   }`}
@@ -268,7 +272,13 @@ function NewsItem({ entry }: any) {
   );
 }
 
-export default function NewsSlider({ catagory }: { catagory?: string }) {
+export default function NewsSlider({
+  catagory,
+  isdetailpage,
+}: {
+  catagory?: string;
+  isdetailpage?: boolean;
+}) {
   let [promotedArticle, setPromotedArticle] = useState([]);
   let [isloaded, setIsloaded] = useState(true);
   let [categoryName, setCategoryName] = useState<any>(null);
@@ -323,10 +333,18 @@ export default function NewsSlider({ catagory }: { catagory?: string }) {
         },
       },
       {
-        breakpoint: 1400,
+        breakpoint: 1500,
         settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
+          slidesToShow: isdetailpage ? 1 : 2,
+          slidesToScroll: isdetailpage ? 1 : 2,
+          infinite: false,
+        },
+      },
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: isdetailpage ? 1 : 2,
+          slidesToScroll: isdetailpage ? 1 : 2,
           infinite: false,
         },
       },
@@ -356,31 +374,7 @@ export default function NewsSlider({ catagory }: { catagory?: string }) {
       },
     ],
   };
-  //   useEffect(() => {
-  //     async function getFeaturedEntries() {
-  //       try {
-
-  //         let entrylist = await entryActor.getPromotedEntries(10);
-  // if(entrylist.length !=0){
-
-  //         for (let entry = 0; entry < entrylist.length; entry++) {
-  //           let id=entrylist[entry][1].user.toString();
-
-  //          let user=await getUser(id);
-  //          logger(user,"ttt")
-  //         //  entrylist[entry][1].newuser=user
-
-  //         }
-  //         setPromotedArticle(entrylist)
-  //         logger(entrylist[0][1].user.toString(), 'proooo');
-  //       }
-  //       } catch (error) {
-  //         console.error(error, 'proooo');
-  //       }
-  //     }
-
-  //     getFeaturedEntries();
-  //   }, []);
+  
   async function getPressReleaseEntries(catagory: string = 'All') {
     try {
       let tempList = await entryActor.getAllEntries(catagory);
@@ -447,13 +441,14 @@ export default function NewsSlider({ catagory }: { catagory?: string }) {
     <>
       {isloaded && (
         <div className='d-flex justify-content-center mb-4'>
-          <Spinner animation='border' />
+          <CustomeShimmerSlider />
         </div>
       )}
       {promotedArticle.length == 0 && !isloaded && (
         <div className='d-flex justify-content-center'>
           <p>
-           {t('No Atricle found')}{categoryName ? `on ${categoryName} category` : ''}
+            {t('No Atricle found')}
+            {categoryName ? `${t('On')} ${categoryName} ${t('Category')}` : ''}
           </p>
         </div>
       )}
@@ -465,83 +460,15 @@ export default function NewsSlider({ catagory }: { catagory?: string }) {
           className={`${isloaded ? 'd-none' : ''}`}
         >
           {promotedArticle.map((entry: any, index) => {
-            return <NewsItem entry={entry} key={entry[0]} />;
+            return (
+              <NewsItem
+                entry={entry}
+                isdetailpage={isdetailpage}
+                key={entry[0]}
+              />
+            );
           })}
-          {/* <div className='Post-padding'>
-          <div className='Featured-Post'>
-            <div className='Featured-Post-inner'>
-              <div className='img-pnl'>
-                <Link href='/'>
-                  <Image src={post2} alt='Post' />
-                </Link>
-              </div>
-              <div className='txt-pnl'>
-                <h5>
-                  {t('How Party Degen climbed the top ranking on OpenSea in 6 days')}
-                </h5>
-                <p>
-                  <span>
-                    <Image src={logo} alt='logo' />
-                  </span>{' '}
-                  {t('Campaing of')} <b>NFTStudio24</b>
-                </p>
-                <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div> */}
-          {/* <div className='Post-padding'>
-          <div className='Featured-Post'>
-            <div className='Featured-Post-inner'>
-              <div className='img-pnl'>
-                <Link href='/'>
-                  <Image src={post1} alt='Post' />
-                </Link>
-              </div>
-              <div className='txt-pnl'>
-                <h5>
-                    {t('All You Need to Know about Superlative Secret Society NFT...')}
-                </h5>
-                <p>
-                  <span>
-                    <Image src={logo} alt='logo' />
-                  </span>{' '}
-                  {t('Campaing of')} <b>NFTStudio24</b>
-                </p>
-                <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className='Post-padding'>
-          <div className='Featured-Post'>
-            <div className='Featured-Post-inner'>
-              <div className='img-pnl'>
-                <Link href='/'>
-                  <Image src={post2} alt='Post' />
-                </Link>
-              </div>
-              <div className='txt-pnl'>
-                <h5>
-                  {t('How Party Degen climbed the top ranking on OpenSea in 6 days')}
-                </h5>
-                <p>
-                  <span>
-                    <Image src={logo} alt='logo' />
-                  </span>{' '}
-                  {t('Campaing of')} <b>NFTStudio24</b>
-                </p>
-                <Link href='#'>
-                  <Image src={box} alt='logo' /> {t('2500 USDT Up for Grabs!')}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div> */}
+         
         </Slider>
       )}
     </>
